@@ -50,12 +50,13 @@ VarDecls::VarDecls(VarDecls* decls, VarDecl* decl)
     this->decl = decl;
 }
 
-MethodDecl::MethodDecl(Type* type, FormalList* formals, VarDecls* decls, Statements* stmts)
+MethodDecl::MethodDecl(Type* type, FormalList* formals, VarDecls* decls, Statements* stmts, Expression* exp)
 {
     this->type = type;
     this->formals = formals;
     this->decls = decls;
     this->stmts = stmts;
+    this->exp = exp;
 }
 
 MethodDecls::MethodDecls(MethodDecls* decls, MethodDecl* decl)
@@ -64,22 +65,22 @@ MethodDecls::MethodDecls(MethodDecls* decls, MethodDecl* decl)
     this->decl = decl;
 }
 
-FormalList::FormalList(Type* type, const char* id, FormalList* rest)
+FormalList::FormalList(Type* type, TokenExpression* id, FormalList* rest)
 {
     this->type = type;
-    COPY_STR(this->id, id);
+    this->id = id;
     this->rest = rest;
 }
 
-VarAssignment::VarAssignment(const char* id, Expression* exp)
+VarAssignment::VarAssignment(TokenExpression* id, Expression* exp)
 {
-    COPY_STR(this->id, id);
+    this->id = id;
     this->exp = exp;
 }
 
-ArrayAssignment::ArrayAssignment(const char* id, Expression* exp1, Expression* exp2)
+ArrayAssignment::ArrayAssignment(TokenExpression* id, Expression* exp1, Expression* exp2)
 {
-    COPY_STR(this->id, id);
+    this->id = id;
     this->exp1 = exp1;
     this->exp2 = exp2;
 }
@@ -124,11 +125,11 @@ LengthExpression::LengthExpression(Expression* exp)
     this->exp = exp;
 }
 
-MethodExpression::MethodExpression(Expression* exp, const char* id, ExpList* explist)
+MethodExpression::MethodExpression(Expression* exp, TokenExpression* id, ExpList* explist)
 {
     this->exp = exp;
-    COPY_STR(this->id, id);
-    explist = explist;
+    this->id = id;
+    this->explist = explist;
 }
 
 NewIntArrExpression::NewIntArrExpression(Expression* exp)
@@ -136,9 +137,9 @@ NewIntArrExpression::NewIntArrExpression(Expression* exp)
     this->exp = exp;
 }
 
-NewMethodExpression::NewMethodExpression(const char* id)
+NewMethodExpression::NewMethodExpression(TokenExpression* id)
 {
-    COPY_STR(this->id, id);
+    this->id = id;
 }
 
 NegateExpression::NegateExpression(Expression* exp)

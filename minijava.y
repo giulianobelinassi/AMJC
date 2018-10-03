@@ -1,22 +1,15 @@
 %{
 #include <stdio.h>
 
-// stuff from flex that bison needs to know about:
-
-#ifdef __cplusplus
-extern "C" {
-#endif /*__cplusplus*/
-
-extern int yylex();
-extern int yyparse();
-extern FILE *yyin;
-
-#ifdef __cplusplus
-}
-#endif /*__cplusplus*/
 #include "tree.h"
 
-void yyerror(const char *s);
+extern "C" {
+    extern int yylex();
+    extern int yyparse(Program**);
+    extern FILE *yyin;
+}
+
+void yyerror(Program** p, const char *s);
 %}
 
 // Bison fundamentally works by asking flex to get the next token, which it
@@ -78,123 +71,169 @@ void yyerror(const char *s);
 
 %precedence IDENT
 
+/*Makes yyparse accept a parameter*/
+%parse-param { Program** program }
+
+%union{
+    Expression* exp;
+    ExpList* explist;
+    TokenExpression* ident;
+    Statement* stmt;
+    Statements* stmts;
+    Type* type;
+    FormalList* formlist;
+    MethodDecls* methoddecls;
+    MethodDecl* methoddecl;
+    VarDecl* vardecl;
+    VarDecls* vardecls;
+    ClassDecl* classdecl;
+    ClassDecls* classdecls;
+    MainClass* mainclass;
+}
+
+%type <exp> Exp
+%type <explist> ExpList
+%type <ident> IDENT
+%type <exp> ExpRest
+%type <explist> ExpRests
+%type <stmt> Statement
+%type <stmts> Statements
+%type <stmt> NonAssignStmt
+%type <stmt> Assignment
+%type <type> Type
+%type <type> PrimitiveType
+%type <type> PrimitiveTypeDecl
+%type <type> CustomType
+%type <formlist> FormalList
+%type <formlist> FormalRest
+%type <methoddecls> MethodDecls
+%type <methoddecl> MethodDecl
+%type <vardecls> VarDecls
+%type <vardecl> VarDecl
+%type <vardecls> MethodCode
+%type <classdecl> ClassDecl
+%type <classdecls> ClassDecls
+%type <mainclass> MainClass
 %%
 
 Program:
-      MainClass ClassDecls {printf("MainClass ClassDecls\n");}
+      MainClass[L] ClassDecls[R] { *program = new Program($L, $R);}
     ;
 
 MainClass:
       CLASSSYM IDENT OPENBRACE PUBLICSYM STATICSYM VOIDSYM MAINSYM LPAREN STRINGSYM OPENBRKT CLOSEBRKT 
-      IDENT RPAREN OPENBRACE Statement CLOSEBRACE CLOSEBRACE {printf("class id{public...main(){}}\n");}
+      IDENT RPAREN OPENBRACE Statement[L] CLOSEBRACE CLOSEBRACE { $$ = new MainClass($L); }
     ;
 
 ClassDecl:
-      CLASSSYM IDENT OPENBRACE VarDecls MethodDecls CLOSEBRACE {printf("class id{VarDecls MethodDecls}\n");}
-    | CLASSSYM IDENT EXTENDSYM IDENT OPENBRACE VarDecls MethodDecls CLOSEBRACE {}
+      CLASSSYM IDENT OPENBRACE VarDecls[L] MethodDecls[R] CLOSEBRACE { $$ = new ClassDecl($L, $R); }
+    | CLASSSYM IDENT EXTENDSYM IDENT OPENBRACE VarDecls[L] MethodDecls[R] CLOSEBRACE { $$ = new ClassDecl($L, $R); }
     ;
 
 ClassDecls:
-      /*Epsilon*/ {}
-    | ClassDecls ClassDecl
+      /*Epsilon*/ { $$ = NULL; }
+    | ClassDecls[L] ClassDecl[R] { $$ = new ClassDecls($L, $R); }
     ;
 
 PrimitiveTypeDecl:
-      PrimitiveType IDENT SEMICOLON {}
+      PrimitiveType[L] IDENT SEMICOLON { $$ = $L; }
     ;
 
 VarDecl:
-      Type IDENT SEMICOLON {}
+      Type[L] IDENT SEMICOLON { $$ = new VarDecl($L, "var"); }
     ;
 
 VarDecls:
-      /*Epsilon*/ {}
-    | VarDecls VarDecl
+      /*Epsilon*/ { $$ = NULL; }
+    | VarDecls[L] VarDecl[R] { $$ = new VarDecls($L, $R); }
     ;
 
 MethodDecl:
-      PUBLICSYM Type IDENT LPAREN FormalList RPAREN 
-        OPENBRACE MethodCode RETURNSYM Exp SEMICOLON CLOSEBRACE {}
+      PUBLICSYM Type[T] IDENT LPAREN FormalList[FL] RPAREN 
+        OPENBRACE MethodCode[MC] NonAssignStmt[STMT] Statements[STMTS] RETURNSYM Exp[E] SEMICOLON CLOSEBRACE 
+        { $$ = new MethodDecl($T, $FL, $MC, new Statements($STMTS, $STMT), $E); }
     ;
 
 MethodCode:
-      PrimitiveTypeDecl MethodCode {}
-    | IDENT IDENT SEMICOLON MethodCode {}
-    | IDENT ASSIGNMENT IDENT SEMICOLON MethodCode {}
-    | NonAssignStmt Statements {}
+      /*Epsilon*/  {$$ = NULL;}
+    | PrimitiveTypeDecl[L] MethodCode[R] { $$ = new VarDecls($R, new VarDecl($L, "var")); }
+    | IDENT IDENT SEMICOLON MethodCode[R] { $$ = new VarDecls($R, new VarDecl(new Type("type"), "var")); }
+    | IDENT ASSIGNMENT IDENT SEMICOLON MethodCode[R] { $$ = $R; }
     ;
 
 MethodDecls:
-      /*Epsilon*/ {}
-    | MethodDecls MethodDecl
+      /*Epsilon*/ { $$ = NULL; }
+    | MethodDecls[L] MethodDecl[R] { $$ = new MethodDecls($L, $R); }
     ;
 
 
 FormalList:
-    /*Epsislon*/ {}
-    | Type IDENT FormalRests {}
+    /*Epsilon*/ { $$ = NULL; }
+    | Type[L] IDENT FormalRest[R] { $$ = new FormalList($L, new TokenExpression("id"), $R); }
     ;
 
+/*
 FormalRests:
-    /*Epsislon*/ {}
-    | FormalRests FormalRest {}
+    { $$ = NULL; }
+    | FormalRests[L] FormalRest[R] { $$ = new FormalList($L, $R); }
     ;
-
+*/
 FormalRest:
-      COMMA Type IDENT {}
+      /*Epsilon*/ { $$ = NULL; }
+    | COMMA Type[L] IDENT FormalRest[R] { $$ = new FormalList($L, new TokenExpression("id"), $R); }
     ;
 
 Type:
-      CustomType {}
-    | PrimitiveType {}
+      CustomType[L] { $$ = $L; }
+    | PrimitiveType[L] { $$ = $L; }
     ;
 
 CustomType:
-      IDENT {}
+      IDENT { $$ = new Type("Custom"); }
     ;
 
 PrimitiveType:
-      INTSYM OPENBRKT CLOSEBRKT {}
-    | BOOLEANSYM {}
-    | INTSYM {}
+      INTSYM OPENBRKT CLOSEBRKT { $$ = new Type("int[]");}
+    | BOOLEANSYM { $$ = new Type("bool");}
+    | INTSYM { $$ = new Type("int");}
     ;
 
 Assignment:
-      IDENT ASSIGNMENT Exp SEMICOLON {}
-    | IDENT OPENBRKT Exp CLOSEBRKT ASSIGNMENT Exp SEMICOLON {}
+      IDENT ASSIGNMENT Exp[R] SEMICOLON { $$ = new VarAssignment(new TokenExpression("ID"), $R); }
+    | IDENT OPENBRKT Exp[L] CLOSEBRKT ASSIGNMENT Exp[R] SEMICOLON { $$ = new ArrayAssignment(new TokenExpression("ID"), $L, $R);}
     ;
 
 NonAssignStmt:
-      OPENBRACE Statements CLOSEBRACE {}
-    | IFSYM LPAREN Exp RPAREN Statement ELSESYM Statement {}
-    | WHILESYM LPAREN Exp RPAREN Statement {}
-    | PRINTSYM LPAREN Exp RPAREN SEMICOLON {printf("Print()\n");}
+      OPENBRACE Statements[L] CLOSEBRACE { $$ = new BracedStatement($L);}
+    | IFSYM LPAREN Exp[L] RPAREN Statement[C] ELSESYM Statement[R] { $$ = new IfElseStatement($L, $C, $R);}
+    | WHILESYM LPAREN Exp[L] RPAREN Statement[R] { $$ = new WhileStatement($L, $R); }
+    | PRINTSYM LPAREN Exp[L] RPAREN SEMICOLON { $$ = new PrintStatement($L); }
     ;
 
 Statement:
-      NonAssignStmt {}
-    | Assignment {}
+      NonAssignStmt[L] { $$ = $L; }
+    | Assignment[L] { $$ = $L; }
     ;
 
 Statements:
-    /*Epsilon*/ {}
-    | Statements Statement { printf("Statements\n");}
+    /*Epsilon*/ { $$ = NULL;}
+    | Statements[L] Statement[R] { $$ = new Statements($L, $R); }
     ;
 
 Exp:
-      Exp[L] Op Exp[R]                             { $$ = new OpExpression($L, $R); }
-    | Exp[L] OPENBRKT Exp[R] CLOSEBRKT             { $$ = new BrcktExpression($L, $R); }
-    | Exp[L] PERIOD LENGTHSYM                      { $$ = new LengthExpression($L);}
-    | Exp[L] PERIOD IDENT LPAREN ExpList[R] RPAREN { $$ = new MethidExpression($L, $R)}
-    | NUMBER                                       { $$ = new TokenExpression("Number"); }
-    | TRUESYM                                      { $$ = new TokenExpression("True"); }
-    | FALSESYM                                     { $$ = new TokenExpression("False"); }
-    | IDENT                                        { $$ = new TokenExpression("Ident"); }
-    | THISSYM                                      { $$ = new TokenExpression("this"); }
-    | NEWSYM INTSYM OPENBRKT Exp[L] CLOSEBRKT      { $$ = new NewIntArrayExpression($L); }
-    | NEWSYM IDENT[L] LPAREN RPAREN                { $$ = new MethodExpression($L); }
-    | NEG Exp[L]                                   { $$ = new NegExpression($L); }
-    | LPAREN Exp[L] RPAREN                         { $$ = new ParenExpression($L);}
+      Exp[L] Op Exp[R]                                { $$ = new OpExpression($L, $R); }
+    | Exp[L] OPENBRKT Exp[R] CLOSEBRKT                { $$ = new BrcktExpression($L, $R); }
+    | Exp[L] PERIOD LENGTHSYM                         { $$ = new LengthExpression($L);}
+    | Exp[L] PERIOD IDENT[C] LPAREN ExpList[R] RPAREN { $$ = new MethodExpression($L, $C, $R);}
+    | NUMBER                                          { $$ = new TokenExpression("Number"); }
+    | TRUESYM                                         { $$ = new TokenExpression("True"); }
+    | FALSESYM                                        { $$ = new TokenExpression("False"); }
+    | IDENT                                           { $$ = new TokenExpression("Ident"); }
+    | THISSYM                                         { $$ = new TokenExpression("this"); }
+    | NEWSYM INTSYM OPENBRKT Exp[L] CLOSEBRKT         { $$ = new NewIntArrExpression($L); }
+    | NEWSYM IDENT[L] LPAREN RPAREN                   { $$ = new NewMethodExpression($L); }
+    | NEG Exp[L]                                      { $$ = new NegateExpression($L); }
+    | LPAREN Exp[L] RPAREN                            { $$ = new ParenExpression($L);}
     ;
 
 Op:
@@ -211,25 +250,27 @@ Op:
    ;
 
 ExpList:
-      Exp ExpRests {}
+      Exp[L] ExpRests[R] { $$ = new ExpList($L, $R); }
     ;
 
 ExpRests:
-      /*eps*/ {printf("ExpRests -> epsilon");}
-    | ExpRests ExpRest {}
+      /*eps*/ { $$ = NULL; }
+    | ExpRests[R] ExpRest[L] { $$ = new ExpList($L, $R); }
     ;
 
 ExpRest:
-    COMMA Exp {}
+    COMMA Exp[L] { $$ = $L; }
     ;
 
 %%
 int main(){
+    Program* program;
     yyin = stdin;
-    yyparse();
+    yyparse(&program);
+    printf("%d", program->mc);
     return 0;
 }
 
-void yyerror(const char *s) {
+void yyerror(Program** p, const char *s) {
 	printf ("Error!! %s\n", s);
 }

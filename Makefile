@@ -1,4 +1,4 @@
-CXX       = g++
+CXX       = g++-6
 CXXFLAGS  = -g -std=c++11 -flto -Wall -pedantic
 LDFLAGS   = -lfl
 
@@ -7,8 +7,11 @@ LEXFLAGS  =
 YACC      = bison
 YACCFLAGS = -v -d
 
-main: lex.yy.o minijava.tab.o
+main: lex.yy.o minijava.tab.o tree.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+tree.o: tree.cpp tree.h
+	$(CXX) $(CXXFLAGS) -c $<
 
 lex.yy.o: lex.yy.c minijava.tab.h
 	$(CXX) $(CXXFLAGS) -c $<

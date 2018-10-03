@@ -1,4 +1,5 @@
 %{
+#include "tree.h"
 #include "minijava.tab.h"
 
 #ifdef __cplusplus

@@ -7,6 +7,14 @@ class Assignment : public Statement { };
 
 class Expression { public: virtual ~Expression() {} };
 
+class TokenExpression : public Expression
+{
+    public:
+    const char* token;
+
+    TokenExpression(const char* token);
+};
+
 class Type
 {
     public:
@@ -54,10 +62,10 @@ class FormalList
 {
     public:
     Type* type;
-    const char* id;
+    TokenExpression* id;
     FormalList* rest;
 
-    FormalList(Type*, const char*, FormalList*);
+    FormalList(Type*, TokenExpression*, FormalList*);
 };
 
 class MethodDecl
@@ -67,8 +75,9 @@ class MethodDecl
     FormalList* formals;
     VarDecls* decls;
     Statements* stmts;
+    Expression* exp;
 
-    MethodDecl(Type*, FormalList*, VarDecls*, Statements*);
+    MethodDecl(Type*, FormalList*, VarDecls*, Statements*, Expression* exp);
 };
 
 class MethodDecls
@@ -102,20 +111,20 @@ class ClassDecls
 class VarAssignment : public Assignment
 {
     public:
-    const char* id;
+    TokenExpression* id;
     Expression* exp;
 
-    VarAssignment(const char*, Expression*);
+    VarAssignment(TokenExpression*, Expression*);
 };
 
 class ArrayAssignment : public Assignment
 {
     public:
-    const char* id;
+    TokenExpression* id;
     Expression* exp1;
     Expression* exp2;
 
-    ArrayAssignment(const char*, Expression*, Expression*);
+    ArrayAssignment(TokenExpression*, Expression*, Expression*);
 };
 
 class BracedStatement : public Statement
@@ -183,10 +192,10 @@ class MethodExpression : public Expression
 {
     public: 
     Expression* exp;
-    const char* id;
+    TokenExpression* id;
     ExpList* explist;
 
-    MethodExpression(Expression*, const char*, ExpList*);
+    MethodExpression(Expression*, TokenExpression*, ExpList*);
 };
 
 class NewIntArrExpression : public Expression
@@ -200,9 +209,9 @@ class NewIntArrExpression : public Expression
 class NewMethodExpression : public Expression
 {
     public:
-    const char* id;
+    TokenExpression* id;
 
-    NewMethodExpression(const char*);
+    NewMethodExpression(TokenExpression*);
 };
 
 class NegateExpression : public Expression
@@ -211,14 +220,6 @@ class NegateExpression : public Expression
     Expression* exp;
 
     NegateExpression(Expression*);
-};
-
-class TokenExpression : public Expression
-{
-    public:
-    const char* token;
-
-    TokenExpression(const char* token);
 };
 
 class ParenExpression : public Expression
@@ -234,6 +235,8 @@ class BrcktExpression : public Expression
     public:
     Expression* exp1;
     Expression* exp2;
+
+    BrcktExpression(Expression*, Expression*);
 };
 
 class Program
