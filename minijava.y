@@ -224,14 +224,14 @@ Exp:
       Exp[L] Op Exp[R]                                { $$ = new OpExpression($L, $R); }
     | Exp[L] OPENBRKT Exp[R] CLOSEBRKT                { $$ = new BrcktExpression($L, $R); }
     | Exp[L] PERIOD LENGTHSYM                         { $$ = new LengthExpression($L);}
-    | Exp[L] PERIOD IDENT[C] LPAREN ExpList[R] RPAREN { $$ = new MethodExpression($L, $C, $R);}
+    | Exp[L] PERIOD IDENT[C] LPAREN ExpList[R] RPAREN { $$ = new MethodExpression($L, new TokenExpression("id"), $R);}
     | NUMBER                                          { $$ = new TokenExpression("Number"); }
     | TRUESYM                                         { $$ = new TokenExpression("True"); }
     | FALSESYM                                        { $$ = new TokenExpression("False"); }
     | IDENT                                           { $$ = new TokenExpression("Ident"); }
     | THISSYM                                         { $$ = new TokenExpression("this"); }
     | NEWSYM INTSYM OPENBRKT Exp[L] CLOSEBRKT         { $$ = new NewIntArrExpression($L); }
-    | NEWSYM IDENT[L] LPAREN RPAREN                   { $$ = new NewMethodExpression($L); }
+    | NEWSYM IDENT[L] LPAREN RPAREN                   { $$ = new NewMethodExpression(new TokenExpression("id")); }
     | NEG Exp[L]                                      { $$ = new NegateExpression($L); }
     | LPAREN Exp[L] RPAREN                            { $$ = new ParenExpression($L);}
     ;
@@ -267,7 +267,7 @@ int main(){
     Program* program;
     yyin = stdin;
     yyparse(&program);
-    printf("%d", program->mc);
+    program->generateGraphViz();
     return 0;
 }
 

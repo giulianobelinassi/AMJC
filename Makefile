@@ -1,6 +1,6 @@
 CXX       = g++-6
 CXXFLAGS  = -g -std=c++11 -flto -Wall -pedantic
-LDFLAGS   = -lfl
+LDFLAGS   = -lfl -lgvc -lcgraph
 
 LEX       = flex
 LEXFLAGS  = 
