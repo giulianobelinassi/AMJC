@@ -50,11 +50,11 @@ class VarDecl
 {
     public:
     Type* type;
-    const char* id;
+    TokenExpression* id;
 
     struct Agnode_s* buildGVNode(struct Agraph_s*);
 
-    VarDecl(Type*, const char*);
+    VarDecl(Type*, TokenExpression*);
 };
 
 class VarDecls

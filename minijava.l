@@ -61,8 +61,8 @@ letter        [a-zA-Z_]
 "else"                         { return ELSESYM;    }
 "do"                           { return DOSYM;      }
 "while"                        { return WHILESYM;   }
-{letter}({letter}|{digit})*    { return IDENT;      }
-{digit}+                       { return NUMBER;     }
+{letter}({letter}|{digit})*    { yylval.str = yytext; return IDENT;  }
+{digit}+                       { yylval.str = yytext; return NUMBER; }
 \/\/.*\n                          /*Skip Comment*/
 
 

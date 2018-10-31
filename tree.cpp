@@ -93,16 +93,16 @@ Agnode_t* Type::buildGVNode(Agraph_t* g)
     return v;
 }
 
-VarDecl::VarDecl(Type* type, const char* id)
+VarDecl::VarDecl(Type* type, TokenExpression* id)
 {
     this->type = type;
-    COPY_STR(this->id, id);
+    this->id = id;
 }
 
 Agnode_t* VarDecl::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
-    ONE_CHILD_VERTEX(v, "VarDecl", type);
+    TWO_CHILD_VERTEX(v, "VarDecl", type, id);
     
     return v;
 }
@@ -162,7 +162,7 @@ FormalList::FormalList(Type* type, TokenExpression* id, FormalList* rest)
 Agnode_t* FormalList::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
-    TWO_CHILD_VERTEX(v, "FormalList", type, rest);
+    THREE_CHILD_VERTEX(v, "FormalList", type, id, rest);
     
     return v;
 }

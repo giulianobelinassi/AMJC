@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include <string.h>
 
 #include "tree.h"
 
@@ -89,11 +90,13 @@ void yyerror(Program** p, const char *s);
     ClassDecl* classdecl;
     ClassDecls* classdecls;
     MainClass* mainclass;
+    char* str;
 }
 
 %type <exp> Exp
 %type <explist> ExpList
-%type <ident> IDENT
+%type <str> IDENT
+%type <str> NUMBER
 %type <exp> ExpRest
 %type <explist> ExpRests
 %type <stmt> Statement
@@ -102,7 +105,6 @@ void yyerror(Program** p, const char *s);
 %type <stmt> Assignment
 %type <type> Type
 %type <type> PrimitiveType
-%type <type> PrimitiveTypeDecl
 %type <type> CustomType
 %type <formlist> FormalList
 %type <formlist> FormalRest
@@ -110,7 +112,6 @@ void yyerror(Program** p, const char *s);
 %type <methoddecl> MethodDecl
 %type <vardecls> VarDecls
 %type <vardecl> VarDecl
-%type <vardecls> MethodCode
 %type <classdecl> ClassDecl
 %type <classdecls> ClassDecls
 %type <mainclass> MainClass
@@ -135,12 +136,8 @@ ClassDecls:
     | ClassDecls[L] ClassDecl[R] { $$ = new ClassDecls($L, $R); }
     ;
 
-PrimitiveTypeDecl:
-      PrimitiveType[L] IDENT SEMICOLON { $$ = $L; }
-    ;
-
 VarDecl:
-      Type[L] IDENT SEMICOLON { $$ = new VarDecl($L, "var"); }
+      Type[L] IDENT[R] SEMICOLON { $$ = new VarDecl($L, new TokenExpression(strtok($R, ";"))); }
     ;
 
 VarDecls:
@@ -150,15 +147,8 @@ VarDecls:
 
 MethodDecl:
       PUBLICSYM Type[T] IDENT LPAREN FormalList[FL] RPAREN 
-        OPENBRACE MethodCode[MC] NonAssignStmt[STMT] Statements[STMTS] RETURNSYM Exp[E] SEMICOLON CLOSEBRACE 
-        { $$ = new MethodDecl($T, $FL, $MC, new Statements($STMTS, $STMT), $E); }
-    ;
-
-MethodCode:
-      /*Epsilon*/  {$$ = NULL;}
-    | PrimitiveTypeDecl[L] MethodCode[R] { $$ = new VarDecls($R, new VarDecl($L, "var")); }
-    | IDENT IDENT SEMICOLON MethodCode[R] { $$ = new VarDecls($R, new VarDecl(new Type("type"), "var")); }
-    | IDENT ASSIGNMENT IDENT SEMICOLON MethodCode[R] { $$ = $R; }
+        OPENBRACE VarDecls[VD] Statements[STMTS] RETURNSYM Exp[E] SEMICOLON CLOSEBRACE 
+        { $$ = new MethodDecl($T, $FL, $VD, $STMTS, $E); }
     ;
 
 MethodDecls:
@@ -169,18 +159,12 @@ MethodDecls:
 
 FormalList:
     /*Epsilon*/ { $$ = NULL; }
-    | Type[L] IDENT FormalRest[R] { $$ = new FormalList($L, new TokenExpression("id"), $R); }
+    | Type[L] IDENT[C] FormalRest[R] { $$ = new FormalList($L, new TokenExpression(strtok($C, ")")), $R); }
     ;
 
-/*
-FormalRests:
-    { $$ = NULL; }
-    | FormalRests[L] FormalRest[R] { $$ = new FormalList($L, $R); }
-    ;
-*/
 FormalRest:
       /*Epsilon*/ { $$ = NULL; }
-    | COMMA Type[L] IDENT FormalRest[R] { $$ = new FormalList($L, new TokenExpression("id"), $R); }
+    | COMMA Type[L] IDENT[C] FormalRest[R] { $$ = new FormalList($L, new TokenExpression(strtok($C, ")")), $R); }
     ;
 
 Type:
@@ -189,7 +173,7 @@ Type:
     ;
 
 CustomType:
-      IDENT { $$ = new Type("Custom"); }
+      IDENT { $$ = new Type($1); }
     ;
 
 PrimitiveType:
@@ -199,8 +183,8 @@ PrimitiveType:
     ;
 
 Assignment:
-      IDENT ASSIGNMENT Exp[R] SEMICOLON { $$ = new VarAssignment(new TokenExpression("ID"), $R); }
-    | IDENT OPENBRKT Exp[L] CLOSEBRKT ASSIGNMENT Exp[R] SEMICOLON { $$ = new ArrayAssignment(new TokenExpression("ID"), $L, $R);}
+      IDENT[L] ASSIGNMENT Exp[R] SEMICOLON { $$ = new VarAssignment(new TokenExpression(strtok($L, "=")), $R); }
+    | IDENT[L] OPENBRKT Exp[C] CLOSEBRKT ASSIGNMENT Exp[R] SEMICOLON { $$ = new ArrayAssignment(new TokenExpression(strtok($L, "{")), $C, $R);}
     ;
 
 NonAssignStmt:
@@ -224,14 +208,14 @@ Exp:
       Exp[L] Op Exp[R]                                { $$ = new OpExpression($L, $R); }
     | Exp[L] OPENBRKT Exp[R] CLOSEBRKT                { $$ = new BrcktExpression($L, $R); }
     | Exp[L] PERIOD LENGTHSYM                         { $$ = new LengthExpression($L);}
-    | Exp[L] PERIOD IDENT[C] LPAREN ExpList[R] RPAREN { $$ = new MethodExpression($L, new TokenExpression("id"), $R);}
-    | NUMBER                                          { $$ = new TokenExpression("Number"); }
+    | Exp[L] PERIOD IDENT[C] LPAREN ExpList[R] RPAREN { $$ = new MethodExpression($L, new TokenExpression(strtok($C, "(")), $R);}
+    | NUMBER[C]                                       { $$ = new TokenExpression($C); }
     | TRUESYM                                         { $$ = new TokenExpression("True"); }
     | FALSESYM                                        { $$ = new TokenExpression("False"); }
-    | IDENT                                           { $$ = new TokenExpression("Ident"); }
+    | IDENT[C]                                        { $$ = new TokenExpression($C); }
     | THISSYM                                         { $$ = new TokenExpression("this"); }
     | NEWSYM INTSYM OPENBRKT Exp[L] CLOSEBRKT         { $$ = new NewIntArrExpression($L); }
-    | NEWSYM IDENT[L] LPAREN RPAREN                   { $$ = new NewMethodExpression(new TokenExpression("id")); }
+    | NEWSYM IDENT[C] LPAREN RPAREN                   { $$ = new NewMethodExpression(new TokenExpression(strtok($C, "("))); }
     | NEG Exp[L]                                      { $$ = new NegateExpression($L); }
     | LPAREN Exp[L] RPAREN                            { $$ = new ParenExpression($L);}
     ;

@@ -92,7 +92,8 @@ TokenExpression::TokenExpression(const char* token)
 Agnode_t* TokenExpression::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
-    ZERO_CHILD_VERTEX(v, "TokenExpression");
+    ZERO_CHILD_VERTEX(v, this->token);
+    
     
     return v;
 }

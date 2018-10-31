@@ -1,7 +1,7 @@
 
 
 #define COPY_STR(dest, src)  do {\
-    size_t len = strlen(src); \
+    size_t len = strlen(src) + 1; \
     dest = new char[len]; \
     strncpy((char*) dest, src, len); } \
 while(0)
