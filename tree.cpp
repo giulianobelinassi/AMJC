@@ -6,6 +6,7 @@
 #include "tree.h"
 #include "macros.h"
 
+
 Program::Program(MainClass* mc, ClassDecls* cd)
 {
     this->mc = mc;
@@ -52,8 +53,9 @@ Agnode_t* MainClass::buildGVNode(Agraph_t* g)
     return v;
 }
 
-ClassDecl::ClassDecl(VarDecls* vars, MethodDecls* decls)
+ClassDecl::ClassDecl(TokenExpression* name, VarDecls* vars, MethodDecls* decls)
 {
+    this->name = name;
     this->vars = vars;
     this->decls = decls;
 }
@@ -61,7 +63,7 @@ ClassDecl::ClassDecl(VarDecls* vars, MethodDecls* decls)
 Agnode_t* ClassDecl::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
-    TWO_CHILD_VERTEX(v, "ClassDecl", vars, decls);
+    THREE_CHILD_VERTEX(v, "ClassDecl", name, vars, decls);
 
     return v;
 }
@@ -78,19 +80,6 @@ ClassDecls::ClassDecls(ClassDecls* decls, ClassDecl* decl)
 {
     this->decls = decls;
     this->decl  = decl;
-}
-
-Type::Type(const char* id)
-{
-    COPY_STR(this->id, id);
-}
-
-Agnode_t* Type::buildGVNode(Agraph_t* g)
-{
-    Agnode_t* v;
-    ZERO_CHILD_VERTEX(v, id);
-    
-    return v;
 }
 
 VarDecl::VarDecl(Type* type, TokenExpression* id)

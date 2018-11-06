@@ -127,8 +127,8 @@ MainClass:
     ;
 
 ClassDecl:
-      CLASSSYM IDENT OPENBRACE VarDecls[L] MethodDecls[R] CLOSEBRACE { $$ = new ClassDecl($L, $R); }
-    | CLASSSYM IDENT EXTENDSYM IDENT OPENBRACE VarDecls[L] MethodDecls[R] CLOSEBRACE { $$ = new ClassDecl($L, $R); }
+      CLASSSYM IDENT[I] OPENBRACE VarDecls[L] MethodDecls[R] CLOSEBRACE { $$ = new ClassDecl(new TokenExpression(strtok($I, "{")), $L, $R); }
+    | CLASSSYM IDENT[I] EXTENDSYM IDENT OPENBRACE VarDecls[L] MethodDecls[R] CLOSEBRACE { $$ = new ClassDecl(new TokenExpression(strtok($I, "{")), $L, $R); }
     ;
 
 ClassDecls:
@@ -173,13 +173,13 @@ Type:
     ;
 
 CustomType:
-      IDENT { $$ = new Type($1); }
+      IDENT { $$ = Type::getTypeFromStr($1);}
     ;
 
 PrimitiveType:
-      INTSYM OPENBRKT CLOSEBRKT { $$ = new Type("int[]");}
-    | BOOLEANSYM { $$ = new Type("bool");}
-    | INTSYM { $$ = new Type("int");}
+      INTSYM OPENBRKT CLOSEBRKT { $$ = Type::getTypeFromStr("int[]");}
+    | BOOLEANSYM { $$ = Type::getTypeFromStr("int[]");}
+    | INTSYM { $$ = Type::getTypeFromStr("int");}
     ;
 
 Assignment:

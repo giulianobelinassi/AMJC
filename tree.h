@@ -1,7 +1,9 @@
-#include <stdlib.h>
-
 #ifndef TREE_H
 #define TREE_H
+
+#include <stdlib.h>
+
+#include "types.h"
 
 struct Agraph_s;
 struct Agnode_s;
@@ -34,16 +36,6 @@ class TokenExpression : public Expression
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
 
     TokenExpression(const char* token);
-};
-
-class Type
-{
-    public:
-    const char* id;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s*);
-
-    Type(const char*);
 };
 
 class VarDecl
@@ -129,12 +121,13 @@ class MethodDecls
 class ClassDecl
 {
     public:
+    TokenExpression* name;
     VarDecls* vars;
     MethodDecls* decls;
 
     struct Agnode_s* buildGVNode(struct Agraph_s* g);
 
-    ClassDecl(VarDecls*, MethodDecls*);
+    ClassDecl(TokenExpression*, VarDecls*, MethodDecls*);
 };
 
 class ClassDecls
