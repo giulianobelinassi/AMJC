@@ -12,6 +12,8 @@ class Type
     static std::unordered_map<const char*, Type*> registered_types;
     static Type* getTypeFromStr(const char*);
     static Type* getDeclaredType(const char*);
+    static Type* declareType(const char*);
+    static void printDeclaredTypes(void);
 
     const char* id;
     

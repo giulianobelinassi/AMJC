@@ -173,12 +173,12 @@ Type:
     ;
 
 CustomType:
-      IDENT { $$ = Type::getTypeFromStr($1);}
+      IDENT { $$ = Type::getDeclaredType($1);}
     ;
 
 PrimitiveType:
       INTSYM OPENBRKT CLOSEBRKT { $$ = Type::getTypeFromStr("int[]");}
-    | BOOLEANSYM { $$ = Type::getTypeFromStr("int[]");}
+    | BOOLEANSYM { $$ = Type::getTypeFromStr("boolean");}
     | INTSYM { $$ = Type::getTypeFromStr("int");}
     ;
 
@@ -252,6 +252,7 @@ int main(){
     yyin = stdin;
     yyparse(&program);
     program->generateGraphViz();
+    Type::printDeclaredTypes();
     return 0;
 }
 

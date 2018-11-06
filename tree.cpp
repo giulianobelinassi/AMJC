@@ -58,6 +58,7 @@ ClassDecl::ClassDecl(TokenExpression* name, VarDecls* vars, MethodDecls* decls)
     this->name = name;
     this->vars = vars;
     this->decls = decls;
+    Type::declareType(name->token);
 }
 
 Agnode_t* ClassDecl::buildGVNode(Agraph_t* g)
