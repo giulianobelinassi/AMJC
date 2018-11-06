@@ -5,38 +5,36 @@
 
 #include "types.h"
 
+/* Used GraphViz structures*/
 struct Agraph_s;
 struct Agnode_s;
 
-class Statement
-{ 
-    public: 
+/*Expressions*/
+class Expression;
+class TokenExpression;
+class OpExpression;
+class LengthExpression;
+class MethodExpression;
+class NewIntArrExpression;
+class NewMethodExpression;
+class NegateExpression;
+class ParenExpression;
+class BrcktExpression; 
 
-    virtual struct Agnode_s* buildGVNode(struct Agraph_s*) {return NULL;}
+/*Statements*/
+class Statement;
+class BracedStatement;
+class IfElseStatement;
+class WhileStatement;
+class PrintStatement;
 
-    virtual ~Statement() {} 
-    
-};
+class Assignment;
+class VarAssignment;
+class ArrayAssignment;
 
-class Assignment : public Statement { };
-
-class Expression
-{ 
-    public: 
-    virtual ~Expression() {}
-
-    virtual struct Agnode_s* buildGVNode(struct Agraph_s*) {return NULL;}
-};
-
-class TokenExpression : public Expression
-{
-    public:
-    const char* token;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-
-    TokenExpression(const char* token);
-};
+/*Lists*/
+class Statements;
+class ExpList;
 
 class VarDecl
 {
@@ -70,16 +68,6 @@ class MainClass
     MainClass(Statement*);
 };
 
-class Statements
-{
-    public:
-    Statements* rest;
-    Statement* stmt;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s*);
-
-    Statements(Statements*, Statement*);
-};
 
 class FormalList
 {
@@ -141,167 +129,6 @@ class ClassDecls
     ClassDecls(ClassDecls*, ClassDecl*);
 };
 
-
-class VarAssignment : public Assignment
-{
-    public:
-    TokenExpression* id;
-    Expression* exp;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-    
-    VarAssignment(TokenExpression*, Expression*);
-};
-
-class ArrayAssignment : public Assignment
-{
-    public:
-    TokenExpression* id;
-    Expression* exp1;
-    Expression* exp2;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-    
-    ArrayAssignment(TokenExpression*, Expression*, Expression*);
-};
-
-class BracedStatement : public Statement
-{
-    public:
-    Statements* stmts;
-    
-    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-
-    BracedStatement(Statements*);
-};
-
-class IfElseStatement : public Statement
-{
-    public:
-    Expression* cndexp;
-    Statement* ifstmt;
-    Statement* elsestmt;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-    
-    IfElseStatement(Expression*, Statement*, Statement*);
-};
-
-class WhileStatement : public Statement
-{
-    public:
-    Expression* cndexp;
-    Statement* whilestmt;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-
-    WhileStatement(Expression*, Statement*);
-};
-
-class PrintStatement : public Statement
-{
-    public:
-    Expression* exp;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-
-    PrintStatement(Expression*);
-};
-
-class OpExpression : public Expression
-{
-    public: 
-    Expression* exp1;
-    Expression* exp2;
-    
-    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-
-    OpExpression(Expression*, Expression*);
-};
-
-class LengthExpression : public Expression
-{
-    public: 
-    Expression* exp;
-    
-    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-
-    LengthExpression(Expression*);
-};
-
-class ExpList
-{
-    public:
-    Expression* exp;
-    ExpList* rest;
-    
-    struct Agnode_s* buildGVNode(struct Agraph_s*);
-
-    ExpList(Expression*, ExpList*);
-};
-
-class MethodExpression : public Expression
-{
-    public: 
-    Expression* exp;
-    TokenExpression* id;
-    ExpList* explist;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-
-    MethodExpression(Expression*, TokenExpression*, ExpList*);
-};
-
-class NewIntArrExpression : public Expression
-{
-    public:
-    Expression* exp;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-    
-    NewIntArrExpression(Expression*);
-};
-
-class NewMethodExpression : public Expression
-{
-    public:
-    TokenExpression* id;
-    
-    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-
-    NewMethodExpression(TokenExpression*);
-};
-
-class NegateExpression : public Expression
-{
-    public:
-    Expression* exp;
-    
-    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-
-    NegateExpression(Expression*);
-};
-
-class ParenExpression : public Expression
-{
-    public:
-    Expression* exp;
-    
-    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-
-    ParenExpression(Expression*);
-};
-
-class BrcktExpression : public Expression
-{
-    public:
-    Expression* exp1;
-    Expression* exp2;
-    
-    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-
-    BrcktExpression(Expression*, Expression*);
-};
 
 class Program
 {

@@ -3,6 +3,9 @@
 #include <string.h>
 
 #include "tree.h"
+#include "expression.h"
+#include "statement.h"
+#include "types.h"
 
 extern "C" {
     extern int yylex();

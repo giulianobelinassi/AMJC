@@ -1,5 +1,5 @@
+#include "expression.h"
 #include "macros.h"
-#include "tree.h"
 
 #include <graphviz/gvc.h>
 

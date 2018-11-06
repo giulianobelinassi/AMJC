@@ -4,6 +4,8 @@
 #include <graphviz/gvc.h>
 
 #include "tree.h"
+#include "expression.h"
+#include "statement.h"
 #include "macros.h"
 
 
