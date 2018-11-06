@@ -2,6 +2,7 @@
 #define TREE_H
 
 #include <stdlib.h>
+#include <list>
 
 #include "types.h"
 
@@ -134,11 +135,11 @@ class Program
 {
     public:
     MainClass* mc;
-    ClassDecls* cd;
+    std::list<ClassDecl*>* cd;
 
     void generateGraphViz();
 
-    Program(MainClass*, ClassDecls*);
+    Program(MainClass*, std::list<ClassDecl*>*);
 };
 
 #endif /*TREE_H*/

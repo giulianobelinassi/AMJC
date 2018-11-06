@@ -9,7 +9,7 @@
 #include "macros.h"
 
 
-Program::Program(MainClass* mc, ClassDecls* cd)
+Program::Program(MainClass* mc, std::list<ClassDecl*>* cd)
 {
     this->mc = mc;
     this->cd = cd;
@@ -21,6 +21,7 @@ void Program::generateGraphViz()
     Agnode_t* v1, * v2, * prog;
     GVC_t* gvc = gvContext();
     FILE* pdf_file = fopen("graph.pdf", "w");
+    std::list<ClassDecl*>::iterator it;
 
     g = agopen((char*) "g", Agdirected, 0);
    
@@ -28,11 +29,14 @@ void Program::generateGraphViz()
     agset(prog, (char*) "label", (char*) "Program");
 
     v1 = mc->buildGVNode(g);
-    v2 = cd->buildGVNode(g);
-
     agedge(g, prog, v1, 0, 1);
-    agedge(g, prog, v2, 0, 1);
-
+    
+    for (it = cd->begin(); it != cd->end(); ++it)
+    {
+        ONE_CHILD_VERTEX(v2, "ClassDecls", *it);
+        agedge(g, prog, v2, 0, 1);
+    }
+    
     gvLayout(gvc, g, "dot");
     gvRender(gvc, g, "pdf", pdf_file);
     gvFreeLayout(gvc, g);

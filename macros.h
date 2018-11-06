@@ -14,7 +14,7 @@ while(0)
 #define ONE_CHILD_VERTEX(v, name, c1) do { \
     v = agnode(g, NULL, 1); \
     agset(v, (char*) "label", (char*) name); \
-    Agnode_t* _c1 = c1? c1->buildGVNode(g): agnode(g, (char*) "NULL", 1); \
+    Agnode_t* _c1 = (c1)? (c1)->buildGVNode(g): agnode(g, (char*) "NULL", 1); \
     agedge(g, v, _c1, 0, 1); \
 } while(0)
 

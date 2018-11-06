@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <string.h>
+#include <list>
 
 #include "tree.h"
 #include "expression.h"
@@ -91,7 +92,7 @@ void yyerror(Program** p, const char *s);
     VarDecl* vardecl;
     VarDecls* vardecls;
     ClassDecl* classdecl;
-    ClassDecls* classdecls;
+    std::list<ClassDecl*>* classdecls;
     MainClass* mainclass;
     char* str;
 }
@@ -135,8 +136,8 @@ ClassDecl:
     ;
 
 ClassDecls:
-      /*Epsilon*/ { $$ = NULL; }
-    | ClassDecls[L] ClassDecl[R] { $$ = new ClassDecls($L, $R); }
+      /*Epsilon*/ { $$ = new std::list<ClassDecl*>(); }
+    | ClassDecls[L] ClassDecl[R] { ($L)->push_back($R); $$ = $L; }
     ;
 
 VarDecl:
@@ -144,8 +145,8 @@ VarDecl:
     ;
 
 VarDecls:
-      /*Epsilon*/ { $$ = NULL; }
-    | VarDecls[L] VarDecl[R] { $$ = new VarDecls($L, $R); }
+      /*Epsilon*/ { printf("1\n"); $$ = NULL; }
+    | VarDecls[L] VarDecl[R] { printf("2\n"); $$ = new VarDecls($L, $R); }
     ;
 
 MethodDecl:
