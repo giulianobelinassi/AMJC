@@ -4,6 +4,7 @@
 graph.pdf
 *.o
 *.dot
+*.output
 minijava.tab.c
 minijava.tab.h
 main

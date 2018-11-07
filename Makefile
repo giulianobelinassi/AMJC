@@ -39,4 +39,4 @@ lex.yy.c: minijava.l minijava.tab.h
 
 .PHONY: clean
 clean:
-	rm -f *.o lex.yy.c *.dot minijava.tab.c minijava.tab.h graph.pdf main 
+	rm -f *.o *.output lex.yy.c *.dot minijava.tab.c minijava.tab.h graph.pdf main 

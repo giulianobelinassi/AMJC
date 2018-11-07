@@ -21,6 +21,8 @@ class NewMethodExpression;
 class NegateExpression;
 class ParenExpression;
 class BrcktExpression; 
+class BoolExpression;
+class NumExpression;
 
 /*Statements*/
 class Statement;

@@ -137,8 +137,7 @@ MainClass:
 
 ClassDecl:
       CLASSSYM IDENT[I] OPENBRACE VarDecls[L] MethodDecls[R] CLOSEBRACE 
-          /*{ $$ = new ClassDecl(new TokenExpression(strtok($I, "{")), $L, $R); }*/
-          { $$ = new ClassDecl(new TokenExpression($I), $L, $R); }
+          { $$ = new ClassDecl(new TokenExpression(strtok($I, "{")), $L, $R); }
     | CLASSSYM IDENT[I] EXTENDSYM IDENT OPENBRACE VarDecls[L] MethodDecls[R] 
         CLOSEBRACE 
           { $$ = new ClassDecl(new TokenExpression(strtok($I, "{")), $L, $R); }
@@ -235,8 +234,8 @@ Exp:
     | Exp[L] PERIOD LENGTHSYM                         { $$ = new LengthExpression($L);}
     | Exp[L] PERIOD IDENT[C] LPAREN ExpList[R] RPAREN { $$ = new MethodExpression($L, new TokenExpression(strtok($C, "(")), $R);}
     | NUMBER[C]                                       { $$ = new TokenExpression($C); }
-    | TRUESYM                                         { $$ = new TokenExpression("True"); }
-    | FALSESYM                                        { $$ = new TokenExpression("False"); }
+    | TRUESYM                                         { $$ = new BoolExpression(false); }
+    | FALSESYM                                        { $$ = new BoolExpression(true); }
     | IDENT[C]                                        { $$ = new TokenExpression($C); }
     | THISSYM                                         { $$ = new TokenExpression("this"); }
     | NEWSYM INTSYM OPENBRKT Exp[L] CLOSEBRKT         { $$ = new NewIntArrExpression($L); }

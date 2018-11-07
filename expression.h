@@ -21,6 +21,39 @@ class TokenExpression : public Expression
     TokenExpression(const char* token);
 };
 
+class BoolExpression : public Expression
+{
+    public:
+    bool value;
+    const char* val_str;
+
+    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
+
+    BoolExpression(bool);
+};
+
+class ThisExpression : public Expression
+{
+
+    public:
+    
+    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
+
+    ThisExpression(void);
+};
+
+class NumExpression : public Expression
+{
+    public:
+    
+    int val;
+    const char* val_str;
+
+    struct Agnode_s* buildGVNode(struct Agraph_s*) override;
+
+    NumExpression(const char*);
+};
+
 class OpExpression : public Expression
 {
     public: 
