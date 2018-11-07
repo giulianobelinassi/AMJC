@@ -1,0 +1,9 @@
+*.swp
+*.swo
+*~
+graph.pdf
+*.o
+*.dot
+minijava.tab.c
+minijava.tab.h
+main
