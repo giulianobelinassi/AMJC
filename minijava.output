@@ -7,9 +7,9 @@ Terminals unused in grammar
    DOSYM
 
 
-State 63 conflicts: 1 shift/reduce
-State 95 conflicts: 12 shift/reduce
-State 122 conflicts: 12 shift/reduce
+State 64 conflicts: 1 shift/reduce
+State 94 conflicts: 12 shift/reduce
+State 121 conflicts: 12 shift/reduce
 
 
 Grammar
@@ -37,10 +37,10 @@ Grammar
    12            | MethodDecls MethodDecl
 
    13 FormalList: %empty
-   14           | Type IDENT FormalRest
+   14           | FormalRest Type IDENT
 
    15 FormalRest: %empty
-   16           | COMMA Type IDENT FormalRest
+   16           | FormalRest COMMA Type IDENT
 
    17 Type: CustomType
    18     | PrimitiveType
@@ -90,7 +90,7 @@ Grammar
    54   | LEQ
    55   | NEQ
 
-   56 ExpList: Exp ExpRests
+   56 ExpList: ExpRests Exp
 
    57 ExpRests: %empty
    58         | ExpRests ExpRest
@@ -570,16 +570,11 @@ State 44
 
    10 MethodDecl: PUBLICSYM Type IDENT LPAREN . FormalList RPAREN OPENBRACE VarDecls Statements RETURNSYM Exp SEMICOLON CLOSEBRACE
 
-    INTSYM      shift, and go to state 20
-    BOOLEANSYM  shift, and go to state 21
-    IDENT       shift, and go to state 22
+    RPAREN    reduce using rule 13 (FormalList)
+    $default  reduce using rule 15 (FormalRest)
 
-    $default  reduce using rule 13 (FormalList)
-
-    FormalList     go to state 46
-    Type           go to state 47
-    CustomType     go to state 26
-    PrimitiveType  go to state 27
+    FormalList  go to state 46
+    FormalRest  go to state 47
 
 
 State 45
@@ -598,141 +593,152 @@ State 46
 
 State 47
 
-   14 FormalList: Type . IDENT FormalRest
+   14 FormalList: FormalRest . Type IDENT
+   16 FormalRest: FormalRest . COMMA Type IDENT
 
-    IDENT  shift, and go to state 50
+    INTSYM      shift, and go to state 20
+    BOOLEANSYM  shift, and go to state 21
+    COMMA       shift, and go to state 50
+    IDENT       shift, and go to state 22
+
+    Type           go to state 51
+    CustomType     go to state 26
+    PrimitiveType  go to state 27
 
 
 State 48
 
     2 MainClass: CLASSSYM IDENT OPENBRACE PUBLICSYM STATICSYM VOIDSYM MAINSYM LPAREN STRINGSYM OPENBRKT CLOSEBRKT IDENT RPAREN . OPENBRACE Statement CLOSEBRACE CLOSEBRACE
 
-    OPENBRACE  shift, and go to state 51
+    OPENBRACE  shift, and go to state 52
 
 
 State 49
 
    10 MethodDecl: PUBLICSYM Type IDENT LPAREN FormalList RPAREN . OPENBRACE VarDecls Statements RETURNSYM Exp SEMICOLON CLOSEBRACE
 
-    OPENBRACE  shift, and go to state 52
+    OPENBRACE  shift, and go to state 53
 
 
 State 50
 
-   14 FormalList: Type IDENT . FormalRest
-
-    COMMA  shift, and go to state 53
-
-    $default  reduce using rule 15 (FormalRest)
-
-    FormalRest  go to state 54
-
-
-State 51
-
-    2 MainClass: CLASSSYM IDENT OPENBRACE PUBLICSYM STATICSYM VOIDSYM MAINSYM LPAREN STRINGSYM OPENBRKT CLOSEBRKT IDENT RPAREN OPENBRACE . Statement CLOSEBRACE CLOSEBRACE
-
-    OPENBRACE  shift, and go to state 55
-    IFSYM      shift, and go to state 56
-    WHILESYM   shift, and go to state 57
-    IDENT      shift, and go to state 58
-    PRINTSYM   shift, and go to state 59
-
-    Assignment     go to state 60
-    NonAssignStmt  go to state 61
-    Statement      go to state 62
-
-
-State 52
-
-   10 MethodDecl: PUBLICSYM Type IDENT LPAREN FormalList RPAREN OPENBRACE . VarDecls Statements RETURNSYM Exp SEMICOLON CLOSEBRACE
-
-    $default  reduce using rule 8 (VarDecls)
-
-    VarDecls  go to state 63
-
-
-State 53
-
-   16 FormalRest: COMMA . Type IDENT FormalRest
+   16 FormalRest: FormalRest COMMA . Type IDENT
 
     INTSYM      shift, and go to state 20
     BOOLEANSYM  shift, and go to state 21
     IDENT       shift, and go to state 22
 
-    Type           go to state 64
+    Type           go to state 54
     CustomType     go to state 26
     PrimitiveType  go to state 27
 
 
+State 51
+
+   14 FormalList: FormalRest Type . IDENT
+
+    IDENT  shift, and go to state 55
+
+
+State 52
+
+    2 MainClass: CLASSSYM IDENT OPENBRACE PUBLICSYM STATICSYM VOIDSYM MAINSYM LPAREN STRINGSYM OPENBRKT CLOSEBRKT IDENT RPAREN OPENBRACE . Statement CLOSEBRACE CLOSEBRACE
+
+    OPENBRACE  shift, and go to state 56
+    IFSYM      shift, and go to state 57
+    WHILESYM   shift, and go to state 58
+    IDENT      shift, and go to state 59
+    PRINTSYM   shift, and go to state 60
+
+    Assignment     go to state 61
+    NonAssignStmt  go to state 62
+    Statement      go to state 63
+
+
+State 53
+
+   10 MethodDecl: PUBLICSYM Type IDENT LPAREN FormalList RPAREN OPENBRACE . VarDecls Statements RETURNSYM Exp SEMICOLON CLOSEBRACE
+
+    $default  reduce using rule 8 (VarDecls)
+
+    VarDecls  go to state 64
+
+
 State 54
 
-   14 FormalList: Type IDENT FormalRest .
+   16 FormalRest: FormalRest COMMA Type . IDENT
+
+    IDENT  shift, and go to state 65
+
+
+State 55
+
+   14 FormalList: FormalRest Type IDENT .
 
     $default  reduce using rule 14 (FormalList)
 
 
-State 55
+State 56
 
    25 NonAssignStmt: OPENBRACE . Statements CLOSEBRACE
 
     $default  reduce using rule 31 (Statements)
 
-    Statements  go to state 65
-
-
-State 56
-
-   26 NonAssignStmt: IFSYM . LPAREN Exp RPAREN Statement ELSESYM Statement
-
-    LPAREN  shift, and go to state 66
+    Statements  go to state 66
 
 
 State 57
 
-   27 NonAssignStmt: WHILESYM . LPAREN Exp RPAREN Statement
+   26 NonAssignStmt: IFSYM . LPAREN Exp RPAREN Statement ELSESYM Statement
 
     LPAREN  shift, and go to state 67
 
 
 State 58
 
-   23 Assignment: IDENT . ASSIGNMENT Exp SEMICOLON
-   24           | IDENT . OPENBRKT Exp CLOSEBRKT ASSIGNMENT Exp SEMICOLON
+   27 NonAssignStmt: WHILESYM . LPAREN Exp RPAREN Statement
 
-    OPENBRKT    shift, and go to state 68
-    ASSIGNMENT  shift, and go to state 69
+    LPAREN  shift, and go to state 68
 
 
 State 59
 
-   28 NonAssignStmt: PRINTSYM . LPAREN Exp RPAREN SEMICOLON
+   23 Assignment: IDENT . ASSIGNMENT Exp SEMICOLON
+   24           | IDENT . OPENBRKT Exp CLOSEBRKT ASSIGNMENT Exp SEMICOLON
 
-    LPAREN  shift, and go to state 70
+    OPENBRKT    shift, and go to state 69
+    ASSIGNMENT  shift, and go to state 70
 
 
 State 60
+
+   28 NonAssignStmt: PRINTSYM . LPAREN Exp RPAREN SEMICOLON
+
+    LPAREN  shift, and go to state 71
+
+
+State 61
 
    30 Statement: Assignment .
 
     $default  reduce using rule 30 (Statement)
 
 
-State 61
+State 62
 
    29 Statement: NonAssignStmt .
 
     $default  reduce using rule 29 (Statement)
 
 
-State 62
+State 63
 
     2 MainClass: CLASSSYM IDENT OPENBRACE PUBLICSYM STATICSYM VOIDSYM MAINSYM LPAREN STRINGSYM OPENBRKT CLOSEBRKT IDENT RPAREN OPENBRACE Statement . CLOSEBRACE CLOSEBRACE
 
-    CLOSEBRACE  shift, and go to state 71
+    CLOSEBRACE  shift, and go to state 72
 
 
-State 63
+State 64
 
     9 VarDecls: VarDecls . VarDecl
    10 MethodDecl: PUBLICSYM Type IDENT LPAREN FormalList RPAREN OPENBRACE VarDecls . Statements RETURNSYM Exp SEMICOLON CLOSEBRACE
@@ -748,34 +754,34 @@ State 63
     Type           go to state 25
     CustomType     go to state 26
     PrimitiveType  go to state 27
-    Statements     go to state 72
-
-
-State 64
-
-   16 FormalRest: COMMA Type . IDENT FormalRest
-
-    IDENT  shift, and go to state 73
+    Statements     go to state 73
 
 
 State 65
 
-   25 NonAssignStmt: OPENBRACE Statements . CLOSEBRACE
-   32 Statements: Statements . Statement
+   16 FormalRest: FormalRest COMMA Type IDENT .
 
-    OPENBRACE   shift, and go to state 55
-    CLOSEBRACE  shift, and go to state 74
-    IFSYM       shift, and go to state 56
-    WHILESYM    shift, and go to state 57
-    IDENT       shift, and go to state 58
-    PRINTSYM    shift, and go to state 59
-
-    Assignment     go to state 60
-    NonAssignStmt  go to state 61
-    Statement      go to state 75
+    $default  reduce using rule 16 (FormalRest)
 
 
 State 66
+
+   25 NonAssignStmt: OPENBRACE Statements . CLOSEBRACE
+   32 Statements: Statements . Statement
+
+    OPENBRACE   shift, and go to state 56
+    CLOSEBRACE  shift, and go to state 74
+    IFSYM       shift, and go to state 57
+    WHILESYM    shift, and go to state 58
+    IDENT       shift, and go to state 59
+    PRINTSYM    shift, and go to state 60
+
+    Assignment     go to state 61
+    NonAssignStmt  go to state 62
+    Statement      go to state 75
+
+
+State 67
 
    26 NonAssignStmt: IFSYM LPAREN . Exp RPAREN Statement ELSESYM Statement
 
@@ -791,7 +797,7 @@ State 66
     Exp  go to state 84
 
 
-State 67
+State 68
 
    27 NonAssignStmt: WHILESYM LPAREN . Exp RPAREN Statement
 
@@ -807,7 +813,7 @@ State 67
     Exp  go to state 85
 
 
-State 68
+State 69
 
    24 Assignment: IDENT OPENBRKT . Exp CLOSEBRKT ASSIGNMENT Exp SEMICOLON
 
@@ -823,7 +829,7 @@ State 68
     Exp  go to state 86
 
 
-State 69
+State 70
 
    23 Assignment: IDENT ASSIGNMENT . Exp SEMICOLON
 
@@ -839,7 +845,7 @@ State 69
     Exp  go to state 87
 
 
-State 70
+State 71
 
    28 NonAssignStmt: PRINTSYM LPAREN . Exp RPAREN SEMICOLON
 
@@ -855,39 +861,28 @@ State 70
     Exp  go to state 88
 
 
-State 71
+State 72
 
     2 MainClass: CLASSSYM IDENT OPENBRACE PUBLICSYM STATICSYM VOIDSYM MAINSYM LPAREN STRINGSYM OPENBRKT CLOSEBRKT IDENT RPAREN OPENBRACE Statement CLOSEBRACE . CLOSEBRACE
 
     CLOSEBRACE  shift, and go to state 89
 
 
-State 72
+State 73
 
    10 MethodDecl: PUBLICSYM Type IDENT LPAREN FormalList RPAREN OPENBRACE VarDecls Statements . RETURNSYM Exp SEMICOLON CLOSEBRACE
    32 Statements: Statements . Statement
 
-    OPENBRACE  shift, and go to state 55
-    IFSYM      shift, and go to state 56
-    WHILESYM   shift, and go to state 57
-    IDENT      shift, and go to state 58
-    PRINTSYM   shift, and go to state 59
+    OPENBRACE  shift, and go to state 56
+    IFSYM      shift, and go to state 57
+    WHILESYM   shift, and go to state 58
+    IDENT      shift, and go to state 59
+    PRINTSYM   shift, and go to state 60
     RETURNSYM  shift, and go to state 90
 
-    Assignment     go to state 60
-    NonAssignStmt  go to state 61
+    Assignment     go to state 61
+    NonAssignStmt  go to state 62
     Statement      go to state 75
-
-
-State 73
-
-   16 FormalRest: COMMA Type IDENT . FormalRest
-
-    COMMA  shift, and go to state 53
-
-    $default  reduce using rule 15 (FormalRest)
-
-    FormalRest  go to state 91
 
 
 State 74
@@ -930,8 +925,8 @@ State 79
    42 Exp: NEWSYM . INTSYM OPENBRKT Exp CLOSEBRKT
    43    | NEWSYM . IDENT LPAREN RPAREN
 
-    INTSYM  shift, and go to state 92
-    IDENT   shift, and go to state 93
+    INTSYM  shift, and go to state 91
+    IDENT   shift, and go to state 92
 
 
 State 80
@@ -947,7 +942,7 @@ State 80
     IDENT     shift, and go to state 82
     NUMBER    shift, and go to state 83
 
-    Exp  go to state 94
+    Exp  go to state 93
 
 
 State 81
@@ -963,7 +958,7 @@ State 81
     IDENT     shift, and go to state 82
     NUMBER    shift, and go to state 83
 
-    Exp  go to state 95
+    Exp  go to state 94
 
 
 State 82
@@ -988,21 +983,21 @@ State 84
    35    | Exp . PERIOD LENGTHSYM
    36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
 
-    OPENBRKT  shift, and go to state 96
-    PLUS      shift, and go to state 97
-    MINUS     shift, and go to state 98
-    TIMES     shift, and go to state 99
-    SLASH     shift, and go to state 100
-    RPAREN    shift, and go to state 101
-    PERIOD    shift, and go to state 102
-    EQ        shift, and go to state 103
-    NEQ       shift, and go to state 104
-    LSS       shift, and go to state 105
-    GTR       shift, and go to state 106
-    LEQ       shift, and go to state 107
-    GEQ       shift, and go to state 108
+    OPENBRKT  shift, and go to state 95
+    PLUS      shift, and go to state 96
+    MINUS     shift, and go to state 97
+    TIMES     shift, and go to state 98
+    SLASH     shift, and go to state 99
+    RPAREN    shift, and go to state 100
+    PERIOD    shift, and go to state 101
+    EQ        shift, and go to state 102
+    NEQ       shift, and go to state 103
+    LSS       shift, and go to state 104
+    GTR       shift, and go to state 105
+    LEQ       shift, and go to state 106
+    GEQ       shift, and go to state 107
 
-    Op  go to state 109
+    Op  go to state 108
 
 
 State 85
@@ -1013,21 +1008,21 @@ State 85
    35    | Exp . PERIOD LENGTHSYM
    36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
 
-    OPENBRKT  shift, and go to state 96
-    PLUS      shift, and go to state 97
-    MINUS     shift, and go to state 98
-    TIMES     shift, and go to state 99
-    SLASH     shift, and go to state 100
-    RPAREN    shift, and go to state 110
-    PERIOD    shift, and go to state 102
-    EQ        shift, and go to state 103
-    NEQ       shift, and go to state 104
-    LSS       shift, and go to state 105
-    GTR       shift, and go to state 106
-    LEQ       shift, and go to state 107
-    GEQ       shift, and go to state 108
+    OPENBRKT  shift, and go to state 95
+    PLUS      shift, and go to state 96
+    MINUS     shift, and go to state 97
+    TIMES     shift, and go to state 98
+    SLASH     shift, and go to state 99
+    RPAREN    shift, and go to state 109
+    PERIOD    shift, and go to state 101
+    EQ        shift, and go to state 102
+    NEQ       shift, and go to state 103
+    LSS       shift, and go to state 104
+    GTR       shift, and go to state 105
+    LEQ       shift, and go to state 106
+    GEQ       shift, and go to state 107
 
-    Op  go to state 109
+    Op  go to state 108
 
 
 State 86
@@ -1038,21 +1033,21 @@ State 86
    35    | Exp . PERIOD LENGTHSYM
    36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
 
-    OPENBRKT   shift, and go to state 96
-    CLOSEBRKT  shift, and go to state 111
-    PLUS       shift, and go to state 97
-    MINUS      shift, and go to state 98
-    TIMES      shift, and go to state 99
-    SLASH      shift, and go to state 100
-    PERIOD     shift, and go to state 102
-    EQ         shift, and go to state 103
-    NEQ        shift, and go to state 104
-    LSS        shift, and go to state 105
-    GTR        shift, and go to state 106
-    LEQ        shift, and go to state 107
-    GEQ        shift, and go to state 108
+    OPENBRKT   shift, and go to state 95
+    CLOSEBRKT  shift, and go to state 110
+    PLUS       shift, and go to state 96
+    MINUS      shift, and go to state 97
+    TIMES      shift, and go to state 98
+    SLASH      shift, and go to state 99
+    PERIOD     shift, and go to state 101
+    EQ         shift, and go to state 102
+    NEQ        shift, and go to state 103
+    LSS        shift, and go to state 104
+    GTR        shift, and go to state 105
+    LEQ        shift, and go to state 106
+    GEQ        shift, and go to state 107
 
-    Op  go to state 109
+    Op  go to state 108
 
 
 State 87
@@ -1063,21 +1058,21 @@ State 87
    35    | Exp . PERIOD LENGTHSYM
    36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
 
-    OPENBRKT   shift, and go to state 96
-    PLUS       shift, and go to state 97
-    MINUS      shift, and go to state 98
-    TIMES      shift, and go to state 99
-    SLASH      shift, and go to state 100
-    SEMICOLON  shift, and go to state 112
-    PERIOD     shift, and go to state 102
-    EQ         shift, and go to state 103
-    NEQ        shift, and go to state 104
-    LSS        shift, and go to state 105
-    GTR        shift, and go to state 106
-    LEQ        shift, and go to state 107
-    GEQ        shift, and go to state 108
+    OPENBRKT   shift, and go to state 95
+    PLUS       shift, and go to state 96
+    MINUS      shift, and go to state 97
+    TIMES      shift, and go to state 98
+    SLASH      shift, and go to state 99
+    SEMICOLON  shift, and go to state 111
+    PERIOD     shift, and go to state 101
+    EQ         shift, and go to state 102
+    NEQ        shift, and go to state 103
+    LSS        shift, and go to state 104
+    GTR        shift, and go to state 105
+    LEQ        shift, and go to state 106
+    GEQ        shift, and go to state 107
 
-    Op  go to state 109
+    Op  go to state 108
 
 
 State 88
@@ -1088,21 +1083,21 @@ State 88
    35    | Exp . PERIOD LENGTHSYM
    36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
 
-    OPENBRKT  shift, and go to state 96
-    PLUS      shift, and go to state 97
-    MINUS     shift, and go to state 98
-    TIMES     shift, and go to state 99
-    SLASH     shift, and go to state 100
-    RPAREN    shift, and go to state 113
-    PERIOD    shift, and go to state 102
-    EQ        shift, and go to state 103
-    NEQ       shift, and go to state 104
-    LSS       shift, and go to state 105
-    GTR       shift, and go to state 106
-    LEQ       shift, and go to state 107
-    GEQ       shift, and go to state 108
+    OPENBRKT  shift, and go to state 95
+    PLUS      shift, and go to state 96
+    MINUS     shift, and go to state 97
+    TIMES     shift, and go to state 98
+    SLASH     shift, and go to state 99
+    RPAREN    shift, and go to state 112
+    PERIOD    shift, and go to state 101
+    EQ        shift, and go to state 102
+    NEQ       shift, and go to state 103
+    LSS       shift, and go to state 104
+    GTR       shift, and go to state 105
+    LEQ       shift, and go to state 106
+    GEQ       shift, and go to state 107
 
-    Op  go to state 109
+    Op  go to state 108
 
 
 State 89
@@ -1125,28 +1120,46 @@ State 90
     IDENT     shift, and go to state 82
     NUMBER    shift, and go to state 83
 
-    Exp  go to state 114
+    Exp  go to state 113
 
 
 State 91
 
-   16 FormalRest: COMMA Type IDENT FormalRest .
+   42 Exp: NEWSYM INTSYM . OPENBRKT Exp CLOSEBRKT
 
-    $default  reduce using rule 16 (FormalRest)
+    OPENBRKT  shift, and go to state 114
 
 
 State 92
 
-   42 Exp: NEWSYM INTSYM . OPENBRKT Exp CLOSEBRKT
+   43 Exp: NEWSYM IDENT . LPAREN RPAREN
 
-    OPENBRKT  shift, and go to state 115
+    LPAREN  shift, and go to state 115
 
 
 State 93
 
-   43 Exp: NEWSYM IDENT . LPAREN RPAREN
+   33 Exp: Exp . Op Exp
+   34    | Exp . OPENBRKT Exp CLOSEBRKT
+   35    | Exp . PERIOD LENGTHSYM
+   36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
+   45    | LPAREN Exp . RPAREN
 
-    LPAREN  shift, and go to state 116
+    OPENBRKT  shift, and go to state 95
+    PLUS      shift, and go to state 96
+    MINUS     shift, and go to state 97
+    TIMES     shift, and go to state 98
+    SLASH     shift, and go to state 99
+    RPAREN    shift, and go to state 116
+    PERIOD    shift, and go to state 101
+    EQ        shift, and go to state 102
+    NEQ       shift, and go to state 103
+    LSS       shift, and go to state 104
+    GTR       shift, and go to state 105
+    LEQ       shift, and go to state 106
+    GEQ       shift, and go to state 107
+
+    Op  go to state 108
 
 
 State 94
@@ -1155,45 +1168,20 @@ State 94
    34    | Exp . OPENBRKT Exp CLOSEBRKT
    35    | Exp . PERIOD LENGTHSYM
    36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
-   45    | LPAREN Exp . RPAREN
-
-    OPENBRKT  shift, and go to state 96
-    PLUS      shift, and go to state 97
-    MINUS     shift, and go to state 98
-    TIMES     shift, and go to state 99
-    SLASH     shift, and go to state 100
-    RPAREN    shift, and go to state 117
-    PERIOD    shift, and go to state 102
-    EQ        shift, and go to state 103
-    NEQ       shift, and go to state 104
-    LSS       shift, and go to state 105
-    GTR       shift, and go to state 106
-    LEQ       shift, and go to state 107
-    GEQ       shift, and go to state 108
-
-    Op  go to state 109
-
-
-State 95
-
-   33 Exp: Exp . Op Exp
-   34    | Exp . OPENBRKT Exp CLOSEBRKT
-   35    | Exp . PERIOD LENGTHSYM
-   36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
    44    | NEG Exp .
 
-    OPENBRKT  shift, and go to state 96
-    PLUS      shift, and go to state 97
-    MINUS     shift, and go to state 98
-    TIMES     shift, and go to state 99
-    SLASH     shift, and go to state 100
-    PERIOD    shift, and go to state 102
-    EQ        shift, and go to state 103
-    NEQ       shift, and go to state 104
-    LSS       shift, and go to state 105
-    GTR       shift, and go to state 106
-    LEQ       shift, and go to state 107
-    GEQ       shift, and go to state 108
+    OPENBRKT  shift, and go to state 95
+    PLUS      shift, and go to state 96
+    MINUS     shift, and go to state 97
+    TIMES     shift, and go to state 98
+    SLASH     shift, and go to state 99
+    PERIOD    shift, and go to state 101
+    EQ        shift, and go to state 102
+    NEQ       shift, and go to state 103
+    LSS       shift, and go to state 104
+    GTR       shift, and go to state 105
+    LEQ       shift, and go to state 106
+    GEQ       shift, and go to state 107
 
     OPENBRKT  [reduce using rule 44 (Exp)]
     PLUS      [reduce using rule 44 (Exp)]
@@ -1209,10 +1197,10 @@ State 95
     GEQ       [reduce using rule 44 (Exp)]
     $default  reduce using rule 44 (Exp)
 
-    Op  go to state 109
+    Op  go to state 108
 
 
-State 96
+State 95
 
    34 Exp: Exp OPENBRKT . Exp CLOSEBRKT
 
@@ -1225,104 +1213,104 @@ State 96
     IDENT     shift, and go to state 82
     NUMBER    shift, and go to state 83
 
-    Exp  go to state 118
+    Exp  go to state 117
 
 
-State 97
+State 96
 
    46 Op: PLUS .
 
     $default  reduce using rule 46 (Op)
 
 
-State 98
+State 97
 
    47 Op: MINUS .
 
     $default  reduce using rule 47 (Op)
 
 
-State 99
+State 98
 
    48 Op: TIMES .
 
     $default  reduce using rule 48 (Op)
 
 
-State 100
+State 99
 
    49 Op: SLASH .
 
     $default  reduce using rule 49 (Op)
 
 
-State 101
+State 100
 
    26 NonAssignStmt: IFSYM LPAREN Exp RPAREN . Statement ELSESYM Statement
 
-    OPENBRACE  shift, and go to state 55
-    IFSYM      shift, and go to state 56
-    WHILESYM   shift, and go to state 57
-    IDENT      shift, and go to state 58
-    PRINTSYM   shift, and go to state 59
+    OPENBRACE  shift, and go to state 56
+    IFSYM      shift, and go to state 57
+    WHILESYM   shift, and go to state 58
+    IDENT      shift, and go to state 59
+    PRINTSYM   shift, and go to state 60
 
-    Assignment     go to state 60
-    NonAssignStmt  go to state 61
-    Statement      go to state 119
+    Assignment     go to state 61
+    NonAssignStmt  go to state 62
+    Statement      go to state 118
 
 
-State 102
+State 101
 
    35 Exp: Exp PERIOD . LENGTHSYM
    36    | Exp PERIOD . IDENT LPAREN ExpList RPAREN
 
-    LENGTHSYM  shift, and go to state 120
-    IDENT      shift, and go to state 121
+    LENGTHSYM  shift, and go to state 119
+    IDENT      shift, and go to state 120
 
 
-State 103
+State 102
 
    52 Op: EQ .
 
     $default  reduce using rule 52 (Op)
 
 
-State 104
+State 103
 
    55 Op: NEQ .
 
     $default  reduce using rule 55 (Op)
 
 
-State 105
+State 104
 
    53 Op: LSS .
 
     $default  reduce using rule 53 (Op)
 
 
-State 106
+State 105
 
    50 Op: GTR .
 
     $default  reduce using rule 50 (Op)
 
 
-State 107
+State 106
 
    54 Op: LEQ .
 
     $default  reduce using rule 54 (Op)
 
 
-State 108
+State 107
 
    51 Op: GEQ .
 
     $default  reduce using rule 51 (Op)
 
 
-State 109
+State 108
 
    33 Exp: Exp Op . Exp
 
@@ -1335,46 +1323,46 @@ State 109
     IDENT     shift, and go to state 82
     NUMBER    shift, and go to state 83
 
-    Exp  go to state 122
+    Exp  go to state 121
+
+
+State 109
+
+   27 NonAssignStmt: WHILESYM LPAREN Exp RPAREN . Statement
+
+    OPENBRACE  shift, and go to state 56
+    IFSYM      shift, and go to state 57
+    WHILESYM   shift, and go to state 58
+    IDENT      shift, and go to state 59
+    PRINTSYM   shift, and go to state 60
+
+    Assignment     go to state 61
+    NonAssignStmt  go to state 62
+    Statement      go to state 122
 
 
 State 110
 
-   27 NonAssignStmt: WHILESYM LPAREN Exp RPAREN . Statement
+   24 Assignment: IDENT OPENBRKT Exp CLOSEBRKT . ASSIGNMENT Exp SEMICOLON
 
-    OPENBRACE  shift, and go to state 55
-    IFSYM      shift, and go to state 56
-    WHILESYM   shift, and go to state 57
-    IDENT      shift, and go to state 58
-    PRINTSYM   shift, and go to state 59
-
-    Assignment     go to state 60
-    NonAssignStmt  go to state 61
-    Statement      go to state 123
+    ASSIGNMENT  shift, and go to state 123
 
 
 State 111
-
-   24 Assignment: IDENT OPENBRKT Exp CLOSEBRKT . ASSIGNMENT Exp SEMICOLON
-
-    ASSIGNMENT  shift, and go to state 124
-
-
-State 112
 
    23 Assignment: IDENT ASSIGNMENT Exp SEMICOLON .
 
     $default  reduce using rule 23 (Assignment)
 
 
-State 113
+State 112
 
    28 NonAssignStmt: PRINTSYM LPAREN Exp RPAREN . SEMICOLON
 
-    SEMICOLON  shift, and go to state 125
+    SEMICOLON  shift, and go to state 124
 
 
-State 114
+State 113
 
    10 MethodDecl: PUBLICSYM Type IDENT LPAREN FormalList RPAREN OPENBRACE VarDecls Statements RETURNSYM Exp . SEMICOLON CLOSEBRACE
    33 Exp: Exp . Op Exp
@@ -1382,24 +1370,24 @@ State 114
    35    | Exp . PERIOD LENGTHSYM
    36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
 
-    OPENBRKT   shift, and go to state 96
-    PLUS       shift, and go to state 97
-    MINUS      shift, and go to state 98
-    TIMES      shift, and go to state 99
-    SLASH      shift, and go to state 100
-    SEMICOLON  shift, and go to state 126
-    PERIOD     shift, and go to state 102
-    EQ         shift, and go to state 103
-    NEQ        shift, and go to state 104
-    LSS        shift, and go to state 105
-    GTR        shift, and go to state 106
-    LEQ        shift, and go to state 107
-    GEQ        shift, and go to state 108
+    OPENBRKT   shift, and go to state 95
+    PLUS       shift, and go to state 96
+    MINUS      shift, and go to state 97
+    TIMES      shift, and go to state 98
+    SLASH      shift, and go to state 99
+    SEMICOLON  shift, and go to state 125
+    PERIOD     shift, and go to state 101
+    EQ         shift, and go to state 102
+    NEQ        shift, and go to state 103
+    LSS        shift, and go to state 104
+    GTR        shift, and go to state 105
+    LEQ        shift, and go to state 106
+    GEQ        shift, and go to state 107
 
-    Op  go to state 109
+    Op  go to state 108
 
 
-State 115
+State 114
 
    42 Exp: NEWSYM INTSYM OPENBRKT . Exp CLOSEBRKT
 
@@ -1412,24 +1400,24 @@ State 115
     IDENT     shift, and go to state 82
     NUMBER    shift, and go to state 83
 
-    Exp  go to state 127
+    Exp  go to state 126
 
 
-State 116
+State 115
 
    43 Exp: NEWSYM IDENT LPAREN . RPAREN
 
-    RPAREN  shift, and go to state 128
+    RPAREN  shift, and go to state 127
 
 
-State 117
+State 116
 
    45 Exp: LPAREN Exp RPAREN .
 
     $default  reduce using rule 45 (Exp)
 
 
-State 118
+State 117
 
    33 Exp: Exp . Op Exp
    34    | Exp . OPENBRKT Exp CLOSEBRKT
@@ -1437,45 +1425,45 @@ State 118
    35    | Exp . PERIOD LENGTHSYM
    36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
 
-    OPENBRKT   shift, and go to state 96
-    CLOSEBRKT  shift, and go to state 129
-    PLUS       shift, and go to state 97
-    MINUS      shift, and go to state 98
-    TIMES      shift, and go to state 99
-    SLASH      shift, and go to state 100
-    PERIOD     shift, and go to state 102
-    EQ         shift, and go to state 103
-    NEQ        shift, and go to state 104
-    LSS        shift, and go to state 105
-    GTR        shift, and go to state 106
-    LEQ        shift, and go to state 107
-    GEQ        shift, and go to state 108
+    OPENBRKT   shift, and go to state 95
+    CLOSEBRKT  shift, and go to state 128
+    PLUS       shift, and go to state 96
+    MINUS      shift, and go to state 97
+    TIMES      shift, and go to state 98
+    SLASH      shift, and go to state 99
+    PERIOD     shift, and go to state 101
+    EQ         shift, and go to state 102
+    NEQ        shift, and go to state 103
+    LSS        shift, and go to state 104
+    GTR        shift, and go to state 105
+    LEQ        shift, and go to state 106
+    GEQ        shift, and go to state 107
 
-    Op  go to state 109
+    Op  go to state 108
 
 
-State 119
+State 118
 
    26 NonAssignStmt: IFSYM LPAREN Exp RPAREN Statement . ELSESYM Statement
 
-    ELSESYM  shift, and go to state 130
+    ELSESYM  shift, and go to state 129
 
 
-State 120
+State 119
 
    35 Exp: Exp PERIOD LENGTHSYM .
 
     $default  reduce using rule 35 (Exp)
 
 
-State 121
+State 120
 
    36 Exp: Exp PERIOD IDENT . LPAREN ExpList RPAREN
 
-    LPAREN  shift, and go to state 131
+    LPAREN  shift, and go to state 130
 
 
-State 122
+State 121
 
    33 Exp: Exp . Op Exp
    33    | Exp Op Exp .
@@ -1483,18 +1471,18 @@ State 122
    35    | Exp . PERIOD LENGTHSYM
    36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
 
-    OPENBRKT  shift, and go to state 96
-    PLUS      shift, and go to state 97
-    MINUS     shift, and go to state 98
-    TIMES     shift, and go to state 99
-    SLASH     shift, and go to state 100
-    PERIOD    shift, and go to state 102
-    EQ        shift, and go to state 103
-    NEQ       shift, and go to state 104
-    LSS       shift, and go to state 105
-    GTR       shift, and go to state 106
-    LEQ       shift, and go to state 107
-    GEQ       shift, and go to state 108
+    OPENBRKT  shift, and go to state 95
+    PLUS      shift, and go to state 96
+    MINUS     shift, and go to state 97
+    TIMES     shift, and go to state 98
+    SLASH     shift, and go to state 99
+    PERIOD    shift, and go to state 101
+    EQ        shift, and go to state 102
+    NEQ       shift, and go to state 103
+    LSS       shift, and go to state 104
+    GTR       shift, and go to state 105
+    LEQ       shift, and go to state 106
+    GEQ       shift, and go to state 107
 
     OPENBRKT  [reduce using rule 33 (Exp)]
     PLUS      [reduce using rule 33 (Exp)]
@@ -1510,17 +1498,17 @@ State 122
     GEQ       [reduce using rule 33 (Exp)]
     $default  reduce using rule 33 (Exp)
 
-    Op  go to state 109
+    Op  go to state 108
 
 
-State 123
+State 122
 
    27 NonAssignStmt: WHILESYM LPAREN Exp RPAREN Statement .
 
     $default  reduce using rule 27 (NonAssignStmt)
 
 
-State 124
+State 123
 
    24 Assignment: IDENT OPENBRKT Exp CLOSEBRKT ASSIGNMENT . Exp SEMICOLON
 
@@ -1533,24 +1521,24 @@ State 124
     IDENT     shift, and go to state 82
     NUMBER    shift, and go to state 83
 
-    Exp  go to state 132
+    Exp  go to state 131
 
 
-State 125
+State 124
 
    28 NonAssignStmt: PRINTSYM LPAREN Exp RPAREN SEMICOLON .
 
     $default  reduce using rule 28 (NonAssignStmt)
 
 
-State 126
+State 125
 
    10 MethodDecl: PUBLICSYM Type IDENT LPAREN FormalList RPAREN OPENBRACE VarDecls Statements RETURNSYM Exp SEMICOLON . CLOSEBRACE
 
-    CLOSEBRACE  shift, and go to state 133
+    CLOSEBRACE  shift, and go to state 132
 
 
-State 127
+State 126
 
    33 Exp: Exp . Op Exp
    34    | Exp . OPENBRKT Exp CLOSEBRKT
@@ -1558,70 +1546,63 @@ State 127
    36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
    42    | NEWSYM INTSYM OPENBRKT Exp . CLOSEBRKT
 
-    OPENBRKT   shift, and go to state 96
-    CLOSEBRKT  shift, and go to state 134
-    PLUS       shift, and go to state 97
-    MINUS      shift, and go to state 98
-    TIMES      shift, and go to state 99
-    SLASH      shift, and go to state 100
-    PERIOD     shift, and go to state 102
-    EQ         shift, and go to state 103
-    NEQ        shift, and go to state 104
-    LSS        shift, and go to state 105
-    GTR        shift, and go to state 106
-    LEQ        shift, and go to state 107
-    GEQ        shift, and go to state 108
+    OPENBRKT   shift, and go to state 95
+    CLOSEBRKT  shift, and go to state 133
+    PLUS       shift, and go to state 96
+    MINUS      shift, and go to state 97
+    TIMES      shift, and go to state 98
+    SLASH      shift, and go to state 99
+    PERIOD     shift, and go to state 101
+    EQ         shift, and go to state 102
+    NEQ        shift, and go to state 103
+    LSS        shift, and go to state 104
+    GTR        shift, and go to state 105
+    LEQ        shift, and go to state 106
+    GEQ        shift, and go to state 107
 
-    Op  go to state 109
+    Op  go to state 108
 
 
-State 128
+State 127
 
    43 Exp: NEWSYM IDENT LPAREN RPAREN .
 
     $default  reduce using rule 43 (Exp)
 
 
-State 129
+State 128
 
    34 Exp: Exp OPENBRKT Exp CLOSEBRKT .
 
     $default  reduce using rule 34 (Exp)
 
 
-State 130
+State 129
 
    26 NonAssignStmt: IFSYM LPAREN Exp RPAREN Statement ELSESYM . Statement
 
-    OPENBRACE  shift, and go to state 55
-    IFSYM      shift, and go to state 56
-    WHILESYM   shift, and go to state 57
-    IDENT      shift, and go to state 58
-    PRINTSYM   shift, and go to state 59
+    OPENBRACE  shift, and go to state 56
+    IFSYM      shift, and go to state 57
+    WHILESYM   shift, and go to state 58
+    IDENT      shift, and go to state 59
+    PRINTSYM   shift, and go to state 60
 
-    Assignment     go to state 60
-    NonAssignStmt  go to state 61
-    Statement      go to state 135
+    Assignment     go to state 61
+    NonAssignStmt  go to state 62
+    Statement      go to state 134
 
 
-State 131
+State 130
 
    36 Exp: Exp PERIOD IDENT LPAREN . ExpList RPAREN
 
-    THISSYM   shift, and go to state 76
-    TRUESYM   shift, and go to state 77
-    FALSESYM  shift, and go to state 78
-    NEWSYM    shift, and go to state 79
-    LPAREN    shift, and go to state 80
-    NEG       shift, and go to state 81
-    IDENT     shift, and go to state 82
-    NUMBER    shift, and go to state 83
+    $default  reduce using rule 57 (ExpRests)
 
-    Exp      go to state 136
-    ExpList  go to state 137
+    ExpList   go to state 135
+    ExpRests  go to state 136
 
 
-State 132
+State 131
 
    24 Assignment: IDENT OPENBRKT Exp CLOSEBRKT ASSIGNMENT Exp . SEMICOLON
    33 Exp: Exp . Op Exp
@@ -1629,105 +1610,85 @@ State 132
    35    | Exp . PERIOD LENGTHSYM
    36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
 
-    OPENBRKT   shift, and go to state 96
-    PLUS       shift, and go to state 97
-    MINUS      shift, and go to state 98
-    TIMES      shift, and go to state 99
-    SLASH      shift, and go to state 100
-    SEMICOLON  shift, and go to state 138
-    PERIOD     shift, and go to state 102
-    EQ         shift, and go to state 103
-    NEQ        shift, and go to state 104
-    LSS        shift, and go to state 105
-    GTR        shift, and go to state 106
-    LEQ        shift, and go to state 107
-    GEQ        shift, and go to state 108
+    OPENBRKT   shift, and go to state 95
+    PLUS       shift, and go to state 96
+    MINUS      shift, and go to state 97
+    TIMES      shift, and go to state 98
+    SLASH      shift, and go to state 99
+    SEMICOLON  shift, and go to state 137
+    PERIOD     shift, and go to state 101
+    EQ         shift, and go to state 102
+    NEQ        shift, and go to state 103
+    LSS        shift, and go to state 104
+    GTR        shift, and go to state 105
+    LEQ        shift, and go to state 106
+    GEQ        shift, and go to state 107
 
-    Op  go to state 109
+    Op  go to state 108
 
 
-State 133
+State 132
 
    10 MethodDecl: PUBLICSYM Type IDENT LPAREN FormalList RPAREN OPENBRACE VarDecls Statements RETURNSYM Exp SEMICOLON CLOSEBRACE .
 
     $default  reduce using rule 10 (MethodDecl)
 
 
-State 134
+State 133
 
    42 Exp: NEWSYM INTSYM OPENBRKT Exp CLOSEBRKT .
 
     $default  reduce using rule 42 (Exp)
 
 
-State 135
+State 134
 
    26 NonAssignStmt: IFSYM LPAREN Exp RPAREN Statement ELSESYM Statement .
 
     $default  reduce using rule 26 (NonAssignStmt)
 
 
-State 136
-
-   33 Exp: Exp . Op Exp
-   34    | Exp . OPENBRKT Exp CLOSEBRKT
-   35    | Exp . PERIOD LENGTHSYM
-   36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
-   56 ExpList: Exp . ExpRests
-
-    OPENBRKT  shift, and go to state 96
-    PLUS      shift, and go to state 97
-    MINUS     shift, and go to state 98
-    TIMES     shift, and go to state 99
-    SLASH     shift, and go to state 100
-    PERIOD    shift, and go to state 102
-    EQ        shift, and go to state 103
-    NEQ       shift, and go to state 104
-    LSS       shift, and go to state 105
-    GTR       shift, and go to state 106
-    LEQ       shift, and go to state 107
-    GEQ       shift, and go to state 108
-
-    $default  reduce using rule 57 (ExpRests)
-
-    Op        go to state 109
-    ExpRests  go to state 139
-
-
-State 137
+State 135
 
    36 Exp: Exp PERIOD IDENT LPAREN ExpList . RPAREN
 
-    RPAREN  shift, and go to state 140
+    RPAREN  shift, and go to state 138
 
 
-State 138
+State 136
+
+   56 ExpList: ExpRests . Exp
+   58 ExpRests: ExpRests . ExpRest
+
+    THISSYM   shift, and go to state 76
+    TRUESYM   shift, and go to state 77
+    FALSESYM  shift, and go to state 78
+    NEWSYM    shift, and go to state 79
+    LPAREN    shift, and go to state 80
+    COMMA     shift, and go to state 139
+    NEG       shift, and go to state 81
+    IDENT     shift, and go to state 82
+    NUMBER    shift, and go to state 83
+
+    Exp      go to state 140
+    ExpRest  go to state 141
+
+
+State 137
 
    24 Assignment: IDENT OPENBRKT Exp CLOSEBRKT ASSIGNMENT Exp SEMICOLON .
 
     $default  reduce using rule 24 (Assignment)
 
 
-State 139
-
-   56 ExpList: Exp ExpRests .
-   58 ExpRests: ExpRests . ExpRest
-
-    COMMA  shift, and go to state 141
-
-    $default  reduce using rule 56 (ExpList)
-
-    ExpRest  go to state 142
-
-
-State 140
+State 138
 
    36 Exp: Exp PERIOD IDENT LPAREN ExpList RPAREN .
 
     $default  reduce using rule 36 (Exp)
 
 
-State 141
+State 139
 
    59 ExpRest: COMMA . Exp
 
@@ -1740,17 +1701,43 @@ State 141
     IDENT     shift, and go to state 82
     NUMBER    shift, and go to state 83
 
-    Exp  go to state 143
+    Exp  go to state 142
 
 
-State 142
+State 140
+
+   33 Exp: Exp . Op Exp
+   34    | Exp . OPENBRKT Exp CLOSEBRKT
+   35    | Exp . PERIOD LENGTHSYM
+   36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
+   56 ExpList: ExpRests Exp .
+
+    OPENBRKT  shift, and go to state 95
+    PLUS      shift, and go to state 96
+    MINUS     shift, and go to state 97
+    TIMES     shift, and go to state 98
+    SLASH     shift, and go to state 99
+    PERIOD    shift, and go to state 101
+    EQ        shift, and go to state 102
+    NEQ       shift, and go to state 103
+    LSS       shift, and go to state 104
+    GTR       shift, and go to state 105
+    LEQ       shift, and go to state 106
+    GEQ       shift, and go to state 107
+
+    $default  reduce using rule 56 (ExpList)
+
+    Op  go to state 108
+
+
+State 141
 
    58 ExpRests: ExpRests ExpRest .
 
     $default  reduce using rule 58 (ExpRests)
 
 
-State 143
+State 142
 
    33 Exp: Exp . Op Exp
    34    | Exp . OPENBRKT Exp CLOSEBRKT
@@ -1758,19 +1745,19 @@ State 143
    36    | Exp . PERIOD IDENT LPAREN ExpList RPAREN
    59 ExpRest: COMMA Exp .
 
-    OPENBRKT  shift, and go to state 96
-    PLUS      shift, and go to state 97
-    MINUS     shift, and go to state 98
-    TIMES     shift, and go to state 99
-    SLASH     shift, and go to state 100
-    PERIOD    shift, and go to state 102
-    EQ        shift, and go to state 103
-    NEQ       shift, and go to state 104
-    LSS       shift, and go to state 105
-    GTR       shift, and go to state 106
-    LEQ       shift, and go to state 107
-    GEQ       shift, and go to state 108
+    OPENBRKT  shift, and go to state 95
+    PLUS      shift, and go to state 96
+    MINUS     shift, and go to state 97
+    TIMES     shift, and go to state 98
+    SLASH     shift, and go to state 99
+    PERIOD    shift, and go to state 101
+    EQ        shift, and go to state 102
+    NEQ       shift, and go to state 103
+    LSS       shift, and go to state 104
+    GTR       shift, and go to state 105
+    LEQ       shift, and go to state 106
+    GEQ       shift, and go to state 107
 
     $default  reduce using rule 59 (ExpRest)
 
-    Op  go to state 109
+    Op  go to state 108

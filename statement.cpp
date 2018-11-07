@@ -3,34 +3,22 @@
 
 #include <graphviz/gvc.h>
 
-Statements::Statements(Statements* rest, Statement* stmt)
-{
-    this->rest = rest;
-    this->stmt = stmt;
-}
-
-Agnode_t* Statements::buildGVNode(Agraph_t* g)
-{
-    Agnode_t* v;
-    TWO_CHILD_VERTEX(v, "Statements", rest, stmt);
-    
-    return v;
-}
-
-BracedStatement::BracedStatement(Statements* stmts)
+BracedStatement::BracedStatement(std::list<Statement*>* stmts)
 {
     this->stmts = stmts;
 }
 
 Agnode_t* BracedStatement::buildGVNode(Agraph_t* g)
 {
-    Agnode_t* v;
-    ONE_CHILD_VERTEX(v, "BracedStatement", stmts);
+    Agnode_t* v = NULL;
+    std::list<Statement*>::iterator it;
+    EXPAND_LIST_VERTEX(v, it, "BracedStatement", stmts);
     
     return v;
 }
 
-IfElseStatement::IfElseStatement(Expression* cndexp, Statement* ifstmt, Statement* elsestmt)
+IfElseStatement::IfElseStatement(Expression* cndexp, Statement* ifstmt, 
+                                 Statement* elsestmt)
 {
     this->cndexp = cndexp;
     this->ifstmt = ifstmt;
@@ -68,6 +56,35 @@ Agnode_t* PrintStatement::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
     ONE_CHILD_VERTEX(v, "PrintStatement", exp);
+    
+    return v;
+}
+
+VarAssignment::VarAssignment(TokenExpression* id, Expression* exp)
+{
+    this->id = id;
+    this->exp = exp;
+}
+
+Agnode_t* VarAssignment::buildGVNode(Agraph_t* g)
+{
+    Agnode_t* v;
+    TWO_CHILD_VERTEX(v, "VarAssignment", id, exp);
+    
+    return v;
+}
+
+ArrayAssignment::ArrayAssignment(TokenExpression* id, Expression* exp1, Expression* exp2)
+{
+    this->id = id;
+    this->exp1 = exp1;
+    this->exp2 = exp2;
+}
+
+Agnode_t* ArrayAssignment::buildGVNode(Agraph_t* g)
+{
+    Agnode_t* v;
+    THREE_CHILD_VERTEX(v, "ArrayAssignment", id, exp1, exp2);
     
     return v;
 }

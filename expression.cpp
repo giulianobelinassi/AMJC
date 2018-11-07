@@ -30,7 +30,8 @@ Agnode_t* LengthExpression::buildGVNode(Agraph_t* g)
     return v;
 }
 
-MethodExpression::MethodExpression(Expression* exp, TokenExpression* id, ExpList* explist)
+MethodExpression::MethodExpression(Expression* exp, TokenExpression* id, 
+                                   std::list<Expression*>* explist)
 {
     this->exp = exp;
     this->id = id;
@@ -40,8 +41,10 @@ MethodExpression::MethodExpression(Expression* exp, TokenExpression* id, ExpList
 Agnode_t* MethodExpression::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
-    THREE_CHILD_VERTEX(v, "MethodExpression", exp, id, explist);
-    
+    std::list<Expression*>::iterator it;
+    TWO_CHILD_VERTEX(v, "MethodExpression", exp, id);
+    EXPAND_LIST_VERTEX(v, it, "ExpList", explist);
+
     return v;
 }
 
@@ -121,20 +124,6 @@ Agnode_t* BrcktExpression::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
     TWO_CHILD_VERTEX(v, "BrcktExpression", exp1, exp2);
-    
-    return v;
-}
-
-ExpList::ExpList(Expression* exp, ExpList* rest)
-{
-    this->exp  = exp;
-    this->rest = rest;
-}
-
-Agnode_t* ExpList::buildGVNode(Agraph_t* g)
-{
-    Agnode_t* v;
-    TWO_CHILD_VERTEX(v, "ExpList", exp, rest);
     
     return v;
 }

@@ -42,27 +42,16 @@ class LengthExpression : public Expression
     LengthExpression(Expression*);
 };
 
-class ExpList
-{
-    public:
-    Expression* exp;
-    ExpList* rest;
-    
-    struct Agnode_s* buildGVNode(struct Agraph_s*);
-
-    ExpList(Expression*, ExpList*);
-};
-
 class MethodExpression : public Expression
 {
     public: 
     Expression* exp;
     TokenExpression* id;
-    ExpList* explist;
+    std::list<Expression*>* explist;
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
 
-    MethodExpression(Expression*, TokenExpression*, ExpList*);
+    MethodExpression(Expression*, TokenExpression*, std::list<Expression*>*);
 };
 
 class NewIntArrExpression : public Expression

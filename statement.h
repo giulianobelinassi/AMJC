@@ -14,27 +14,16 @@ class Statement
     
 };
 
-class Statements
-{
-    public:
-    Statements* rest;
-    Statement* stmt;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s*);
-
-    Statements(Statements*, Statement*);
-};
-
 class Assignment : public Statement { };
 
 class BracedStatement : public Statement
 {
     public:
-    Statements* stmts;
+    std::list<Statement*>* stmts;
     
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
 
-    BracedStatement(Statements*);
+    BracedStatement(std::list<Statement*>*);
 };
 
 class IfElseStatement : public Statement

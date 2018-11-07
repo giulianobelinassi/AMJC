@@ -53,3 +53,11 @@ while(0)
     agedge(g, v, _c5, 0, 1); \
 } while(0)
 
+#define EXPAND_LIST_VERTEX(root, iterator, name, _c1) do {\
+    Agnode_t* _v; \
+    for (iterator = _c1->begin(); iterator != _c1->end(); ++iterator) \
+    { \
+        ONE_CHILD_VERTEX(_v, name, *iterator); \
+        agedge(g, root, _v, 0, 1); \
+    } \
+} while(0)

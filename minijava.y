@@ -6,6 +6,7 @@
 #include "tree.h"
 #include "expression.h"
 #include "statement.h"
+#include "declaration.h"
 #include "types.h"
 
 extern "C" {
@@ -81,19 +82,21 @@ void yyerror(Program** p, const char *s);
 
 %union{
     Expression* exp;
-    ExpList* explist;
     TokenExpression* ident;
     Statement* stmt;
-    Statements* stmts;
     Type* type;
-    FormalList* formlist;
-    MethodDecls* methoddecls;
     MethodDecl* methoddecl;
     VarDecl* vardecl;
-    VarDecls* vardecls;
     ClassDecl* classdecl;
-    std::list<ClassDecl*>* classdecls;
     MainClass* mainclass;
+    
+    /*Lists*/
+    std::list<ClassDecl* >* classdecls;
+    std::list<MethodDecl*>* methoddecls;
+    std::list<VarDecl*   >* vardecls;
+    std::list<Statement* >* stmts;
+    std::list<Expression*>* explist;
+
     char* str;
 }
 
@@ -110,8 +113,8 @@ void yyerror(Program** p, const char *s);
 %type <type> Type
 %type <type> PrimitiveType
 %type <type> CustomType
-%type <formlist> FormalList
-%type <formlist> FormalRest
+%type <vardecls> FormalList
+%type <vardecls> FormalRest
 %type <methoddecls> MethodDecls
 %type <methoddecl> MethodDecl
 %type <vardecls> VarDecls
@@ -126,27 +129,38 @@ Program:
     ;
 
 MainClass:
-      CLASSSYM IDENT OPENBRACE PUBLICSYM STATICSYM VOIDSYM MAINSYM LPAREN STRINGSYM OPENBRKT CLOSEBRKT 
-      IDENT RPAREN OPENBRACE Statement[L] CLOSEBRACE CLOSEBRACE { $$ = new MainClass($L); }
+      CLASSSYM IDENT OPENBRACE PUBLICSYM STATICSYM VOIDSYM MAINSYM LPAREN 
+        STRINGSYM OPENBRKT CLOSEBRKT IDENT RPAREN OPENBRACE Statement[L] 
+        CLOSEBRACE CLOSEBRACE 
+          { $$ = new MainClass($L); }
     ;
 
 ClassDecl:
-      CLASSSYM IDENT[I] OPENBRACE VarDecls[L] MethodDecls[R] CLOSEBRACE { $$ = new ClassDecl(new TokenExpression(strtok($I, "{")), $L, $R); }
-    | CLASSSYM IDENT[I] EXTENDSYM IDENT OPENBRACE VarDecls[L] MethodDecls[R] CLOSEBRACE { $$ = new ClassDecl(new TokenExpression(strtok($I, "{")), $L, $R); }
+      CLASSSYM IDENT[I] OPENBRACE VarDecls[L] MethodDecls[R] CLOSEBRACE 
+          /*{ $$ = new ClassDecl(new TokenExpression(strtok($I, "{")), $L, $R); }*/
+          { $$ = new ClassDecl(new TokenExpression($I), $L, $R); }
+    | CLASSSYM IDENT[I] EXTENDSYM IDENT OPENBRACE VarDecls[L] MethodDecls[R] 
+        CLOSEBRACE 
+          { $$ = new ClassDecl(new TokenExpression(strtok($I, "{")), $L, $R); }
     ;
 
 ClassDecls:
-      /*Epsilon*/ { $$ = new std::list<ClassDecl*>(); }
-    | ClassDecls[L] ClassDecl[R] { ($L)->push_back($R); $$ = $L; }
+      /*Epsilon*/ 
+          { $$ = new std::list<ClassDecl*>(); }
+    | ClassDecls[L] ClassDecl[R] 
+          { ($L)->push_back($R); $$ = $L; }
     ;
 
 VarDecl:
-      Type[L] IDENT[R] SEMICOLON { $$ = new VarDecl($L, new TokenExpression(strtok($R, ";"))); }
+      Type[L] IDENT[R] SEMICOLON 
+          { $$ = new VarDecl($L, new TokenExpression(strtok($R, ";"))); }
     ;
 
 VarDecls:
-      /*Epsilon*/ { printf("1\n"); $$ = NULL; }
-    | VarDecls[L] VarDecl[R] { printf("2\n"); $$ = new VarDecls($L, $R); }
+      /*Epsilon*/ 
+          { $$ = new std::list<VarDecl*>(); }
+    | VarDecls[L] VarDecl[R] 
+          { ($L)->push_back($R); $$ = $L; }
     ;
 
 MethodDecl:
@@ -156,19 +170,21 @@ MethodDecl:
     ;
 
 MethodDecls:
-      /*Epsilon*/ { $$ = NULL; }
-    | MethodDecls[L] MethodDecl[R] { $$ = new MethodDecls($L, $R); }
+      /*Epsilon*/ { $$ = new std::list<MethodDecl*>(); }
+    | MethodDecls[L] MethodDecl[R] { ($L)->push_back($R); $$ = $L; }
     ;
 
 
 FormalList:
-    /*Epsilon*/ { $$ = NULL; }
-    | Type[L] IDENT[C] FormalRest[R] { $$ = new FormalList($L, new TokenExpression(strtok($C, ")")), $R); }
+    /*Epsilon*/ { $$ = new std::list<VarDecl*>(); }
+    | FormalRest[L] Type[C] IDENT[R] 
+        { ($L)->push_back(new VarDecl($C, new TokenExpression($R))); $$ = $L; }
     ;
 
 FormalRest:
-      /*Epsilon*/ { $$ = NULL; }
-    | COMMA Type[L] IDENT[C] FormalRest[R] { $$ = new FormalList($L, new TokenExpression(strtok($C, ")")), $R); }
+      /*Epsilon*/ { $$ = new std::list<VarDecl*>(); }
+    | FormalRest[L] COMMA Type[C] IDENT[R] 
+        { ($L)->push_back(new VarDecl($C, new TokenExpression($R))); $$ = $L; }
     ;
 
 Type:
@@ -187,15 +203,20 @@ PrimitiveType:
     ;
 
 Assignment:
-      IDENT[L] ASSIGNMENT Exp[R] SEMICOLON { $$ = new VarAssignment(new TokenExpression(strtok($L, "=")), $R); }
-    | IDENT[L] OPENBRKT Exp[C] CLOSEBRKT ASSIGNMENT Exp[R] SEMICOLON { $$ = new ArrayAssignment(new TokenExpression(strtok($L, "{")), $C, $R);}
+      IDENT[L] ASSIGNMENT Exp[R] SEMICOLON 
+        { $$ = new VarAssignment(new TokenExpression(strtok($L, "=")), $R); }
+    | IDENT[L] OPENBRKT Exp[C] CLOSEBRKT ASSIGNMENT Exp[R] SEMICOLON 
+        { $$ = new ArrayAssignment(new TokenExpression(strtok($L, "{")), $C, $R);}
     ;
 
 NonAssignStmt:
       OPENBRACE Statements[L] CLOSEBRACE { $$ = new BracedStatement($L);}
-    | IFSYM LPAREN Exp[L] RPAREN Statement[C] ELSESYM Statement[R] { $$ = new IfElseStatement($L, $C, $R);}
-    | WHILESYM LPAREN Exp[L] RPAREN Statement[R] { $$ = new WhileStatement($L, $R); }
-    | PRINTSYM LPAREN Exp[L] RPAREN SEMICOLON { $$ = new PrintStatement($L); }
+    | IFSYM LPAREN Exp[L] RPAREN Statement[C] ELSESYM Statement[R] 
+        { $$ = new IfElseStatement($L, $C, $R);}
+    | WHILESYM LPAREN Exp[L] RPAREN Statement[R] 
+        { $$ = new WhileStatement($L, $R); }
+    | PRINTSYM LPAREN Exp[L] RPAREN SEMICOLON 
+        { $$ = new PrintStatement($L); }
     ;
 
 Statement:
@@ -204,8 +225,8 @@ Statement:
     ;
 
 Statements:
-    /*Epsilon*/ { $$ = NULL;}
-    | Statements[L] Statement[R] { $$ = new Statements($L, $R); }
+    /*Epsilon*/ { $$ = new std::list<Statement*>(); }
+    | Statements[L] Statement[R] { ($L)->push_back($R); $$ = $L; }
     ;
 
 Exp:
@@ -238,12 +259,12 @@ Op:
    ;
 
 ExpList:
-      Exp[L] ExpRests[R] { $$ = new ExpList($L, $R); }
+      ExpRests[L] Exp[R] { ($L)->push_back($R); $$ = $L; }
     ;
 
 ExpRests:
-      /*eps*/ { $$ = NULL; }
-    | ExpRests[R] ExpRest[L] { $$ = new ExpList($L, $R); }
+      /*eps*/ { $$ = new std::list<Expression*>(); }
+    | ExpRests[L] ExpRest[R] { ($L)->push_back($R); $$ = $L; }
     ;
 
 ExpRest:

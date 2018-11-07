@@ -33,32 +33,12 @@ class Assignment;
 class VarAssignment;
 class ArrayAssignment;
 
-/*Lists*/
-class Statements;
-class ExpList;
+/*Declarations*/
+class VarDecl;
+class MethodDecl;
+class ClassDecl;
 
-class VarDecl
-{
-    public:
-    Type* type;
-    TokenExpression* id;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s*);
-
-    VarDecl(Type*, TokenExpression*);
-};
-
-class VarDecls
-{
-    public:
-    VarDecls* decls;
-    VarDecl* decl;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s*);
-
-    VarDecls(VarDecls*, VarDecl*);
-};
-
+/*Miscellaneous*/
 class MainClass
 {
     public:
@@ -68,68 +48,6 @@ class MainClass
 
     MainClass(Statement*);
 };
-
-
-class FormalList
-{
-    public:
-    Type* type;
-    TokenExpression* id;
-    FormalList* rest;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s*);
-
-    FormalList(Type*, TokenExpression*, FormalList*);
-};
-
-class MethodDecl
-{
-    public:
-    Type* type;
-    FormalList* formals;
-    VarDecls* decls;
-    Statements* stmts;
-    Expression* exp;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s*);
-
-    MethodDecl(Type*, FormalList*, VarDecls*, Statements*, Expression* exp);
-};
-
-class MethodDecls
-{
-    public:
-    MethodDecls* decls;
-    MethodDecl* decl;
-    
-    struct Agnode_s* buildGVNode(struct Agraph_s*);
-
-    MethodDecls(MethodDecls*, MethodDecl*);
-};
-
-class ClassDecl
-{
-    public:
-    TokenExpression* name;
-    VarDecls* vars;
-    MethodDecls* decls;
-
-    struct Agnode_s* buildGVNode(struct Agraph_s* g);
-
-    ClassDecl(TokenExpression*, VarDecls*, MethodDecls*);
-};
-
-class ClassDecls
-{
-    public:
-    ClassDecls* decls; 
-    ClassDecl* decl;
-    
-    struct Agnode_s* buildGVNode(struct Agraph_s* g);
-
-    ClassDecls(ClassDecls*, ClassDecl*);
-};
-
 
 class Program
 {

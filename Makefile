@@ -7,8 +7,11 @@ LEXFLAGS  =
 YACC      = bison
 YACCFLAGS = -v -d
 
-main: lex.yy.o minijava.tab.o tree.o statement.o expression.o types.o
+main: lex.yy.o minijava.tab.o tree.o statement.o expression.o types.o declaration.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+declaration.o: declaration.cpp declaration.h tree.h expression.h statement.h
+	$(CXX) $(CXXFLAGS) -c $<
 
 expression.o: expression.cpp expression.h tree.h macros.h
 	$(CXX) $(CXXFLAGS) -c $<
