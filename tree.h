@@ -12,7 +12,7 @@ struct Agnode_s;
 
 /*Expressions*/
 class Expression;
-class TokenExpression;
+class VarIdExpression;
 class OpExpression;
 class LengthExpression;
 class MethodExpression;

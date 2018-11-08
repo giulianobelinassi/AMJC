@@ -16,7 +16,7 @@ LengthExpression::LengthExpression(Expression* exp)
     this->exp = exp;
 }
 
-MethodExpression::MethodExpression(Expression* exp, TokenExpression* id, 
+MethodExpression::MethodExpression(Expression* exp, VarIdExpression* id, 
                                    std::list<Expression*>* explist)
 {
     this->exp = exp;
@@ -30,7 +30,7 @@ NewIntArrExpression::NewIntArrExpression(Expression* exp)
 }
 
 
-NewMethodExpression::NewMethodExpression(TokenExpression* id)
+NewMethodExpression::NewMethodExpression(VarIdExpression* id)
 {
     this->id = id;
 }
@@ -40,7 +40,7 @@ NegateExpression::NegateExpression(Expression* exp)
     this->exp = exp;
 }
 
-TokenExpression::TokenExpression(const char* token)
+VarIdExpression::VarIdExpression(const char* token)
 {
     COPY_STR(this->token, token);
 }
@@ -119,7 +119,7 @@ Agnode_t* NegateExpression::buildGVNode(Agraph_t* g)
     return v;
 }
 
-Agnode_t* TokenExpression::buildGVNode(Agraph_t* g)
+Agnode_t* VarIdExpression::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
     ZERO_CHILD_VERTEX(v, this->token);

@@ -9,11 +9,11 @@ class VarDecl
 {
     public:
     Type* type;
-    TokenExpression* id;
+    VarIdExpression* id;
 
     struct Agnode_s* buildGVNode(struct Agraph_s*);
 
-    VarDecl(Type*, TokenExpression*);
+    VarDecl(Type*, VarIdExpression*);
 };
 
 class MethodDecl
@@ -34,12 +34,12 @@ class MethodDecl
 class ClassDecl
 {
     public:
-    TokenExpression* name;
+    VarIdExpression* name;
     std::list<VarDecl*>* vars;
     std::list<MethodDecl*>* decls;
 
     struct Agnode_s* buildGVNode(struct Agraph_s* g);
 
-    ClassDecl(TokenExpression*, std::list<VarDecl*>*, std::list<MethodDecl*>*);
+    ClassDecl(VarIdExpression*, std::list<VarDecl*>*, std::list<MethodDecl*>*);
 };
 #endif

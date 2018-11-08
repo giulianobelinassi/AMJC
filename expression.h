@@ -4,21 +4,21 @@
 #include "tree.h"
 
 class Expression
-{ 
-    public: 
+{
+    public:
     virtual ~Expression() {}
 
     virtual struct Agnode_s* buildGVNode(struct Agraph_s*) {return NULL;}
 };
 
-class TokenExpression : public Expression
+class VarIdExpression : public Expression
 {
     public:
     const char* token;
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
 
-    TokenExpression(const char* token);
+    VarIdExpression(const char* token);
 };
 
 class BoolExpression : public Expression
@@ -36,7 +36,7 @@ class ThisExpression : public Expression
 {
 
     public:
-    
+
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
 
     ThisExpression(void);
@@ -45,7 +45,7 @@ class ThisExpression : public Expression
 class NumExpression : public Expression
 {
     public:
-    
+
     int val;
     const char* val_str;
 
@@ -56,10 +56,10 @@ class NumExpression : public Expression
 
 class OpExpression : public Expression
 {
-    public: 
+    public:
     Expression* exp1;
     Expression* exp2;
-    
+
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
 
     OpExpression(Expression*, Expression*);
@@ -67,9 +67,9 @@ class OpExpression : public Expression
 
 class LengthExpression : public Expression
 {
-    public: 
+    public:
     Expression* exp;
-    
+
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
 
     LengthExpression(Expression*);
@@ -77,14 +77,14 @@ class LengthExpression : public Expression
 
 class MethodExpression : public Expression
 {
-    public: 
+    public:
     Expression* exp;
-    TokenExpression* id;
+    VarIdExpression* id;
     std::list<Expression*>* explist;
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
 
-    MethodExpression(Expression*, TokenExpression*, std::list<Expression*>*);
+    MethodExpression(Expression*, VarIdExpression*, std::list<Expression*>*);
 };
 
 class NewIntArrExpression : public Expression
@@ -93,25 +93,25 @@ class NewIntArrExpression : public Expression
     Expression* exp;
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-    
+
     NewIntArrExpression(Expression*);
 };
 
 class NewMethodExpression : public Expression
 {
     public:
-    TokenExpression* id;
-    
+    VarIdExpression* id;
+
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
 
-    NewMethodExpression(TokenExpression*);
+    NewMethodExpression(VarIdExpression*);
 };
 
 class NegateExpression : public Expression
 {
     public:
     Expression* exp;
-    
+
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
 
     NegateExpression(Expression*);
@@ -121,7 +121,7 @@ class ParenExpression : public Expression
 {
     public:
     Expression* exp;
-    
+
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
 
     ParenExpression(Expression*);
@@ -132,7 +132,7 @@ class BrcktExpression : public Expression
     public:
     Expression* exp1;
     Expression* exp2;
-    
+
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
 
     BrcktExpression(Expression*, Expression*);

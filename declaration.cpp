@@ -7,7 +7,7 @@
 #include "statement.h"
 #include "macros.h"
 
-ClassDecl::ClassDecl(TokenExpression* name, std::list<VarDecl*>* vars, 
+ClassDecl::ClassDecl(VarIdExpression* name, std::list<VarDecl*>* vars, 
                      std::list<MethodDecl*>* decls)
 {
     this->name = name;
@@ -34,7 +34,7 @@ Agnode_t* ClassDecl::buildGVNode(Agraph_t* g)
 }
 
 
-VarDecl::VarDecl(Type* type, TokenExpression* id)
+VarDecl::VarDecl(Type* type, VarIdExpression* id)
 {
     this->type = type;
     this->id = id;

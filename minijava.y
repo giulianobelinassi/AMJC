@@ -82,7 +82,7 @@ void yyerror(Program** p, const char *s);
 
 %union{
     Expression* exp;
-    TokenExpression* ident;
+    VarIdExpression* ident;
     Statement* stmt;
     Type* type;
     MethodDecl* methoddecl;
@@ -137,10 +137,10 @@ MainClass:
 
 ClassDecl:
       CLASSSYM IDENT[I] OPENBRACE VarDecls[L] MethodDecls[R] CLOSEBRACE 
-          { $$ = new ClassDecl(new TokenExpression(strtok($I, "{")), $L, $R); }
+          { $$ = new ClassDecl(new VarIdExpression(strtok($I, "{")), $L, $R); }
     | CLASSSYM IDENT[I] EXTENDSYM IDENT OPENBRACE VarDecls[L] MethodDecls[R] 
         CLOSEBRACE 
-          { $$ = new ClassDecl(new TokenExpression(strtok($I, "{")), $L, $R); }
+          { $$ = new ClassDecl(new VarIdExpression(strtok($I, "{")), $L, $R); }
     ;
 
 ClassDecls:
@@ -152,7 +152,7 @@ ClassDecls:
 
 VarDecl:
       Type[L] IDENT[R] SEMICOLON 
-          { $$ = new VarDecl($L, new TokenExpression(strtok($R, ";"))); }
+          { $$ = new VarDecl($L, new VarIdExpression(strtok($R, ";"))); }
     ;
 
 VarDecls:
@@ -177,13 +177,13 @@ MethodDecls:
 FormalList:
     /*Epsilon*/ { $$ = new std::list<VarDecl*>(); }
     | FormalRest[L] Type[C] IDENT[R] 
-        { ($L)->push_back(new VarDecl($C, new TokenExpression($R))); $$ = $L; }
+        { ($L)->push_back(new VarDecl($C, new VarIdExpression($R))); $$ = $L; }
     ;
 
 FormalRest:
       /*Epsilon*/ { $$ = new std::list<VarDecl*>(); }
     | FormalRest[L] COMMA Type[C] IDENT[R] 
-        { ($L)->push_back(new VarDecl($C, new TokenExpression($R))); $$ = $L; }
+        { ($L)->push_back(new VarDecl($C, new VarIdExpression($R))); $$ = $L; }
     ;
 
 Type:
@@ -203,9 +203,9 @@ PrimitiveType:
 
 Assignment:
       IDENT[L] ASSIGNMENT Exp[R] SEMICOLON 
-        { $$ = new VarAssignment(new TokenExpression(strtok($L, "=")), $R); }
+        { $$ = new VarAssignment(new VarIdExpression(strtok($L, "=")), $R); }
     | IDENT[L] OPENBRKT Exp[C] CLOSEBRKT ASSIGNMENT Exp[R] SEMICOLON 
-        { $$ = new ArrayAssignment(new TokenExpression(strtok($L, "{")), $C, $R);}
+        { $$ = new ArrayAssignment(new VarIdExpression(strtok($L, "{")), $C, $R);}
     ;
 
 NonAssignStmt:
@@ -232,14 +232,14 @@ Exp:
       Exp[L] Op Exp[R]                                { $$ = new OpExpression($L, $R); }
     | Exp[L] OPENBRKT Exp[R] CLOSEBRKT                { $$ = new BrcktExpression($L, $R); }
     | Exp[L] PERIOD LENGTHSYM                         { $$ = new LengthExpression($L);}
-    | Exp[L] PERIOD IDENT[C] LPAREN ExpList[R] RPAREN { $$ = new MethodExpression($L, new TokenExpression(strtok($C, "(")), $R);}
-    | NUMBER[C]                                       { $$ = new TokenExpression($C); }
+    | Exp[L] PERIOD IDENT[C] LPAREN ExpList[R] RPAREN { $$ = new MethodExpression($L, new VarIdExpression(strtok($C, "(")), $R);}
+    | NUMBER[C]                                       { $$ = new NumExpression($C); }
     | TRUESYM                                         { $$ = new BoolExpression(false); }
     | FALSESYM                                        { $$ = new BoolExpression(true); }
-    | IDENT[C]                                        { $$ = new TokenExpression($C); }
-    | THISSYM                                         { $$ = new TokenExpression("this"); }
+    | IDENT[C]                                        { $$ = new VarIdExpression($C); }
+    | THISSYM                                         { $$ = new VarIdExpression("this"); }
     | NEWSYM INTSYM OPENBRKT Exp[L] CLOSEBRKT         { $$ = new NewIntArrExpression($L); }
-    | NEWSYM IDENT[C] LPAREN RPAREN                   { $$ = new NewMethodExpression(new TokenExpression(strtok($C, "("))); }
+    | NEWSYM IDENT[C] LPAREN RPAREN                   { $$ = new NewMethodExpression(new VarIdExpression(strtok($C, "("))); }
     | NEG Exp[L]                                      { $$ = new NegateExpression($L); }
     | LPAREN Exp[L] RPAREN                            { $$ = new ParenExpression($L);}
     ;

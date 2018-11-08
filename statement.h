@@ -63,24 +63,24 @@ class PrintStatement : public Statement
 class VarAssignment : public Assignment
 {
     public:
-    TokenExpression* id;
+    VarIdExpression* id;
     Expression* exp;
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     
-    VarAssignment(TokenExpression*, Expression*);
+    VarAssignment(VarIdExpression*, Expression*);
 };
 
 class ArrayAssignment : public Assignment
 {
     public:
-    TokenExpression* id;
+    VarIdExpression* id;
     Expression* exp1;
     Expression* exp2;
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     
-    ArrayAssignment(TokenExpression*, Expression*, Expression*);
+    ArrayAssignment(VarIdExpression*, Expression*, Expression*);
 };
 
 

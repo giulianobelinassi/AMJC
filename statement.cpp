@@ -60,7 +60,7 @@ Agnode_t* PrintStatement::buildGVNode(Agraph_t* g)
     return v;
 }
 
-VarAssignment::VarAssignment(TokenExpression* id, Expression* exp)
+VarAssignment::VarAssignment(VarIdExpression* id, Expression* exp)
 {
     this->id = id;
     this->exp = exp;
@@ -74,7 +74,7 @@ Agnode_t* VarAssignment::buildGVNode(Agraph_t* g)
     return v;
 }
 
-ArrayAssignment::ArrayAssignment(TokenExpression* id, Expression* exp1, Expression* exp2)
+ArrayAssignment::ArrayAssignment(VarIdExpression* id, Expression* exp1, Expression* exp2)
 {
     this->id = id;
     this->exp1 = exp1;
