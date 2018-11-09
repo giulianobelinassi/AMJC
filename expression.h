@@ -14,18 +14,18 @@ class Expression
 class VarIdExpression : public Expression
 {
     public:
-    const char* token;
+    std::string token;
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
 
-    VarIdExpression(const char* token);
+    VarIdExpression(std::string token);
 };
 
 class BoolExpression : public Expression
 {
     public:
     bool value;
-    const char* val_str;
+    std::string val_str;
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
 
@@ -47,11 +47,11 @@ class NumExpression : public Expression
     public:
 
     int val;
-    const char* val_str;
+    std::string val_str;
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
 
-    NumExpression(const char*);
+    NumExpression(std::string);
 };
 
 class OpExpression : public Expression

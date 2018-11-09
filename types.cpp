@@ -4,14 +4,14 @@
 #include "macros.h"
 #include "types.h"
 
-Type::Type(const char* id)
+Type::Type(std::string id)
 {
-    COPY_STR(this->id, id);
+    this->id = id;
 }
 
-std::unordered_map<const char*, Type*> Type::registered_types;
+std::unordered_map<std::string, Type*> Type::registered_types;
 
-Type* Type::getTypeFromStr(const char* id)
+Type* Type::getTypeFromStr(std::string id)
 {
     Type* type;
     if (registered_types.find(id) == registered_types.end())
@@ -25,7 +25,7 @@ Type* Type::getTypeFromStr(const char* id)
     return type;
 }
 
-Type* Type::getDeclaredType(const char* id)
+Type* Type::getDeclaredType(std::string id)
 {
     Type* type;
     if (registered_types.find(id) == registered_types.end())
@@ -36,7 +36,7 @@ Type* Type::getDeclaredType(const char* id)
     return type;
 }
 
-Type* Type::declareType(const char* id)
+Type* Type::declareType(std::string id)
 {
     Type* type = NULL;
     if (registered_types.find(id) == registered_types.end())
@@ -59,7 +59,7 @@ void Type::printDeclaredTypes()
 Agnode_t* Type::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
-    ZERO_CHILD_VERTEX(v, id);
-    
+    ZERO_CHILD_VERTEX(v, id.c_str());
+
     return v;
 }

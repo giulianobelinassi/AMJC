@@ -16,7 +16,7 @@ LengthExpression::LengthExpression(Expression* exp)
     this->exp = exp;
 }
 
-MethodExpression::MethodExpression(Expression* exp, VarIdExpression* id, 
+MethodExpression::MethodExpression(Expression* exp, VarIdExpression* id,
                                    std::list<Expression*>* explist)
 {
     this->exp = exp;
@@ -40,9 +40,9 @@ NegateExpression::NegateExpression(Expression* exp)
     this->exp = exp;
 }
 
-VarIdExpression::VarIdExpression(const char* token)
+VarIdExpression::VarIdExpression(std::string token)
 {
-    COPY_STR(this->token, token);
+    this->token = token;
 }
 
 ParenExpression::ParenExpression(Expression* exp)
@@ -59,13 +59,13 @@ BrcktExpression::BrcktExpression(Expression* exp1, Expression* exp2)
 BoolExpression::BoolExpression(bool val)
 {
     value = val;
-    val_str = val ? "true" : "false"; 
+    val_str = val ? "true" : "false";
 }
 
-NumExpression::NumExpression(const char* str)
+NumExpression::NumExpression(std::string str)
 {
-    COPY_STR(val_str, str);
-    val = atoi(str);
+    val_str = str;
+    val = atoi(str.c_str());
 }
 
 /*GraphViz*/
@@ -73,7 +73,7 @@ Agnode_t* OpExpression::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
     TWO_CHILD_VERTEX(v, "OpExpression", exp1, exp2);
-    
+
     return v;
 }
 
@@ -81,7 +81,7 @@ Agnode_t* LengthExpression::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
     ONE_CHILD_VERTEX(v, "LengthExpression", exp);
-    
+
     return v;
 }
 
@@ -99,7 +99,7 @@ Agnode_t* NewIntArrExpression::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
     ONE_CHILD_VERTEX(v, "NewIntArrExpression", exp);
-    
+
     return v;
 }
 
@@ -107,7 +107,7 @@ Agnode_t* NewMethodExpression::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
     ONE_CHILD_VERTEX(v, "NewMethodExpression", id);
-    
+
     return v;
 }
 
@@ -115,15 +115,15 @@ Agnode_t* NegateExpression::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
     ONE_CHILD_VERTEX(v, "NegateExpression", exp);
-    
+
     return v;
 }
 
 Agnode_t* VarIdExpression::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
-    ZERO_CHILD_VERTEX(v, this->token);
-    
+    ZERO_CHILD_VERTEX(v, this->token.c_str());
+
     return v;
 }
 
@@ -131,7 +131,7 @@ Agnode_t* ParenExpression::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
     ONE_CHILD_VERTEX(v, "ParenExpression", exp);
-    
+
     return v;
 }
 
@@ -139,22 +139,22 @@ Agnode_t* BrcktExpression::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
     TWO_CHILD_VERTEX(v, "BrcktExpression", exp1, exp2);
-    
+
     return v;
 }
 
 Agnode_t* BoolExpression::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
-    ZERO_CHILD_VERTEX(v, val_str);
-    
+    ZERO_CHILD_VERTEX(v, val_str.c_str());
+
     return v;
 }
 
 Agnode_t* NumExpression::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
-    ZERO_CHILD_VERTEX(v, val_str);
+    ZERO_CHILD_VERTEX(v, val_str.c_str());
 
     return v;
 }

@@ -9,17 +9,17 @@ struct Agraph_s;
 class Type
 {
     public:
-    static std::unordered_map<const char*, Type*> registered_types;
-    static Type* getTypeFromStr(const char*);
-    static Type* getDeclaredType(const char*);
-    static Type* declareType(const char*);
+    static std::unordered_map<std::string, Type*> registered_types;
+    static Type* getTypeFromStr(std::string);
+    static Type* getDeclaredType(std::string);
+    static Type* declareType(std::string);
     static void printDeclaredTypes(void);
 
-    const char* id;
-    
+    std::string id;
+
     struct Agnode_s* buildGVNode(struct Agraph_s*);
 
-    Type(const char*);
+    Type(std::string);
 };
 
-#endif 
+#endif
