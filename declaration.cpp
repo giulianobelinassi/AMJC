@@ -14,10 +14,6 @@ ClassDecl::ClassDecl(VarIdExpression* name, std::list<VarDecl*>* vars,
     this->vars = vars;
     this->decls = decls;
     Type::declareType(name->token);
-
-    for (auto it = vars->begin(); it != vars->end(); ++it)
-        std::cout << " contains " << *it << std::endl;
-
 }
 
 Agnode_t* ClassDecl::buildGVNode(Agraph_t* g)
@@ -25,7 +21,7 @@ Agnode_t* ClassDecl::buildGVNode(Agraph_t* g)
     Agnode_t* v;
     std::list<VarDecl*>::iterator var_it;
     std::list<MethodDecl*>::iterator method_it;
-    
+
     ONE_CHILD_VERTEX(v, "ClassDecls", name);
     EXPAND_LIST_VERTEX(v, var_it, "VarDecls",  vars);
     EXPAND_LIST_VERTEX(v, method_it, "MethodDecls",  decls);

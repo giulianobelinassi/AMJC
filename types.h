@@ -17,6 +17,11 @@ class Type
 
     std::string id;
 
+    bool isBool();
+    bool isInt();
+    bool isArr();
+    bool isClass();
+
     struct Agnode_s* buildGVNode(struct Agraph_s*);
 
     Type(std::string);

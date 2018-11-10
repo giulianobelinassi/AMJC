@@ -27,7 +27,7 @@ class MethodDecl
 
     struct Agnode_s* buildGVNode(struct Agraph_s*);
 
-    MethodDecl(Type*, std::list<VarDecl*>*, std::list<VarDecl*>*, 
+    MethodDecl(Type*, std::list<VarDecl*>*, std::list<VarDecl*>*,
                std::list<Statement*>*, Expression* exp);
 };
 

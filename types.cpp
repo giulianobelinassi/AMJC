@@ -56,6 +56,28 @@ void Type::printDeclaredTypes()
     }
 }
 
+bool Type::isBool()
+{
+    return (id == "bool");
+}
+
+bool Type::isInt()
+{
+    return (id == "int");
+}
+
+bool Type::isArr()
+{
+    return (id == "int[]");
+}
+
+bool Type::isClass()
+{
+    if (this->isBool() || this->isInt() || this->isArr())
+        return false;
+    return true;
+}
+
 Agnode_t* Type::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
