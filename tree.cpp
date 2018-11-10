@@ -9,6 +9,7 @@
 #include "statement.h"
 #include "declaration.h"
 #include "macros.h"
+#include "symboltable.h"
 
 Program::Program(MainClass* mc, std::list<ClassDecl*>* cd)
 {

@@ -5,6 +5,8 @@ class Factorial {
 }
 
 class Fac {
+    int teste;
+    int teste;
     public int ComputeFac(int num) {
         int numxaux;
         int foo;

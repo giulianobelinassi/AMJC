@@ -20,6 +20,7 @@ class MethodDecl
 {
     public:
     Type* type;
+    VarIdExpression* id;
     std::list<VarDecl*>* formals;
     std::list<VarDecl*>* decls;
     std::list<Statement*>* stmts;
@@ -27,8 +28,8 @@ class MethodDecl
 
     struct Agnode_s* buildGVNode(struct Agraph_s*);
 
-    MethodDecl(Type*, std::list<VarDecl*>*, std::list<VarDecl*>*,
-               std::list<Statement*>*, Expression* exp);
+    MethodDecl(Type*, VarIdExpression*, std::list<VarDecl*>*, 
+               std::list<VarDecl*>*, std::list<Statement*>*, Expression* exp);
 };
 
 class ClassDecl

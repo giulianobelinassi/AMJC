@@ -6,6 +6,7 @@
 #include "expression.h"
 #include "statement.h"
 #include "macros.h"
+#include "symboltable.h"
 
 ClassDecl::ClassDecl(VarIdExpression* name, std::list<VarDecl*>* vars, 
                      std::list<MethodDecl*>* decls)
@@ -14,6 +15,7 @@ ClassDecl::ClassDecl(VarIdExpression* name, std::list<VarDecl*>* vars,
     this->vars = vars;
     this->decls = decls;
     Type::declareType(name->token);
+    SymbolTable(this);
 }
 
 Agnode_t* ClassDecl::buildGVNode(Agraph_t* g)
@@ -44,11 +46,13 @@ Agnode_t* VarDecl::buildGVNode(Agraph_t* g)
     return v;
 }
 
-MethodDecl::MethodDecl(Type* type, std::list<VarDecl*>* formals, 
+MethodDecl::MethodDecl(Type* type, VarIdExpression* id, 
+                       std::list<VarDecl*>* formals, 
                        std::list<VarDecl*>* decls, 
                        std::list<Statement*>* stmts, Expression* exp)
 {
     this->type = type;
+    this->id   = id;
     this->formals = formals;
     this->decls = decls;
     this->stmts = stmts;

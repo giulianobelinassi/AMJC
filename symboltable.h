@@ -13,7 +13,7 @@ union container
     bool as_bool;
     int* as_arr;
     SymbolTable* as_class;
-//  FunctionDecl* func;
+    SymbolTable* as_args;
 };
 
 class Symbol
@@ -22,24 +22,30 @@ class Symbol
     Type* type;
     std::string id;
     union container val;
+    MethodDecl* func_body; // Or offset, when  compiled
     int offset;
 
     Symbol(Type*, std::string id);
-    Symbol(Type*, std::string id, int   val = 0   , int offset=0);
-    Symbol(Type*, std::string id, bool  val = false, int offset=0);
-    Symbol(Type*, std::string id, SymbolTable* val = NULL, int offset=0);
-//    Symbol(Type*, id, FunctionDecl* val = NULL, int offset=0);
+    Symbol(Type*, std::string id, int  val);
+    Symbol(Type*, std::string id, bool val);
+    Symbol(Type*, std::string id, SymbolTable* val);
+    Symbol(Type*, std::string id, SymbolTable* val, MethodDecl*);
 
 };
 
 class SymbolTable
 {
     public:
-    std::unordered_map<std::string, Symbol> table;
+    std::unordered_map<std::string, Symbol*> table;
 
-    SymbolTable(std::list<ClassDecl*>*);
-    SymbolTable(std::list<MethodDecl*>*);
+    SymbolTable(ClassDecl*);
     SymbolTable(std::list<VarDecl*>*);
+
+    void parseVars(std::list<VarDecl*>* vars);
+    void parseMethods(std::list<MethodDecl*>* methods);
+
+    private:
+    void checkIfAlreadyDeclared(std::string);
 };
 
 #endif

@@ -163,9 +163,9 @@ VarDecls:
     ;
 
 MethodDecl:
-      PUBLICSYM Type[T] IDENT LPAREN FormalList[FL] RPAREN 
+      PUBLICSYM Type[T] IDENT[I] LPAREN FormalList[FL] RPAREN 
         OPENBRACE VarDecls[VD] Statements[STMTS] RETURNSYM Exp[E] SEMICOLON CLOSEBRACE 
-        { $$ = new MethodDecl($T, $FL, $VD, $STMTS, $E); }
+        { $$ = new MethodDecl($T, new VarIdExpression(strtok($I, "(")), $FL, $VD, $STMTS, $E); }
     ;
 
 MethodDecls:
