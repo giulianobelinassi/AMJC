@@ -14,8 +14,7 @@ ClassDecl::ClassDecl(VarIdExpression* name, std::list<VarDecl*>* vars,
     this->name = name;
     this->vars = vars;
     this->decls = decls;
-    Type::declareType(name->token);
-    SymbolTable(this);
+    Type::declareType(name->token, this);    
 }
 
 Agnode_t* ClassDecl::buildGVNode(Agraph_t* g)

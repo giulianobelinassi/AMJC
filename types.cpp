@@ -4,9 +4,10 @@
 #include "macros.h"
 #include "types.h"
 
-Type::Type(std::string id)
+Type::Type(std::string id, ClassDecl* def=NULL)
 {
     this->id = id;
+    this->class_def = def;
 }
 
 std::unordered_map<std::string, Type*> Type::registered_types;
@@ -36,12 +37,12 @@ Type* Type::getDeclaredType(std::string id)
     return type;
 }
 
-Type* Type::declareType(std::string id)
+Type* Type::declareType(std::string id, ClassDecl* decl)
 {
     Type* type = NULL;
     if (registered_types.find(id) == registered_types.end())
     {
-        type = new Type(id);
+        type = new Type(id, decl);
         registered_types[id] = type;
     }
 
