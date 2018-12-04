@@ -1,6 +1,7 @@
 #include "expression.h"
 #include "macros.h"
 #include "symboltable.h"
+#include "declaration.h"
 
 #include <graphviz/gvc.h>
 #include <iostream>
@@ -113,7 +114,6 @@ struct interp_ret VarIdExpression::interp(SymbolTable* st)
         std::cout << "ERROR: " << token << " type is unknown" << std::endl;
 
     return ret;
-    
 }
 
 struct interp_ret BoolExpression::interp(SymbolTable* st=NULL)
@@ -153,26 +153,24 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
 {
     struct interp_ret exp_res;
     std::list<Expression*>::iterator exp_it;
-    std::list<VarDecl*>::iretator param_it;
+    std::list<VarDecl*>::iterator var_it;
+    std::list<VarDecl*>::iterator param_it;
     std::string func_id = id->token;
 
-    exp_res = exp->iterp(st);
-    
-    MethodDecl* func = exp_res.as_tbl[func_id]->func_body;
+    exp_res = exp->interp(st);
 
+    MethodDecl* func = exp_res.val.as_tbl->table[func_id]->func_body;
 
     exp_it = explist->begin();
     var_it = func->formals->begin();
 
     while (exp_it != explist->end())
     {
-        
-        
         exp_it++;
         var_it++;
     }
 
-    for (it = explist->begin(); it != explist->end(); ++it)
+    for (exp_it = explist->begin(); exp_it != explist->end(); ++exp_it)
     {
         
     }

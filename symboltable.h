@@ -44,6 +44,8 @@ class SymbolTable
     void parseVars(std::list<VarDecl*>* vars);
     void parseMethods(std::list<MethodDecl*>* methods);
 
+    inline Symbol* operator[](std::string key) {return table[key];}
+
     private:
     void checkIfAlreadyDeclared(std::string);
 };
