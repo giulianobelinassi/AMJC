@@ -38,10 +38,11 @@ Symbol::Symbol(Type* type, std::string id)
     SYMBOL_INIT(type, id, NULL, class, 0, NULL);
 }
 
-SymbolTable::SymbolTable(ClassDecl* decl)
+SymbolTable::SymbolTable(Type* type, ClassDecl* decl)
 {
     this->parseVars(decl->vars);
     this->parseMethods(decl->decls);
+    table["this"] = new Symbol(type, "this", this);
 }
 
 SymbolTable::SymbolTable(std::list<VarDecl*>* decl)

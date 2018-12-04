@@ -129,7 +129,7 @@ struct interp_ret BoolExpression::interp(SymbolTable* st=NULL)
 struct interp_ret ThisExpression::interp(SymbolTable* st=NULL)
 {
     struct interp_ret ret;
-    ret.val.as_tbl = st;
+    ret.val.as_tbl = st; //TODO: Change to class table
     ret.is = INTERP_TBL;
     return ret;
 }
@@ -183,7 +183,7 @@ struct interp_ret OpExpression::interp(SymbolTable* st=NULL)
         break;
         case OP_TIMES:
             if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
-            {   
+            {
                 ret.val.as_int = ret1.val.as_int * ret2.val.as_int;
                 ret.is = INTERP_INT;
             }
@@ -315,6 +315,21 @@ struct interp_ret NegateExpression::interp(SymbolTable* st=NULL)
 struct interp_ret NewMethodExpression::interp(SymbolTable* st=NULL)
 {
     struct interp_ret ret;
+    Type* type;
+    SymbolTable* tbl;
+
+    type = Type::getDeclaredType(id->token);
+    
+    if (!type)
+    {
+        std::cout << id->token << " is not a declared!" << std::endl;
+        return ret;
+    }
+    
+    tbl = new SymbolTable(type, type->class_def);
+
+    ret.val.as_tbl = tbl;
+    ret.is = INTERP_TBL;
 
     return ret;
 }
