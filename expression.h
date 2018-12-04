@@ -6,14 +6,27 @@
 
 class SymbolTable;
 
+enum operations {
+    OP_PLUS,
+    OP_MINUS,
+    OP_TIMES,
+    OP_DIV,
+    OP_GT,
+    OP_GE,
+    OP_EQ,
+    OP_LT,
+    OP_LE,
+    OP_NE
+};
+
 class Expression
 {
     public:
     virtual ~Expression() {}
 
     virtual struct Agnode_s* buildGVNode(struct Agraph_s*) {return NULL;}
-    virtual struct interp_ret interp(SymbolTable*);
-    
+    virtual struct interp_ret interp(SymbolTable*) = 0;
+
 };
 
 class VarIdExpression : public Expression
@@ -22,7 +35,6 @@ class VarIdExpression : public Expression
     std::string token;
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
-    
     struct interp_ret interp(SymbolTable*) override;
 
     VarIdExpression(std::string token);
@@ -69,11 +81,12 @@ class OpExpression : public Expression
     public:
     Expression* exp1;
     Expression* exp2;
+    int op;
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
 
-    OpExpression(Expression*, Expression*);
+    OpExpression(Expression*, int, Expression*);
 };
 
 class LengthExpression : public Expression

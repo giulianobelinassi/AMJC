@@ -27,49 +27,49 @@ void yyerror(Program** p, const char *s);
 // define the "terminal symbol" token types I'm going to use (in CAPS
 // by convention), and associate each with a field of the union:
 
-%token CLASSSYM   
-%token PUBLICSYM  
-%token STATICSYM  
-%token VOIDSYM    
-%token MAINSYM    
-%token EXTENDSYM  
-%token INTSYM     
-%token BOOLEANSYM 
-%token STRINGSYM  
-%token LENGTHSYM  
-%token THISSYM    
-%token TRUESYM    
-%token FALSESYM   
-%token NEWSYM     
-%token OPENBRKT   
-%token CLOSEBRKT  
-%token OPENBRACE  
-%token CLOSEBRACE 
-%token PLUS       
-%token MINUS      
-%token TIMES      
-%token SLASH      
-%token LPAREN     
-%token RPAREN     
-%token SEMICOLON  
-%token COMMA      
-%token PERIOD     
-%token ASSIGNMENT 
-%token EQ         
-%token NEQ        
-%token LSS        
-%token GTR        
-%token LEQ        
-%token GEQ        
-%token NEG        
-%token XOR        
-%token AND        
-%token OR         
-%token FORSYM     
-%token IFSYM      
-%token ELSESYM    
-%token DOSYM      
-%token WHILESYM   
+%token CLASSSYM
+%token PUBLICSYM
+%token STATICSYM
+%token VOIDSYM
+%token MAINSYM
+%token EXTENDSYM
+%token INTSYM
+%token BOOLEANSYM
+%token STRINGSYM
+%token LENGTHSYM
+%token THISSYM
+%token TRUESYM
+%token FALSESYM
+%token NEWSYM
+%token OPENBRKT
+%token CLOSEBRKT
+%token OPENBRACE
+%token CLOSEBRACE
+%token PLUS
+%token MINUS
+%token TIMES
+%token SLASH
+%token LPAREN
+%token RPAREN
+%token SEMICOLON
+%token COMMA
+%token PERIOD
+%token ASSIGNMENT
+%token EQ
+%token NEQ
+%token LSS
+%token GTR
+%token LEQ
+%token GEQ
+%token NEG
+%token XOR
+%token AND
+%token OR
+%token FORSYM
+%token IFSYM
+%token ELSESYM
+%token DOSYM
+%token WHILESYM
 %token IDENT
 %token NUMBER
 %token PRINTSYM
@@ -89,7 +89,7 @@ void yyerror(Program** p, const char *s);
     VarDecl* vardecl;
     ClassDecl* classdecl;
     MainClass* mainclass;
-    
+
     /*Lists*/
     std::list<ClassDecl* >* classdecls;
     std::list<MethodDecl*>* methoddecls;
@@ -229,7 +229,16 @@ Statements:
     ;
 
 Exp:
-      Exp[L] Op Exp[R]                                { $$ = new OpExpression($L, $R); }
+      Exp[L] PLUS Exp[R]                              { $$ = new OpExpression($L, OP_PLUS, $R); }
+    | Exp[L] MINUS Exp[R]                             { $$ = new OpExpression($L, OP_MINUS, $R); }
+    | Exp[L] TIMES Exp[R]                             { $$ = new OpExpression($L, OP_TIMES, $R); }
+    | Exp[L] SLASH Exp[R]                             { $$ = new OpExpression($L, OP_DIV, $R); }
+    | Exp[L] GTR Exp[R]                               { $$ = new OpExpression($L, OP_GT, $R); }
+    | Exp[L] GEQ Exp[R]                               { $$ = new OpExpression($L, OP_GE, $R); }
+    | Exp[L] EQ Exp[R]                                { $$ = new OpExpression($L, OP_EQ, $R); }
+    | Exp[L] LSS Exp[R]                               { $$ = new OpExpression($L, OP_LT, $R); }
+    | Exp[L] LEQ Exp[R]                               { $$ = new OpExpression($L, OP_LE, $R); }
+    | Exp[L] NEQ Exp[R]                               { $$ = new OpExpression($L, OP_NE, $R); }
     | Exp[L] OPENBRKT Exp[R] CLOSEBRKT                { $$ = new BrcktExpression($L, $R); }
     | Exp[L] PERIOD LENGTHSYM                         { $$ = new LengthExpression($L);}
     | Exp[L] PERIOD IDENT[C] LPAREN ExpList[R] RPAREN { $$ = new MethodExpression($L, new VarIdExpression(strtok($C, "(")), $R);}
@@ -243,19 +252,6 @@ Exp:
     | NEG Exp[L]                                      { $$ = new NegateExpression($L); }
     | LPAREN Exp[L] RPAREN                            { $$ = new ParenExpression($L);}
     ;
-
-Op:
-     PLUS  {}
-   | MINUS {}
-   | TIMES {}
-   | SLASH {}
-   | GTR {}
-   | GEQ {}
-   | EQ {}
-   | LSS {}
-   | LEQ {}
-   | NEQ {}
-   ;
 
 ExpList:
       ExpRests[L] Exp[R] { ($L)->push_back($R); $$ = $L; }

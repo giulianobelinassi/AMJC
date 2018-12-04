@@ -9,7 +9,8 @@
 enum interp {
     INTERP_INT,
     INTERP_BOOL,
-    INTERP_TBL
+    INTERP_TBL,
+    INTERP_ARR
 };
 
 struct interp_ret
@@ -25,10 +26,11 @@ struct interp_ret
 
 /*Constructors*/
 
-OpExpression::OpExpression(Expression* exp1, Expression* exp2)
+OpExpression::OpExpression(Expression* exp1, int op, Expression* exp2)
 {
     this->exp1 = exp1;
     this->exp2 = exp2;
+    this->op = op;
 }
 
 LengthExpression::LengthExpression(Expression* exp)
@@ -124,7 +126,7 @@ struct interp_ret BoolExpression::interp(SymbolTable* st=NULL)
     return ret;
 }
 
-struct interp_ret ThisExpression::interp(SymbolTable* st)
+struct interp_ret ThisExpression::interp(SymbolTable* st=NULL)
 {
     struct interp_ret ret;
     ret.val.as_tbl = st;
@@ -149,9 +151,194 @@ struct interp_ret LengthExpression::interp(SymbolTable* st=NULL)
     return ret;
 }
 
+struct interp_ret OpExpression::interp(SymbolTable* st=NULL)
+{
+    struct interp_ret ret, ret1, ret2;
+    ret1 = exp1->interp(st);
+    ret2 = exp2->interp(st);
+
+    if (ret1.is != ret2.is)
+    {
+        std::cout << "WARNING: Binary operations of incompatible type!" << std::endl;
+    }
+
+    switch (op)
+    {
+        case OP_PLUS:
+            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            {   ret.val.as_int = ret1.val.as_int + ret2.val.as_int;
+                ret.is = INTERP_INT;
+            }
+            else
+                std::cout << "WARNING: Sum of incompatible types!" << std::endl;
+        break;
+        case OP_MINUS:
+            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            {
+                ret.val.as_int = ret1.val.as_int - ret2.val.as_int;
+                ret.is = INTERP_INT;
+            }
+            else
+                std::cout << "WARNING: Subtraction of incompatible types!" << std::endl;
+        break;
+        case OP_TIMES:
+            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            {   
+                ret.val.as_int = ret1.val.as_int * ret2.val.as_int;
+                ret.is = INTERP_INT;
+            }
+            else
+                std::cout << "WARNING: Multiplication of incompatible types!" << std::endl;
+        break;
+        case OP_DIV:
+            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            {   ret.val.as_int = ret1.val.as_int / ret2.val.as_int;
+                ret.is = INTERP_INT;
+            }
+            else
+                std::cout << "WARNING: Division of incompatible types!" << std::endl;
+        break;
+        case OP_GT:
+            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            {   ret.val.as_bool = (ret1.val.as_int > ret2.val.as_int);
+                ret.is = INTERP_BOOL;
+            }
+            else
+                std::cout << "WARNING: Comparison of incompatible types!" << std::endl;
+        break;
+        case OP_GE:
+            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            {   ret.val.as_bool = (ret1.val.as_int >= ret2.val.as_int);
+                ret.is = INTERP_BOOL;
+            }
+            else
+                std::cout << "WARNING: Comparison of incompatible types!" << std::endl;
+        case OP_LT:
+            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            {   ret.val.as_bool = (ret1.val.as_int < ret2.val.as_int);
+                ret.is = INTERP_BOOL;
+            }
+            else
+                std::cout << "WARNING: Comparison of incompatible types!" << std::endl;
+        case OP_LE:
+            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            {   ret.val.as_bool = (ret1.val.as_int <= ret2.val.as_int);
+                ret.is = INTERP_BOOL;
+            }
+            else
+                std::cout << "WARNING: Comparison of incompatible types!" << std::endl;
+        case OP_EQ:
+            if (ret1.is == ret2.is && ret1.is == INTERP_INT)
+            {
+                ret.val.as_bool = (ret1.val.as_int == ret2.val.as_int);
+                ret.is = INTERP_BOOL;
+            }
+            else if (ret1.is == ret2.is && ret1.is == INTERP_BOOL)
+            {
+                ret.val.as_bool = (ret1.val.as_bool == ret2.val.as_bool);
+                ret.is = INTERP_BOOL;
+            }
+            else if (ret1.is == ret2.is && ret1.is == INTERP_TBL)
+            {
+                ret.val.as_bool = (ret1.val.as_tbl == ret2.val.as_tbl);
+                ret.is = INTERP_TBL;
+            }
+            else
+                std::cout << "WARNING: Comparison of incompatible types!" << std::endl;
+        break;
+        case OP_NE:
+            if (ret1.is == ret2.is && ret1.is == INTERP_INT)
+            {
+                ret.val.as_bool = !(ret1.val.as_int == ret2.val.as_int);
+                ret.is = INTERP_BOOL;
+            }
+            else if (ret1.is == ret2.is && ret1.is == INTERP_BOOL)
+            {
+                ret.val.as_bool = !(ret1.val.as_bool == ret2.val.as_bool);
+                ret.is = INTERP_BOOL;
+            }
+            else if (ret1.is == ret2.is && ret1.is == INTERP_TBL)
+            {
+                ret.val.as_bool = !(ret1.val.as_tbl == ret2.val.as_tbl);
+                ret.is = INTERP_TBL;
+            }
+            else
+                std::cout << "WARNING: Comparison of incompatible types!" << std::endl;
+        break;
+        default:
+            std::cout << "WARNING: Binary operation of incompatible types!" << std::endl;
+    }
+
+    return ret;
+}
+
+struct interp_ret BrcktExpression::interp(SymbolTable* st=NULL)
+{
+    struct interp_ret ret;
+
+    ret = exp1->interp(st);
+    exp2->interp(st);
+
+    return ret;
+}
+
+struct interp_ret ParenExpression::interp(SymbolTable* st=NULL)
+{
+    struct interp_ret ret;
+    
+    ret = exp->interp(st);
+
+    return ret;
+}
+
+struct interp_ret NegateExpression::interp(SymbolTable* st=NULL)
+{
+    struct interp_ret ret;
+
+    ret = exp->interp(st);
+
+    switch (ret.is)
+    {
+        case INTERP_INT:
+            ret.val.as_int = !ret.val.as_int;
+            return ret;
+        
+        case INTERP_BOOL:
+            ret.val.as_bool = !ret.val.as_bool;
+            return ret;
+
+        default:
+            std::cout << "WARNING: Negating an non-numeric value!" << std::endl;
+            return ret;
+    }
+}
+struct interp_ret NewMethodExpression::interp(SymbolTable* st=NULL)
+{
+    struct interp_ret ret;
+
+    return ret;
+}
+struct interp_ret NewIntArrExpression::interp(SymbolTable* st=NULL)
+{
+    struct interp_ret ret, ret1;
+    
+
+    ret1 = exp->interp(st);
+    
+    if (ret1.is == INTERP_INT)
+    {
+        ret.val.as_arr = new int[ret1.val.as_int];
+        ret.is = INTERP_ARR;
+    }
+    else
+        std::cout << "WARNING: Expected integer on size of array!" << std::endl;
+
+    return ret;
+}
+
 struct interp_ret MethodExpression::interp(SymbolTable* st)
 {
-    struct interp_ret exp_res;
+/*    struct interp_ret exp_res;
     std::list<Expression*>::iterator exp_it;
     std::list<VarDecl*>::iterator var_it;
     std::list<VarDecl*>::iterator param_it;
@@ -174,6 +361,7 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
     {
         
     }
+*/
 }
 
 /*GraphViz*/

@@ -6,7 +6,8 @@ class SymbolTable;
 enum interp {
     INTERP_INT,
     INTERP_BOOL,
-    INTERP_TBL
+    INTERP_TBL,
+    INTERP_ARR
 };
 
 struct interp_ret
