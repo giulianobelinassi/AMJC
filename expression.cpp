@@ -353,30 +353,72 @@ struct interp_ret NewIntArrExpression::interp(SymbolTable* st=NULL)
 
 struct interp_ret MethodExpression::interp(SymbolTable* st)
 {
-/*    struct interp_ret exp_res;
+    struct interp_ret exp_res, exp_ret;
+
     std::list<Expression*>::iterator exp_it;
     std::list<VarDecl*>::iterator var_it;
     std::list<VarDecl*>::iterator param_it;
+    std::list<Statement*>::iterator stmt_it;
+
+
     std::string func_id = id->token;
-
+    
+    SymbolTable* instance_symt;
+    SymbolTable* frame_tbl; 
+    
     exp_res = exp->interp(st);
+    instance_symt = exp_res.val.as_tbl;
 
-    MethodDecl* func = exp_res.val.as_tbl->table[func_id]->func_body;
+    frame_tbl = new SymbolTable(instance_symt);
+
+    MethodDecl* func = instance_symt->table[func_id]->func_body;
+    if (!func)
+        std::cout << "WARNING: Called nonexisting function!" << std::endl;
 
     exp_it = explist->begin();
     var_it = func->formals->begin();
 
     while (exp_it != explist->end())
     {
+        std::string var_id = (*var_it)->id->token;
+        exp_ret = (*exp_it)->interp(st);
+
+        
+        switch (exp_ret.is)
+        {
+            case INTERP_INT: //Assume types are OK
+                frame_tbl->table[var_id] = 
+                  new Symbol((*var_it)->type, var_id, exp_ret.val.as_int);
+            break;
+
+            case INTERP_BOOL:
+                frame_tbl->table[var_id] = 
+                  new Symbol((*var_it)->type, var_id, exp_ret.val.as_bool);
+            break;
+
+            case INTERP_ARR:
+                frame_tbl->table[var_id] = 
+                  new Symbol((*var_it)->type, var_id, exp_ret.val.as_arr);
+            
+            case INTERP_TBL:
+                frame_tbl->table[var_id] = 
+                  new Symbol((*var_it)->type, var_id, exp_ret.val.as_tbl);
+            break;
+        }
+        
+
         exp_it++;
         var_it++;
     }
+    
+    frame_tbl->parseVars(func->decls);
 
-    for (exp_it = explist->begin(); exp_it != explist->end(); ++exp_it)
-    {
-        
-    }
-*/
+    /*
+    for (stmt_it = func->stmts->begin(); stmt_it != func->stmts->end(); ++stmt_it)
+        (*stmt_it)->interp(frame_tbl);    
+    */
+    return exp->interp(frame_tbl);
+
 }
 
 /*GraphViz*/

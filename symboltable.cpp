@@ -50,6 +50,11 @@ SymbolTable::SymbolTable(std::list<VarDecl*>* decl)
     this->parseVars(decl);
 }
 
+SymbolTable::SymbolTable(SymbolTable* st)
+{
+    this->table = st->table;
+}
+
 void SymbolTable::checkIfAlreadyDeclared(std::string id)
 {
     if (!(table.find(id) == table.end()))

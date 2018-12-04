@@ -40,6 +40,7 @@ class SymbolTable
 
     SymbolTable(Type*, ClassDecl*);
     SymbolTable(std::list<VarDecl*>*);
+    SymbolTable(SymbolTable*);
 
     void parseVars(std::list<VarDecl*>* vars);
     void parseMethods(std::list<MethodDecl*>* methods);
