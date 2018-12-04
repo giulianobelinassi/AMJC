@@ -2,27 +2,11 @@
 #include "macros.h"
 #include "symboltable.h"
 #include "declaration.h"
+#include "interp.h"
 
 #include <graphviz/gvc.h>
 #include <iostream>
 
-enum interp {
-    INTERP_INT,
-    INTERP_BOOL,
-    INTERP_TBL,
-    INTERP_ARR
-};
-
-struct interp_ret
-{
-    union {
-        int as_int;
-        bool as_bool;
-        int* as_arr;
-        SymbolTable* as_tbl;
-    } val;
-    enum interp is;
-};
 
 /*Constructors*/
 

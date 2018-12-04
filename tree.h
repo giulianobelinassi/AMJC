@@ -5,6 +5,7 @@
 #include <list>
 
 #include "types.h"
+#include "interp.h"
 
 /* Used GraphViz structures*/
 struct Agraph_s;
@@ -58,6 +59,8 @@ class Program
     std::list<ClassDecl*>* cd;
 
     void generateGraphViz();
+
+    struct interp_ret interp();
 
     Program(MainClass*, std::list<ClassDecl*>*);
 };

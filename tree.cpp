@@ -1,9 +1,5 @@
-#include <stdio.h>
-#include <string.h>
-#include <iostream>
 
-#include <graphviz/gvc.h>
-
+//#include "interp.h"
 #include "tree.h"
 #include "expression.h"
 #include "statement.h"
@@ -11,10 +7,24 @@
 #include "macros.h"
 #include "symboltable.h"
 
+
+#include <stdio.h>
+#include <string.h>
+#include <iostream>
+
+#include <graphviz/gvc.h>
+
 Program::Program(MainClass* mc, std::list<ClassDecl*>* cd)
 {
     this->mc = mc;
     this->cd = cd;
+}
+
+struct interp_ret Program::interp()
+{
+    struct interp_ret ret;
+    return ret;
+//    return mc->interp();
 }
 
 void Program::generateGraphViz()
