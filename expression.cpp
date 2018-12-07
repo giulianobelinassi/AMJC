@@ -3,6 +3,7 @@
 #include "symboltable.h"
 #include "declaration.h"
 #include "interp.h"
+#include "statement.h"
 
 #include <graphviz/gvc.h>
 #include <iostream>
@@ -351,7 +352,13 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
     SymbolTable* frame_tbl; 
     
     exp_res = exp->interp(st);
+
+    if (exp_res.is != INTERP_TBL)
+        std::cout << "ERROR: Non-class instance called!" << std::endl;
+
     instance_symt = exp_res.val.as_tbl;
+
+
 
     frame_tbl = new SymbolTable(instance_symt);
 
@@ -397,10 +404,10 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
     
     frame_tbl->parseVars(func->decls);
 
-    /*
+    
     for (stmt_it = func->stmts->begin(); stmt_it != func->stmts->end(); ++stmt_it)
         (*stmt_it)->interp(frame_tbl);    
-    */
+    
     return exp->interp(frame_tbl);
 
 }

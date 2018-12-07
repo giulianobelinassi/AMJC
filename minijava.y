@@ -273,6 +273,7 @@ int main(){
     yyparse(&program);
     program->generateGraphViz();
     Type::printDeclaredTypes();
+    program->interp();
     return 0;
 }
 

@@ -38,6 +38,7 @@ class SymbolTable
     public:
     std::unordered_map<std::string, Symbol*> table;
 
+    SymbolTable();
     SymbolTable(Type*, ClassDecl*);
     SymbolTable(std::list<VarDecl*>*);
     SymbolTable(SymbolTable*);

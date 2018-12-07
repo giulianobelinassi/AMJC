@@ -21,7 +21,7 @@ class NewIntArrExpression;
 class NewMethodExpression;
 class NegateExpression;
 class ParenExpression;
-class BrcktExpression; 
+class BrcktExpression;
 class BoolExpression;
 class NumExpression;
 
@@ -48,6 +48,7 @@ class MainClass
     Statement* stmt;
 
     struct Agnode_s* buildGVNode(struct Agraph_s*);
+    struct interp_ret interp(SymbolTable*);
 
     MainClass(Statement*);
 };
@@ -61,6 +62,7 @@ class Program
     void generateGraphViz();
 
     struct interp_ret interp();
+    struct interp_ret interp(SymbolTable*);
 
     Program(MainClass*, std::list<ClassDecl*>*);
 };

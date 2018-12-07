@@ -38,6 +38,10 @@ Symbol::Symbol(Type* type, std::string id)
     SYMBOL_INIT(type, id, NULL, class, 0, NULL);
 }
 
+SymbolTable::SymbolTable()
+{
+}
+
 SymbolTable::SymbolTable(Type* type, ClassDecl* decl)
 {
     this->parseVars(decl->vars);

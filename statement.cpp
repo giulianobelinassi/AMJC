@@ -1,7 +1,10 @@
 #include "statement.h"
 #include "macros.h"
+#include "interp.h"
+#include "symboltable.h"
 
 #include <graphviz/gvc.h>
+#include <iostream>
 
 BracedStatement::BracedStatement(std::list<Statement*>* stmts)
 {
@@ -92,35 +95,145 @@ Agnode_t* ArrayAssignment::buildGVNode(Agraph_t* g)
 struct interp_ret BracedStatement::interp(SymbolTable* st=NULL)
 {
     struct interp_ret ret;
+    std::list<Statement*>::iterator stmt_it;
+
+    for (stmt_it = stmts->begin(); stmt_it != stmts->end(); ++stmt_it)
+        (*stmt_it)->interp(st);
+
+    ret.val.as_tbl = st;
+    ret.is = INTERP_TBL;
+
     return ret;
 }
 
 struct interp_ret IfElseStatement::interp(SymbolTable* st=NULL)
 {
     struct interp_ret ret;
+    struct interp_ret cnd = cndexp->interp(st);
+    bool cnd_bool;
+
+    switch (cnd.is)
+    {
+        case INTERP_INT:
+            cnd_bool = !!(cnd.val.as_int);
+        break;
+        case INTERP_BOOL:
+            cnd_bool = cnd.val.as_bool;
+        break;
+        case INTERP_TBL:
+            cnd_bool = !!(cnd.val.as_tbl);
+        break;
+        case INTERP_ARR:
+            cnd_bool = !!(cnd.val.as_arr);
+        break;
+    }
+
+    if (cnd_bool)
+        ret = ifstmt->interp(st);
+    else
+        ret = elsestmt->interp(st);
+
     return ret;
 }
 
 struct interp_ret WhileStatement::interp(SymbolTable* st=NULL)
 {
     struct interp_ret ret;
+    struct interp_ret cnd = cndexp->interp(st);
+    bool cnd_bool;
+
+    switch (cnd.is)
+    {
+        case INTERP_INT:
+            cnd_bool = !!(cnd.val.as_int);
+        break;
+        case INTERP_BOOL:
+            cnd_bool = cnd.val.as_bool;
+        break;
+        case INTERP_TBL:
+            cnd_bool = !!(cnd.val.as_tbl);
+        break;
+        case INTERP_ARR:
+            cnd_bool = !!(cnd.val.as_arr);
+        break;
+    }
+
+    while (cnd_bool)
+    {
+        ret = whilestmt->interp(st);
+
+        switch (cnd.is)
+        {
+            case INTERP_INT:
+                cnd_bool = !!(cnd.val.as_int);
+            break;
+            case INTERP_BOOL:
+                cnd_bool = cnd.val.as_bool;
+            break;
+            case INTERP_TBL:
+                cnd_bool = !!(cnd.val.as_tbl);
+            break;
+            case INTERP_ARR:
+                cnd_bool = !!(cnd.val.as_arr);
+            break;
+        }
+    }
+
     return ret;
 }
 
 struct interp_ret PrintStatement::interp(SymbolTable* st=NULL)
 {
     struct interp_ret ret;
+    ret = exp->interp(st);
+
+    switch (ret.is)
+    {
+        case INTERP_INT:
+            std::cout << ret.val.as_int << std::endl;
+        break;
+        case INTERP_BOOL:
+            std::cout << ret.val.as_bool << std::endl;
+        break;
+        case INTERP_TBL:
+            std::cout << ret.val.as_tbl << std::endl;
+        break;
+        case INTERP_ARR:
+            std::cout << ret.val.as_arr << std::endl;
+        break;
+    }
+
     return ret;
 }
 
 struct interp_ret VarAssignment::interp(SymbolTable* st=NULL)
 {
     struct interp_ret ret;
+
+    ret = exp->interp(st);
+
+    switch (ret.is)
+    {
+        case INTERP_INT:
+            st->table[id->token] = new Symbol(NULL, id->token, ret.val.as_int);
+        break;
+        case INTERP_BOOL:
+            st->table[id->token] = new Symbol(NULL, id->token, ret.val.as_bool);
+        break;
+        case INTERP_TBL:
+            st->table[id->token] = new Symbol(NULL, id->token, ret.val.as_tbl);
+        break;
+        case INTERP_ARR:
+            st->table[id->token] = new Symbol(NULL, id->token, ret.val.as_arr);
+        break;
+    }
+
     return ret;
 }
 
 struct interp_ret ArrayAssignment::interp(SymbolTable* st=NULL)
 {
     struct interp_ret ret;
+
     return ret;
 }

@@ -22,9 +22,19 @@ Program::Program(MainClass* mc, std::list<ClassDecl*>* cd)
 
 struct interp_ret Program::interp()
 {
-    struct interp_ret ret;
-    return ret;
-//    return mc->interp();
+    SymbolTable* st = new SymbolTable();
+
+    std::list<ClassDecl*>::iterator it;
+    
+    for (it = cd->begin(); it != cd->end(); it++)
+        Type::declareType((*it)->name->token, *it);
+
+    return mc->interp(st);
+}
+
+struct interp_ret MainClass::interp(SymbolTable* st)
+{
+    return stmt->interp(st);
 }
 
 void Program::generateGraphViz()
@@ -36,13 +46,13 @@ void Program::generateGraphViz()
     std::list<ClassDecl*>::iterator it;
 
     g = agopen((char*) "g", Agdirected, 0);
-   
+
     prog = agnode(g, NULL, 1);
     agset(prog, (char*) "label", (char*) "Program");
 
     v1 = mc->buildGVNode(g);
     agedge(g, prog, v1, 0, 1);
-    
+
     EXPAND_LIST_VERTEX(prog, it, "ClassDecls", cd);
 
     gvLayout(gvc, g, "dot");
@@ -50,7 +60,7 @@ void Program::generateGraphViz()
     gvFreeLayout(gvc, g);
 
     agclose(g);
-    
+
     gvFreeContext(gvc);
 }
 
