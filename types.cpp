@@ -29,6 +29,12 @@ Type* Type::getTypeFromStr(std::string id)
 Type* Type::getDeclaredType(std::string id)
 {
     Type* type;
+
+    std::cout << "mymap contains:";
+    for (auto it = registered_types.begin(); it != registered_types.end(); ++it)
+        std::cout << " " << it->first << ":" << it->second;
+    std::cout << std::endl;
+
     if (registered_types.find(id) == registered_types.end())
         return NULL;
     else

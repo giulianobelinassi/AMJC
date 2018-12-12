@@ -59,10 +59,11 @@ SymbolTable::SymbolTable(SymbolTable* st)
     this->table = st->table;
 }
 
-void SymbolTable::checkIfAlreadyDeclared(std::string id)
+bool SymbolTable::checkIfDeclared(std::string id)
 {
-    if (!(table.find(id) == table.end()))
-        std::cout << "WARNING: Redeclaration of variable " << id << std::endl;
+    if (table.find(id) == table.end())
+        return false;
+    return true;
 }
 
 void SymbolTable::parseVars(std::list<VarDecl*>* vars)
@@ -77,7 +78,10 @@ void SymbolTable::parseVars(std::list<VarDecl*>* vars)
     {
         id = (*var_it)->id->token;
         type = (*var_it)->type;
-        this->checkIfAlreadyDeclared(id);
+        
+        if (checkIfDeclared(id))
+            std::cout << "WARNING: Redeclaration of variable " << id << std::endl;
+        
         symbol = new Symbol(type, id);
         table[id] = symbol;
         std::cout << "Symbol:" << symbol->id << std::endl;
@@ -96,10 +100,21 @@ void SymbolTable::parseMethods(std::list<MethodDecl*>* decls)
     {
         id = (*method_it)->id->token;
         type = (*method_it)->type;
-        this->checkIfAlreadyDeclared(id);
+        
+        if (checkIfDeclared(id))
+            std::cout << "WARNING: Redeclaration of variable " << id << std::endl;
+        
         SymbolTable* args = new SymbolTable((*method_it)->formals);
         symbol = new Symbol(type, id, args, *method_it);
         table[id] = symbol;
         std::cout << "Symbol:" << symbol->id << std::endl;
     }
+}
+
+void SymbolTable::printTable()
+{
+    std::cout << "--Table Contents--" << std::endl;
+    for (auto it : table)
+        std::cout << " " << it.first << ":" << it.second << std::endl;
+    std::cout << "------------------" << std::endl;
 }

@@ -14,6 +14,6 @@ class Fac {
             numxaux = 1;
         else
             numxaux = num * (this.ComputeFac(num-1));
-        return num_aux;
+        return numxaux;
     }
 }

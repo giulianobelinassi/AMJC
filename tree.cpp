@@ -73,7 +73,7 @@ Agnode_t* MainClass::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
     ONE_CHILD_VERTEX(v, "MainClass", stmt);
-    
+
     return v;
 }
 

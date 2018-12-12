@@ -49,6 +49,12 @@ NegateExpression::NegateExpression(Expression* exp)
 
 VarIdExpression::VarIdExpression(std::string token)
 {
+    const char* ptr = token.c_str();
+    while(*ptr != '\0')
+    {
+        if (*ptr++ == ' ')
+            std::cout << "WARNING: Found space in variable: " << std::endl;
+    }
     this->token = token;
 }
 
@@ -270,7 +276,7 @@ struct interp_ret BrcktExpression::interp(SymbolTable* st=NULL)
 struct interp_ret ParenExpression::interp(SymbolTable* st=NULL)
 {
     struct interp_ret ret;
-    
+
     ret = exp->interp(st);
 
     return ret;
@@ -287,7 +293,7 @@ struct interp_ret NegateExpression::interp(SymbolTable* st=NULL)
         case INTERP_INT:
             ret.val.as_int = !ret.val.as_int;
             return ret;
-        
+
         case INTERP_BOOL:
             ret.val.as_bool = !ret.val.as_bool;
             return ret;
@@ -304,13 +310,13 @@ struct interp_ret NewMethodExpression::interp(SymbolTable* st=NULL)
     SymbolTable* tbl;
 
     type = Type::getDeclaredType(id->token);
-    
+
     if (!type)
     {
         std::cout << id->token << " is not a declared!" << std::endl;
         return ret;
     }
-    
+
     tbl = new SymbolTable(type, type->class_def);
 
     ret.val.as_tbl = tbl;
@@ -321,10 +327,10 @@ struct interp_ret NewMethodExpression::interp(SymbolTable* st=NULL)
 struct interp_ret NewIntArrExpression::interp(SymbolTable* st=NULL)
 {
     struct interp_ret ret, ret1;
-    
+
 
     ret1 = exp->interp(st);
-    
+
     if (ret1.is == INTERP_INT)
     {
         ret.val.as_arr = new int[ret1.val.as_int];
@@ -345,20 +351,17 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
     std::list<VarDecl*>::iterator param_it;
     std::list<Statement*>::iterator stmt_it;
 
-
     std::string func_id = id->token;
-    
+
     SymbolTable* instance_symt;
-    SymbolTable* frame_tbl; 
-    
+    SymbolTable* frame_tbl;
+
     exp_res = exp->interp(st);
 
     if (exp_res.is != INTERP_TBL)
         std::cout << "ERROR: Non-class instance called!" << std::endl;
 
     instance_symt = exp_res.val.as_tbl;
-
-
 
     frame_tbl = new SymbolTable(instance_symt);
 
@@ -374,42 +377,41 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
         std::string var_id = (*var_it)->id->token;
         exp_ret = (*exp_it)->interp(st);
 
-        
         switch (exp_ret.is)
         {
             case INTERP_INT: //Assume types are OK
-                frame_tbl->table[var_id] = 
+                frame_tbl->table[var_id] =
                   new Symbol((*var_it)->type, var_id, exp_ret.val.as_int);
             break;
 
             case INTERP_BOOL:
-                frame_tbl->table[var_id] = 
+                frame_tbl->table[var_id] =
                   new Symbol((*var_it)->type, var_id, exp_ret.val.as_bool);
             break;
 
             case INTERP_ARR:
-                frame_tbl->table[var_id] = 
+                frame_tbl->table[var_id] =
                   new Symbol((*var_it)->type, var_id, exp_ret.val.as_arr);
-            
+
             case INTERP_TBL:
-                frame_tbl->table[var_id] = 
+                frame_tbl->table[var_id] =
                   new Symbol((*var_it)->type, var_id, exp_ret.val.as_tbl);
             break;
         }
-        
+
 
         exp_it++;
         var_it++;
     }
-    
+
     frame_tbl->parseVars(func->decls);
 
-    
     for (stmt_it = func->stmts->begin(); stmt_it != func->stmts->end(); ++stmt_it)
-        (*stmt_it)->interp(frame_tbl);    
-    
-    return exp->interp(frame_tbl);
+        (*stmt_it)->interp(frame_tbl);
 
+    frame_tbl->printTable();
+    exp_ret = func->exp->interp(frame_tbl);
+    return exp_ret;
 }
 
 /*GraphViz*/

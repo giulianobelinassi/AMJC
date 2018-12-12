@@ -129,43 +129,43 @@ Program:
     ;
 
 MainClass:
-      CLASSSYM IDENT OPENBRACE PUBLICSYM STATICSYM VOIDSYM MAINSYM LPAREN 
-        STRINGSYM OPENBRKT CLOSEBRKT IDENT RPAREN OPENBRACE Statement[L] 
-        CLOSEBRACE CLOSEBRACE 
+      CLASSSYM IDENT OPENBRACE PUBLICSYM STATICSYM VOIDSYM MAINSYM LPAREN
+        STRINGSYM OPENBRKT CLOSEBRKT IDENT RPAREN OPENBRACE Statement[L]
+        CLOSEBRACE CLOSEBRACE
           { $$ = new MainClass($L); }
     ;
 
 ClassDecl:
-      CLASSSYM IDENT[I] OPENBRACE VarDecls[L] MethodDecls[R] CLOSEBRACE 
-          { $$ = new ClassDecl(new VarIdExpression(strtok($I, "{")), $L, $R); }
-    | CLASSSYM IDENT[I] EXTENDSYM IDENT OPENBRACE VarDecls[L] MethodDecls[R] 
-        CLOSEBRACE 
-          { $$ = new ClassDecl(new VarIdExpression(strtok($I, "{")), $L, $R); }
+      CLASSSYM IDENT[I] OPENBRACE VarDecls[L] MethodDecls[R] CLOSEBRACE
+          { $$ = new ClassDecl(new VarIdExpression(strtok($I, " {")), $L, $R); }
+    | CLASSSYM IDENT[I] EXTENDSYM IDENT OPENBRACE VarDecls[L] MethodDecls[R]
+        CLOSEBRACE
+          { $$ = new ClassDecl(new VarIdExpression(strtok($I, " {")), $L, $R); }
     ;
 
 ClassDecls:
-      /*Epsilon*/ 
+      /*Epsilon*/
           { $$ = new std::list<ClassDecl*>(); }
-    | ClassDecls[L] ClassDecl[R] 
+    | ClassDecls[L] ClassDecl[R]
           { ($L)->push_back($R); $$ = $L; }
     ;
 
 VarDecl:
-      Type[L] IDENT[R] SEMICOLON 
-          { $$ = new VarDecl($L, new VarIdExpression(strtok($R, ";"))); }
+      Type[L] IDENT[R] SEMICOLON
+          { $$ = new VarDecl($L, new VarIdExpression(strtok($R, " ;"))); }
     ;
 
 VarDecls:
-      /*Epsilon*/ 
+      /*Epsilon*/
           { $$ = new std::list<VarDecl*>(); }
-    | VarDecls[L] VarDecl[R] 
+    | VarDecls[L] VarDecl[R]
           { ($L)->push_back($R); $$ = $L; }
     ;
 
 MethodDecl:
-      PUBLICSYM Type[T] IDENT[I] LPAREN FormalList[FL] RPAREN 
-        OPENBRACE VarDecls[VD] Statements[STMTS] RETURNSYM Exp[E] SEMICOLON CLOSEBRACE 
-        { $$ = new MethodDecl($T, new VarIdExpression(strtok($I, "(")), $FL, $VD, $STMTS, $E); }
+      PUBLICSYM Type[T] IDENT[I] LPAREN FormalList[FL] RPAREN
+        OPENBRACE VarDecls[VD] Statements[STMTS] RETURNSYM Exp[E] SEMICOLON CLOSEBRACE
+        { $$ = new MethodDecl($T, new VarIdExpression(strtok($I, " (")), $FL, $VD, $STMTS, $E); }
     ;
 
 MethodDecls:
@@ -177,13 +177,13 @@ MethodDecls:
 FormalList:
     /*Epsilon*/ { $$ = new std::list<VarDecl*>(); }
     | FormalRest[L] Type[C] IDENT[R] 
-        { ($L)->push_back(new VarDecl($C, new VarIdExpression($R))); $$ = $L; }
+        { ($L)->push_back(new VarDecl($C, new VarIdExpression(strtok($R, " ,)")))); $$ = $L; }
     ;
 
 FormalRest:
       /*Epsilon*/ { $$ = new std::list<VarDecl*>(); }
     | FormalRest[L] COMMA Type[C] IDENT[R] 
-        { ($L)->push_back(new VarDecl($C, new VarIdExpression($R))); $$ = $L; }
+        { ($L)->push_back(new VarDecl($C, new VarIdExpression(strtok($R, " ,)")))); $$ = $L; }
     ;
 
 Type:
@@ -203,9 +203,9 @@ PrimitiveType:
 
 Assignment:
       IDENT[L] ASSIGNMENT Exp[R] SEMICOLON 
-        { $$ = new VarAssignment(new VarIdExpression(strtok($L, "=")), $R); }
+        { $$ = new VarAssignment(new VarIdExpression(strtok($L, " =")), $R); }
     | IDENT[L] OPENBRKT Exp[C] CLOSEBRKT ASSIGNMENT Exp[R] SEMICOLON 
-        { $$ = new ArrayAssignment(new VarIdExpression(strtok($L, "{")), $C, $R);}
+        { $$ = new ArrayAssignment(new VarIdExpression(strtok($L, " {")), $C, $R);}
     ;
 
 NonAssignStmt:
@@ -241,14 +241,14 @@ Exp:
     | Exp[L] NEQ Exp[R]                               { $$ = new OpExpression($L, OP_NE, $R); }
     | Exp[L] OPENBRKT Exp[R] CLOSEBRKT                { $$ = new BrcktExpression($L, $R); }
     | Exp[L] PERIOD LENGTHSYM                         { $$ = new LengthExpression($L);}
-    | Exp[L] PERIOD IDENT[C] LPAREN ExpList[R] RPAREN { $$ = new MethodExpression($L, new VarIdExpression(strtok($C, "(")), $R);}
+    | Exp[L] PERIOD IDENT[C] LPAREN ExpList[R] RPAREN { $$ = new MethodExpression($L, new VarIdExpression(strtok($C, " (")), $R);}
     | NUMBER[C]                                       { $$ = new NumExpression($C); }
     | TRUESYM                                         { $$ = new BoolExpression(false); }
     | FALSESYM                                        { $$ = new BoolExpression(true); }
     | IDENT[C]                                        { $$ = new VarIdExpression($C); }
     | THISSYM                                         { $$ = new VarIdExpression("this"); }
     | NEWSYM INTSYM OPENBRKT Exp[L] CLOSEBRKT         { $$ = new NewIntArrExpression($L); }
-    | NEWSYM IDENT[C] LPAREN RPAREN                   { $$ = new NewMethodExpression(new VarIdExpression(strtok($C, "("))); }
+    | NEWSYM IDENT[C] LPAREN RPAREN                   { $$ = new NewMethodExpression(new VarIdExpression(strtok($C, " ("))); }
     | NEG Exp[L]                                      { $$ = new NegateExpression($L); }
     | LPAREN Exp[L] RPAREN                            { $$ = new ParenExpression($L);}
     ;

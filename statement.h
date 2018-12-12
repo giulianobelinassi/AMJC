@@ -8,14 +8,14 @@
 class SymbolTable;
 
 class Statement
-{ 
-    public: 
+{
+    public:
 
     virtual struct Agnode_s* buildGVNode(struct Agraph_s*) {return NULL;}
     virtual struct interp_ret interp(SymbolTable*) = 0;
 
-    virtual ~Statement() {} 
-    
+    virtual ~Statement() {}
+
 };
 
 class Assignment : public Statement { };
@@ -24,7 +24,7 @@ class BracedStatement : public Statement
 {
     public:
     std::list<Statement*>* stmts;
-    
+
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
 
@@ -40,7 +40,7 @@ class IfElseStatement : public Statement
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
-    
+
     IfElseStatement(Expression*, Statement*, Statement*);
 };
 
@@ -76,7 +76,7 @@ class VarAssignment : public Assignment
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
-    
+
     VarAssignment(VarIdExpression*, Expression*);
 };
 
@@ -89,7 +89,7 @@ class ArrayAssignment : public Assignment
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
-    
+
     ArrayAssignment(VarIdExpression*, Expression*, Expression*);
 };
 

@@ -20,7 +20,7 @@ Agnode_t* BracedStatement::buildGVNode(Agraph_t* g)
     return v;
 }
 
-IfElseStatement::IfElseStatement(Expression* cndexp, Statement* ifstmt, 
+IfElseStatement::IfElseStatement(Expression* cndexp, Statement* ifstmt,
                                  Statement* elsestmt)
 {
     this->cndexp = cndexp;
@@ -210,21 +210,28 @@ struct interp_ret VarAssignment::interp(SymbolTable* st=NULL)
 {
     struct interp_ret ret;
 
+    if (st->checkIfDeclared(id->token))
+    {
+        std::cout <<
+            "ERROR: Assignment to undeclared variable " <<
+            id->token << std::endl;
+    }
+
     ret = exp->interp(st);
 
     switch (ret.is)
     {
         case INTERP_INT:
-            st->table[id->token] = new Symbol(NULL, id->token, ret.val.as_int);
+            st->table[id->token]->val.as_int = ret.val.as_int;
         break;
         case INTERP_BOOL:
-            st->table[id->token] = new Symbol(NULL, id->token, ret.val.as_bool);
+            st->table[id->token]->val.as_bool = ret.val.as_bool;
         break;
         case INTERP_TBL:
-            st->table[id->token] = new Symbol(NULL, id->token, ret.val.as_tbl);
+            st->table[id->token]->val.as_class = ret.val.as_tbl;
         break;
         case INTERP_ARR:
-            st->table[id->token] = new Symbol(NULL, id->token, ret.val.as_arr);
+            st->table[id->token]->val.as_arr = ret.val.as_arr;
         break;
     }
 
