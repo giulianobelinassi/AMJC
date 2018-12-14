@@ -9,6 +9,8 @@
 #include "declaration.h"
 #include "types.h"
 
+#define YYERROR_VERBOSE
+
 extern "C" {
     extern int yylex();
     extern int yyparse(Program**);
@@ -76,6 +78,7 @@ void yyerror(Program** p, const char *s);
 %token RETURNSYM
 
 %precedence IDENT
+%locations
 
 /*Makes yyparse accept a parameter*/
 %parse-param { Program** program }
