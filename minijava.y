@@ -47,38 +47,36 @@ void yyerror(Program** p, const char *s);
 %token CLOSEBRKT
 %token OPENBRACE
 %token CLOSEBRACE
-%token PLUS
-%token MINUS
-%token TIMES
-%token SLASH
+%left  PLUS
+%left  MINUS
+%left TIMES
+%left SLASH
 %token LPAREN
 %token RPAREN
 %token SEMICOLON
 %token COMMA
 %token PERIOD
 %token ASSIGNMENT
-%token EQ
-%token NEQ
-%token LSS
-%token GTR
-%token LEQ
-%token GEQ
-%token NEG
-%token XOR
-%token AND
-%token OR
+%left  EQ
+%left  NEQ
+%left  LSS
+%left  GTR
+%left  LEQ
+%left  GEQ
+%left  NEG
+%left  XOR
+%left  AND
+%left  OR
 %token FORSYM
 %token IFSYM
 %token ELSESYM
 %token DOSYM
 %token WHILESYM
 %token IDENT
+%token TYPENAME
 %token NUMBER
 %token PRINTSYM
 %token RETURNSYM
-
-%precedence IDENT
-%locations
 
 /*Makes yyparse accept a parameter*/
 %parse-param { Program** program }
@@ -106,6 +104,7 @@ void yyerror(Program** p, const char *s);
 %type <exp> Exp
 %type <explist> ExpList
 %type <str> IDENT
+%type <str> TYPENAME
 %type <str> NUMBER
 %type <exp> ExpRest
 %type <explist> ExpRests
@@ -114,8 +113,8 @@ void yyerror(Program** p, const char *s);
 %type <stmt> NonAssignStmt
 %type <stmt> Assignment
 %type <type> Type
-%type <type> PrimitiveType
-%type <type> CustomType
+/*%type <type> PrimitiveType */
+/*%type <type> CustomType */
 %type <vardecls> FormalList
 %type <vardecls> FormalRest
 %type <methoddecls> MethodDecls
@@ -125,6 +124,8 @@ void yyerror(Program** p, const char *s);
 %type <classdecl> ClassDecl
 %type <classdecls> ClassDecls
 %type <mainclass> MainClass
+
+%define parse.trace
 %%
 
 Program:
@@ -179,31 +180,34 @@ MethodDecls:
 
 FormalList:
     /*Epsilon*/ { $$ = new std::list<VarDecl*>(); }
-    | FormalRest[L] Type[C] IDENT[R] 
+    | FormalRest[L] Type[C] IDENT[R]
         { ($L)->push_back(new VarDecl($C, new VarIdExpression(strtok($R, " ,)")))); $$ = $L; }
     ;
 
 FormalRest:
       /*Epsilon*/ { $$ = new std::list<VarDecl*>(); }
-    | FormalRest[L] COMMA Type[C] IDENT[R] 
+    | FormalRest[L] COMMA Type[C] IDENT[R]
         { ($L)->push_back(new VarDecl($C, new VarIdExpression(strtok($R, " ,)")))); $$ = $L; }
     ;
 
 Type:
-      CustomType[L] { $$ = $L; }
-    | PrimitiveType[L] { $$ = $L; }
+      INTSYM OPENBRKT CLOSEBRKT { $$ = Type::getTypeFromStr("int[]");}
+    | BOOLEANSYM { $$ = Type::getTypeFromStr("boolean");}
+    | INTSYM { $$ = Type::getTypeFromStr("int");}
+    | TYPENAME { $$ = Type::getDeclaredType($1);}
     ;
-
+/*
 CustomType:
       IDENT { $$ = Type::getDeclaredType($1);}
     ;
-
+*/
+/*
 PrimitiveType:
       INTSYM OPENBRKT CLOSEBRKT { $$ = Type::getTypeFromStr("int[]");}
     | BOOLEANSYM { $$ = Type::getTypeFromStr("boolean");}
     | INTSYM { $$ = Type::getTypeFromStr("int");}
     ;
-
+*/
 Assignment:
       IDENT[L] ASSIGNMENT Exp[R] SEMICOLON 
         { $$ = new VarAssignment(new VarIdExpression(strtok($L, " =")), $R); }
@@ -271,6 +275,7 @@ ExpRest:
 
 %%
 int main(){
+    yydebug = 1;
     Program* program;
     yyin = stdin;
     yyparse(&program);
@@ -281,5 +286,5 @@ int main(){
 }
 
 void yyerror(Program** p, const char *s) {
-	printf ("Error!! %s\n", s);
+	printf ("Error: %s\n", s);
 }

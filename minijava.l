@@ -1,9 +1,12 @@
 %{
 #include "tree.h"
+#include "types.h"
 #include "minijava.tab.h"
 
 #ifdef __cplusplus
-extern "C" int  yylex();
+extern "C" {
+    int  yylex();
+}
 #endif /*__cplusplus*/
 %}
 
@@ -61,7 +64,18 @@ letter        [a-zA-Z_]
 "else"                         { return ELSESYM;    }
 "do"                           { return DOSYM;      }
 "while"                        { return WHILESYM;   }
-{letter}({letter}|{digit})*    { yylval.str = yytext; return IDENT;  }
+{letter}({letter}|{digit})*    { 
+    yylval.str = yytext; 
+    
+    if (Type::getDeclaredType(yylval.str))
+    {    
+    
+        printf("Ident: %s;\n", yylval.str);
+        return TYPENAME; 
+    
+    }
+    return IDENT; 
+}
 {digit}+                       { yylval.str = yytext; return NUMBER; }
 \/\/.*\n                          /*Skip Comment*/
 

@@ -1,10 +1,6 @@
 class Factorial {
     public static void main(String[] a) {
-        Fac f;
-        int fact;
-        f = new Fac();
-        fact = f.ComputeFact(10);
-        System.out.println(fact);
+        System.out.println(new Fac().ComputeFact(10));
     }
 }
 
@@ -13,7 +9,8 @@ class Fac {
         int aux;
         int i;
         i = 1;
-        while (i <= 0) {
+        aux = 1;
+        while (i <= num) {
             aux = aux * i;
             i = i + 1;
         }  
