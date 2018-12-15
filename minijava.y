@@ -212,7 +212,7 @@ Assignment:
       IDENT[L] ASSIGNMENT Exp[R] SEMICOLON 
         { $$ = new VarAssignment(new VarIdExpression(strtok($L, " =")), $R); }
     | IDENT[L] OPENBRKT Exp[C] CLOSEBRKT ASSIGNMENT Exp[R] SEMICOLON 
-        { $$ = new ArrayAssignment(new VarIdExpression(strtok($L, " {")), $C, $R);}
+        { $$ = new ArrayAssignment(new VarIdExpression(strtok($L, " [")), $C, $R);}
     ;
 
 NonAssignStmt:

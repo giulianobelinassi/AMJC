@@ -25,11 +25,11 @@ class Symbol
     MethodDecl* func_body; // Or offset, when  compiled
     int offset;
 
-    Symbol(Type*, std::string id);
-    Symbol(Type*, std::string id, int  val);
-    Symbol(Type*, std::string id, bool val);
-    Symbol(Type*, std::string id, SymbolTable* val);
-    Symbol(Type*, std::string id, SymbolTable* val, MethodDecl*);
+    Symbol(Type*);
+    Symbol(Type*, int  val);
+    Symbol(Type*, bool val);
+    Symbol(Type*, SymbolTable* val);
+    Symbol(Type*, SymbolTable* val, MethodDecl*);
 
 };
 

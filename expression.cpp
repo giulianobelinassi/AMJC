@@ -103,6 +103,11 @@ struct interp_ret VarIdExpression::interp(SymbolTable* st)
         ret.val.as_tbl = symbol->val.as_class;
         ret.is = INTERP_TBL;
     }
+    else if (symbol->type->isArr())
+    {
+        ret.val.as_arr = symbol->val.as_arr;
+        ret.is = INTERP_ARR;
+    }
     else
         std::cout << "ERROR: " << token << " type is unknown" << std::endl;
 
@@ -156,7 +161,7 @@ struct interp_ret OpExpression::interp(SymbolTable* st=NULL)
     switch (op)
     {
         case OP_PLUS:
-            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            if (ret1.is == INTERP_INT && ret2.is == INTERP_INT)
             {   ret.val.as_int = ret1.val.as_int + ret2.val.as_int;
                 ret.is = INTERP_INT;
             }
@@ -164,7 +169,7 @@ struct interp_ret OpExpression::interp(SymbolTable* st=NULL)
                 std::cout << "WARNING: Sum of incompatible types!" << std::endl;
         break;
         case OP_MINUS:
-            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            if (ret1.is == INTERP_INT && ret2.is == INTERP_INT)
             {
                 ret.val.as_int = ret1.val.as_int - ret2.val.as_int;
                 ret.is = INTERP_INT;
@@ -173,7 +178,7 @@ struct interp_ret OpExpression::interp(SymbolTable* st=NULL)
                 std::cout << "WARNING: Subtraction of incompatible types!" << std::endl;
         break;
         case OP_TIMES:
-            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            if (ret1.is == INTERP_INT && ret2.is == INTERP_INT)
             {
                 ret.val.as_int = ret1.val.as_int * ret2.val.as_int;
                 ret.is = INTERP_INT;
@@ -182,7 +187,7 @@ struct interp_ret OpExpression::interp(SymbolTable* st=NULL)
                 std::cout << "WARNING: Multiplication of incompatible types!" << std::endl;
         break;
         case OP_DIV:
-            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            if (ret1.is == INTERP_INT && ret2.is == INTERP_INT)
             {   ret.val.as_int = ret1.val.as_int / ret2.val.as_int;
                 ret.is = INTERP_INT;
             }
@@ -190,7 +195,7 @@ struct interp_ret OpExpression::interp(SymbolTable* st=NULL)
                 std::cout << "WARNING: Division of incompatible types!" << std::endl;
         break;
         case OP_GT:
-            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            if (ret1.is == INTERP_INT && ret2.is == INTERP_INT)
             {   ret.val.as_bool = (ret1.val.as_int > ret2.val.as_int);
                 ret.is = INTERP_BOOL;
             }
@@ -198,7 +203,7 @@ struct interp_ret OpExpression::interp(SymbolTable* st=NULL)
                 std::cout << "WARNING: Comparison of incompatible types!" << std::endl;
         break;
         case OP_GE:
-            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            if (ret1.is == INTERP_INT && ret2.is == INTERP_INT)
             {   ret.val.as_bool = (ret1.val.as_int >= ret2.val.as_int);
                 ret.is = INTERP_BOOL;
             }
@@ -206,7 +211,7 @@ struct interp_ret OpExpression::interp(SymbolTable* st=NULL)
                 std::cout << "WARNING: Comparison of incompatible types!" << std::endl;
         break;
         case OP_LT:
-            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            if (ret1.is == INTERP_INT && ret2.is == INTERP_INT)
             {   ret.val.as_bool = (ret1.val.as_int < ret2.val.as_int);
                 ret.is = INTERP_BOOL;
             }
@@ -214,7 +219,7 @@ struct interp_ret OpExpression::interp(SymbolTable* st=NULL)
                 std::cout << "WARNING: Comparison of incompatible types!" << std::endl;
         break;
         case OP_LE:
-            if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
+            if (ret1.is == INTERP_INT && ret2.is == INTERP_INT)
             {   ret.val.as_bool = (ret1.val.as_int <= ret2.val.as_int);
                 ret.is = INTERP_BOOL;
             }
@@ -268,10 +273,19 @@ struct interp_ret OpExpression::interp(SymbolTable* st=NULL)
 
 struct interp_ret BrcktExpression::interp(SymbolTable* st=NULL)
 {
-    struct interp_ret ret;
+    struct interp_ret ret1, ret2, ret;
 
-    ret = exp1->interp(st);
-    exp2->interp(st);
+    ret1 = exp1->interp(st);
+    ret2 = exp2->interp(st);
+
+    if (ret1.is != INTERP_ARR)
+        std::cout << "WARNING: Attempt to access non-array variable as an array!" << std::endl;
+
+    if (ret2.is != INTERP_INT)
+        std::cout << "WARNING: Non-integer value in array brackets!" << std::endl;
+
+    ret.val.as_int = ret1.val.as_arr[ret2.val.as_int];
+    ret.is = INTERP_INT;
 
     return ret;
 }
@@ -389,21 +403,21 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
         {
             case INTERP_INT: //Assume types are OK
                 frame_tbl->table[var_id] =
-                  new Symbol((*var_it)->type, var_id, exp_ret.val.as_int);
+                  new Symbol((*var_it)->type, exp_ret.val.as_int);
             break;
 
             case INTERP_BOOL:
                 frame_tbl->table[var_id] =
-                  new Symbol((*var_it)->type, var_id, exp_ret.val.as_bool);
+                  new Symbol((*var_it)->type, exp_ret.val.as_bool);
             break;
 
             case INTERP_ARR:
                 frame_tbl->table[var_id] =
-                  new Symbol((*var_it)->type, var_id, exp_ret.val.as_arr);
+                  new Symbol((*var_it)->type, exp_ret.val.as_arr);
 
             case INTERP_TBL:
                 frame_tbl->table[var_id] =
-                  new Symbol((*var_it)->type, var_id, exp_ret.val.as_tbl);
+                  new Symbol((*var_it)->type, exp_ret.val.as_tbl);
             break;
         }
 
@@ -444,13 +458,13 @@ Agnode_t* MethodExpression::buildGVNode(Agraph_t* g)
     Agnode_t* v;
     std::list<Expression*>::iterator it;
     TWO_CHILD_VERTEX(v, "MethodExpression", exp, id);
-    
+
     for (it = explist->begin(); it != explist->end(); ++it)
     {
         Agnode_t* _c1 = (*it)->buildGVNode(g);
         agedge(g, v, _c1, 0, 1);
     }
-    
+
     return v;
 }
 

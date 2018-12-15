@@ -15,7 +15,7 @@ Agnode_t* BracedStatement::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
     std::list<Statement*>::iterator it;
-    
+
     EXPAND_LIST_VERTEX(v, it, "BracedStatement", stmts);
 
     return v;
@@ -245,7 +245,23 @@ struct interp_ret VarAssignment::interp(SymbolTable* st=NULL)
 
 struct interp_ret ArrayAssignment::interp(SymbolTable* st=NULL)
 {
-    struct interp_ret ret;
+    struct interp_ret ret1, ret2;
 
-    return ret;
+    if (!st->checkIfDeclared(id->token))
+    {
+        std::cout <<
+            "ERROR: Assignment to undeclared variable " <<
+            id->token << std::endl;
+    }
+
+    ret1 = exp1->interp(st);
+    ret2 = exp2->interp(st);
+
+    if (ret1.is != INTERP_INT)
+        std::cout << "WARNING: Expected integer in array brackets!" << std::endl;
+
+    if (ret2.is != INTERP_INT)
+        std::cout << "WARNING: Only integer arrays are supported!" << std::endl;
+
+    return ret2;
 }

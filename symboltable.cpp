@@ -5,37 +5,36 @@
 
 #include <iostream>
 
-#define SYMBOL_INIT(t, i, v, ty, off, f) do { \
+#define SYMBOL_INIT(t, v, ty, off, f) do { \
     this->type = (t); \
-    this->id   = (i); \
     this->offset = (off); \
     this->val.as_##ty = (v); \
     this->func_body = (f); \
 } while(0)
 
-Symbol::Symbol(Type* type, std::string id, int val)
+Symbol::Symbol(Type* type, int val)
 {
-    SYMBOL_INIT(type, id, val, int, 0, NULL);
+    SYMBOL_INIT(type, val, int, 0, NULL);
 }
 
-Symbol::Symbol(Type* type, std::string id, bool val)
+Symbol::Symbol(Type* type, bool val)
 {
-    SYMBOL_INIT(type, id, val, bool, 0, NULL);
+    SYMBOL_INIT(type, val, bool, 0, NULL);
 }
 
-Symbol::Symbol(Type* type, std::string id, SymbolTable* val)
+Symbol::Symbol(Type* type, SymbolTable* val)
 {
-    SYMBOL_INIT(type, id, val, class, 0, NULL);
+    SYMBOL_INIT(type, val, class, 0, NULL);
 }
 
-Symbol::Symbol(Type* type, std::string id, SymbolTable* val, MethodDecl* f)
+Symbol::Symbol(Type* type, SymbolTable* val, MethodDecl* f)
 {
-    SYMBOL_INIT(type, id, val, args, 0, f);
+    SYMBOL_INIT(type, val, args, 0, f);
 }
 
-Symbol::Symbol(Type* type, std::string id)
+Symbol::Symbol(Type* type)
 {
-    SYMBOL_INIT(type, id, NULL, class, 0, NULL);
+    SYMBOL_INIT(type, NULL, class, 0, NULL);
 }
 
 SymbolTable::SymbolTable()
@@ -46,7 +45,7 @@ SymbolTable::SymbolTable(Type* type, ClassDecl* decl)
 {
     this->parseVars(decl->vars);
     this->parseMethods(decl->decls);
-    table["this"] = new Symbol(type, "this", this);
+    table["this"] = new Symbol(type, this);
 }
 
 SymbolTable::SymbolTable(std::list<VarDecl*>* decl)
@@ -82,9 +81,8 @@ void SymbolTable::parseVars(std::list<VarDecl*>* vars)
         if (checkIfDeclared(id))
             std::cout << "WARNING: Redeclaration of variable " << id << std::endl;
 
-        symbol = new Symbol(type, id);
+        symbol = new Symbol(type);
         table[id] = symbol;
-        std::cout << "Symbol:" << symbol->id << std::endl;
     }
 }
 
@@ -105,9 +103,8 @@ void SymbolTable::parseMethods(std::list<MethodDecl*>* decls)
             std::cout << "WARNING: Redeclaration of variable " << id << std::endl;
 
         SymbolTable* args = new SymbolTable((*method_it)->formals);
-        symbol = new Symbol(type, id, args, *method_it);
+        symbol = new Symbol(type, args, *method_it);
         table[id] = symbol;
-        std::cout << "Symbol:" << symbol->id << std::endl;
     }
 }
 
