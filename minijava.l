@@ -68,12 +68,7 @@ letter        [a-zA-Z_]
     yylval.str = yytext; 
     
     if (Type::getDeclaredType(yylval.str))
-    {    
-    
-        printf("Ident: %s;\n", yylval.str);
         return TYPENAME; 
-    
-    }
     return IDENT; 
 }
 {digit}+                       { yylval.str = yytext; return NUMBER; }

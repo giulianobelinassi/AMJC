@@ -13,8 +13,9 @@ BracedStatement::BracedStatement(std::list<Statement*>* stmts)
 
 Agnode_t* BracedStatement::buildGVNode(Agraph_t* g)
 {
-    Agnode_t* v = NULL;
+    Agnode_t* v;
     std::list<Statement*>::iterator it;
+    
     EXPAND_LIST_VERTEX(v, it, "BracedStatement", stmts);
 
     return v;

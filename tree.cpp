@@ -53,7 +53,11 @@ void Program::generateGraphViz()
     v1 = mc->buildGVNode(g);
     agedge(g, prog, v1, 0, 1);
 
-    EXPAND_LIST_VERTEX(prog, it, "ClassDecls", cd);
+    for (it = cd->begin(); it != cd->end(); ++it)
+    {
+        Agnode_t* _c1 = (*it)->buildGVNode(g);
+        agedge(g, prog, _c1, 0, 1);
+    }
 
     gvLayout(gvc, g, "dot");
     gvRender(gvc, g, "pdf", pdf_file);

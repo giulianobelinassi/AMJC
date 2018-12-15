@@ -54,10 +54,11 @@ while(0)
 } while(0)
 
 #define EXPAND_LIST_VERTEX(root, iterator, name, _c1) do {\
-    Agnode_t* _v; \
+    root = agnode(g, NULL, 1); \
+    agset(root, (char*) "label", (char*) name); \
     for (iterator = _c1->begin(); iterator != _c1->end(); ++iterator) \
     { \
-        ONE_CHILD_VERTEX(_v, name, *iterator); \
-        agedge(g, root, _v, 0, 1); \
+        Agnode_t* _c1 = (*iterator)->buildGVNode(g); \
+        agedge(g, root, _c1, 0, 1); \
     } \
 } while(0)

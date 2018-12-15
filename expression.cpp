@@ -436,8 +436,13 @@ Agnode_t* MethodExpression::buildGVNode(Agraph_t* g)
     Agnode_t* v;
     std::list<Expression*>::iterator it;
     TWO_CHILD_VERTEX(v, "MethodExpression", exp, id);
-    EXPAND_LIST_VERTEX(v, it, "ExpList", explist);
-
+    
+    for (it = explist->begin(); it != explist->end(); ++it)
+    {
+        Agnode_t* _c1 = (*it)->buildGVNode(g);
+        agedge(g, v, _c1, 0, 1);
+    }
+    
     return v;
 }
 
