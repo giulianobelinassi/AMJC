@@ -140,8 +140,11 @@ struct interp_ret IfElseStatement::interp(SymbolTable* st=NULL)
 struct interp_ret WhileStatement::interp(SymbolTable* st=NULL)
 {
     struct interp_ret ret;
-    struct interp_ret cnd = cndexp->interp(st);
+    struct interp_ret cnd;
     bool cnd_bool;
+
+    st->printTable();
+    cnd = cndexp->interp(st);
 
     switch (cnd.is)
     {
@@ -161,8 +164,9 @@ struct interp_ret WhileStatement::interp(SymbolTable* st=NULL)
 
     while (cnd_bool)
     {
+        st->printTable();
         ret = whilestmt->interp(st);
-
+        cnd = cndexp->interp(st);
         switch (cnd.is)
         {
             case INTERP_INT:
@@ -211,7 +215,7 @@ struct interp_ret VarAssignment::interp(SymbolTable* st=NULL)
 {
     struct interp_ret ret;
 
-    if (st->checkIfDeclared(id->token))
+    if (!st->checkIfDeclared(id->token))
     {
         std::cout <<
             "ERROR: Assignment to undeclared variable " <<

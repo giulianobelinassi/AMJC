@@ -204,6 +204,7 @@ struct interp_ret OpExpression::interp(SymbolTable* st=NULL)
             }
             else
                 std::cout << "WARNING: Comparison of incompatible types!" << std::endl;
+        break;
         case OP_LT:
             if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
             {   ret.val.as_bool = (ret1.val.as_int < ret2.val.as_int);
@@ -211,6 +212,7 @@ struct interp_ret OpExpression::interp(SymbolTable* st=NULL)
             }
             else
                 std::cout << "WARNING: Comparison of incompatible types!" << std::endl;
+        break;
         case OP_LE:
             if (ret1.is == INTERP_INT || ret2.is == INTERP_INT)
             {   ret.val.as_bool = (ret1.val.as_int <= ret2.val.as_int);
@@ -218,6 +220,7 @@ struct interp_ret OpExpression::interp(SymbolTable* st=NULL)
             }
             else
                 std::cout << "WARNING: Comparison of incompatible types!" << std::endl;
+        break;
         case OP_EQ:
             if (ret1.is == ret2.is && ret1.is == INTERP_INT)
             {
@@ -364,6 +367,11 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
     instance_symt = exp_res.val.as_tbl;
 
     frame_tbl = new SymbolTable(instance_symt);
+
+    instance_symt->printTable();
+
+    if (!instance_symt->checkIfDeclared(func_id))
+        std::cout << "WARNING: Called nonexisting function!" << std::endl;
 
     MethodDecl* func = instance_symt->table[func_id]->func_body;
     if (!func)
