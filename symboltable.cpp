@@ -124,3 +124,8 @@ void SymbolTable::printTable()
     }
     std::cout << "------------------" << std::endl;
 }
+
+void print_table(SymbolTable* st)
+{
+    st->printTable();
+}

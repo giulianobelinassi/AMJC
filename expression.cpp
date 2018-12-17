@@ -356,6 +356,9 @@ struct interp_ret NewIntArrExpression::interp(SymbolTable* st=NULL)
     else
         std::cout << "WARNING: Expected integer on size of array!" << std::endl;
 
+
+    std::cout << "Allocated array at address: " << ret.val.as_arr << std::endl;
+
     return ret;
 }
 
@@ -394,6 +397,8 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
     exp_it = explist->begin();
     var_it = func->formals->begin();
 
+    st->printTable();
+
     while (exp_it != explist->end())
     {
         std::string var_id = (*var_it)->id->token;
@@ -427,10 +432,13 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
     }
 
     frame_tbl->parseVars(func->decls);
+    st->printTable();
 
     for (stmt_it = func->stmts->begin(); stmt_it != func->stmts->end(); ++stmt_it)
+    {    
+        int x = 3;
         (*stmt_it)->interp(frame_tbl);
-
+    }
     frame_tbl->printTable();
     exp_ret = func->exp->interp(frame_tbl);
     return exp_ret;

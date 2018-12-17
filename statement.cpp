@@ -240,6 +240,8 @@ struct interp_ret VarAssignment::interp(SymbolTable* st=NULL)
         break;
     }
 
+    st->printTable();
+
     return ret;
 }
 
@@ -262,6 +264,8 @@ struct interp_ret ArrayAssignment::interp(SymbolTable* st=NULL)
 
     if (ret2.is != INTERP_INT)
         std::cout << "WARNING: Only integer arrays are supported!" << std::endl;
+
+    st->table[id->token]->val.as_arr[ret1.val.as_int] = ret2.val.as_int;
 
     return ret2;
 }

@@ -8,7 +8,7 @@ class Fac {
     public int ComputeFac(int num) {
         int i;
         int[] A;
-        A = new int[10];
+        A = new int[11];
         i = 1;
         A[0] = 1;
         while (i <= num) {
@@ -16,6 +16,11 @@ class Fac {
             i = i + 1;
         }
 
-        return A[9];
+        i = 0;
+        while (i <= num) {
+            System.out.println(A[i]);
+            i = i + 1;
+        }
+        return A[10];
     }
 }

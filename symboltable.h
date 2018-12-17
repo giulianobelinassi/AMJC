@@ -52,4 +52,10 @@ class SymbolTable
     bool checkIfDeclared(std::string);
 };
 
+extern "C" {
+
+void print_table(SymbolTable* st);
+
+}
+
 #endif
