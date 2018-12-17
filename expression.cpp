@@ -435,10 +435,8 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
     st->printTable();
 
     for (stmt_it = func->stmts->begin(); stmt_it != func->stmts->end(); ++stmt_it)
-    {    
-        int x = 3;
         (*stmt_it)->interp(frame_tbl);
-    }
+
     frame_tbl->printTable();
     exp_ret = func->exp->interp(frame_tbl);
     return exp_ret;
