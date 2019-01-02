@@ -442,6 +442,83 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
     return exp_ret;
 }
 
+/*Compiler*/
+
+struct compiler_ret VarIdExpression::compile(struct compiler_args)
+{
+    struct compiler_ret ret;
+    return ret;
+}
+
+struct compiler_ret BoolExpression::compile(struct compiler_args)
+{
+    struct compiler_ret ret;
+    return ret;
+}
+
+struct compiler_ret ThisExpression::compile(struct compiler_args)
+{
+    struct compiler_ret ret;
+    return ret;
+}
+
+struct compiler_ret NumExpression::compile(struct compiler_args)
+{
+    struct compiler_ret ret;
+
+
+
+    return ret;
+}
+
+struct compiler_ret OpExpression::compile(struct compiler_args)
+{
+    struct compiler_ret ret;
+    return ret;
+}
+
+struct compiler_ret LengthExpression::compile(struct compiler_args)
+{
+    struct compiler_ret ret;
+    return ret;
+}
+
+struct compiler_ret NewIntArrExpression::compile(struct compiler_args)
+{
+    struct compiler_ret ret;
+    return ret;
+}
+
+struct compiler_ret NewMethodExpression::compile(struct compiler_args)
+{
+    struct compiler_ret ret;
+    return ret;
+}
+
+struct compiler_ret MethodExpression::compile(struct compiler_args)
+{
+    struct compiler_ret ret;
+    return ret;
+}
+
+struct compiler_ret NegateExpression::compile(struct compiler_args)
+{
+    struct compiler_ret ret;
+    return ret;
+}
+
+struct compiler_ret ParenExpression::compile(struct compiler_args)
+{
+    struct compiler_ret ret;
+    return ret;
+}
+
+struct compiler_ret BrcktExpression::compile(struct compiler_args)
+{
+    struct compiler_ret ret;
+    return ret;
+}
+
 /*GraphViz*/
 Agnode_t* OpExpression::buildGVNode(Agraph_t* g)
 {

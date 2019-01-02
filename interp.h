@@ -1,6 +1,8 @@
 #ifndef INTERP_H
 #define INTERP_H
 
+#include "x86.h"
+
 class SymbolTable;
 
 enum interp {

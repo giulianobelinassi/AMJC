@@ -3,6 +3,7 @@
 
 #include "tree.h"
 #include "interp.h"
+#include "compiler.h"
 
 class SymbolTable;
 
@@ -26,6 +27,7 @@ class Expression
 
     virtual struct Agnode_s* buildGVNode(struct Agraph_s*) {return NULL;}
     virtual struct interp_ret interp(SymbolTable*) = 0;
+    virtual struct compiler_ret compile(struct compiler_args) = 0;
 
 };
 
@@ -36,6 +38,7 @@ class VarIdExpression : public Expression
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(struct compiler_args) override;
 
     VarIdExpression(std::string token);
 };
@@ -48,6 +51,7 @@ class BoolExpression : public Expression
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(struct compiler_args) override;
 
     BoolExpression(bool);
 };
@@ -59,6 +63,7 @@ class ThisExpression : public Expression
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(struct compiler_args) override;
 
     ThisExpression(void);
 };
@@ -72,6 +77,7 @@ class NumExpression : public Expression
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(struct compiler_args) override;
 
     NumExpression(std::string);
 };
@@ -85,6 +91,7 @@ class OpExpression : public Expression
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(struct compiler_args) override;
 
     OpExpression(Expression*, int, Expression*);
 };
@@ -96,6 +103,7 @@ class LengthExpression : public Expression
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(struct compiler_args) override;
 
     LengthExpression(Expression*);
 };
@@ -109,6 +117,7 @@ class MethodExpression : public Expression
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(struct compiler_args) override;
 
     MethodExpression(Expression*, VarIdExpression*, std::list<Expression*>*);
 };
@@ -120,6 +129,7 @@ class NewIntArrExpression : public Expression
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(struct compiler_args) override;
 
     NewIntArrExpression(Expression*);
 };
@@ -131,6 +141,7 @@ class NewMethodExpression : public Expression
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(struct compiler_args) override;
 
     NewMethodExpression(VarIdExpression*);
 };
@@ -142,6 +153,7 @@ class NegateExpression : public Expression
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(struct compiler_args) override;
 
     NegateExpression(Expression*);
 };
@@ -153,6 +165,7 @@ class ParenExpression : public Expression
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(struct compiler_args) override;
 
     ParenExpression(Expression*);
 };
@@ -165,6 +178,7 @@ class BrcktExpression : public Expression
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(struct compiler_args) override;
 
     BrcktExpression(Expression*, Expression*);
 };
