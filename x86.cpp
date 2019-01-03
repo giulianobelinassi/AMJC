@@ -18,6 +18,29 @@ x86_regs::x86_regs()
     reg[X86_EDX] = false;
     reg[X86_ESI] = false;
     reg[X86_EDI] = false;
+
+    nodes[X86_EAX] = nullptr;
+    nodes[X86_EBX] = nullptr;
+    nodes[X86_ECX] = nullptr;
+    nodes[X86_EDX] = nullptr;
+    nodes[X86_ESI] = nullptr;
+    nodes[X86_EDI] = nullptr;
+}
+
+Expression* x86_regs::getNodeFromReg(int i)
+{
+    return nodes[i];
+}
+
+bool x86_regs::isRegUsed(int i)
+{
+    return reg[i];
+}
+
+void x86_regs::setReg(int i, Expression* node)
+{
+    reg[i] = true;
+    nodes[i] = node;
 }
 
 int x86_regs::findFreeRegister()

@@ -444,29 +444,96 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
 
 /*Compiler*/
 
-struct compiler_ret VarIdExpression::compile(struct compiler_args)
+struct compiler_ret VarIdExpression::compile(struct compiler_args args)
 {
+    Symbol* symbol = args.st->table[token];
     struct compiler_ret ret;
+    uint32_t offset = symbol->offset;
+
+    int free_reg = args.used.findFreeRegister();
+
+    if (free_reg == X86_NO_REG)
+    {
+        std::cout << "Sem registradores" << std::endl;
+    }
+    else
+    {
+        std::cout << "mov " << X86_REG_STRING[free_reg] << ", [" << offset << "]" << std::endl;
+        if (symbol->type->isInt())
+        {
+            ret.is = INTERP_INT;
+        }
+        else if (symbol->type->isBool())
+        {
+            ret.is = INTERP_BOOL;
+        }
+        else if (symbol->type->isClass())
+        {
+            ret.is = INTERP_TBL;
+        }
+        else if (symbol->type->isArr())
+        {
+            ret.is = INTERP_ARR;
+        }
+        else
+            std::cout << "ERROR: " << token << " type is unknown" << std::endl;
+    }
     return ret;
 }
 
-struct compiler_ret BoolExpression::compile(struct compiler_args)
+struct compiler_ret BoolExpression::compile(struct compiler_args args)
 {
     struct compiler_ret ret;
+
+    int free_reg = args.used.findFreeRegister();
+
+    if (free_reg == X86_NO_REG)
+    {
+        std::cout << "BoolExpression: Sem Registrador!" << std::endl;
+    }
+    else
+    {
+        ret.st = args.st;
+        ret.in_use.setReg(free_reg, this);
+
+        if (value)
+        {
+            std::cout << "mov " << X86_REG_STRING[free_reg] << ", 1" << std::endl;
+        }
+        else
+        {
+            std::cout << "mov " << X86_REG_STRING[free_reg] << ", 0" << std::endl;
+        }
+    }
     return ret;
 }
 
 struct compiler_ret ThisExpression::compile(struct compiler_args)
 {
+
+
     struct compiler_ret ret;
     return ret;
 }
 
-struct compiler_ret NumExpression::compile(struct compiler_args)
+struct compiler_ret NumExpression::compile(struct compiler_args args)
 {
     struct compiler_ret ret;
 
+    int free_reg = args.used.findFreeRegister();
 
+    if (free_reg == X86_NO_REG)
+    {
+        std::cout << "Sem registradores" << std::endl;
+    }
+    else
+    {
+        std::cout << "mov " << X86_REG_STRING[free_reg] << ", " << val_str << std::endl;
+        ret.st = args.st;
+        ret.in_use.setReg(free_reg, this);
+        ret.is = INTERP_INT;
+        ret.aws = free_reg;
+    }
 
     return ret;
 }

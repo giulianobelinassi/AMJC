@@ -23,7 +23,7 @@ class Symbol
     std::string id;
     union container val;
     MethodDecl* func_body; // Or offset, when  compiled
-    int offset;
+    uint32_t offset;
 
     Symbol(Type*);
     Symbol(Type*, int  val);

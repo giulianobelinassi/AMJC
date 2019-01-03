@@ -24,6 +24,7 @@ class Type
     bool isInt();
     bool isArr();
     bool isClass();
+    int calculateSize();
 
     struct Agnode_s* buildGVNode(struct Agraph_s*);
 

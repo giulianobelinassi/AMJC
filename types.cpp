@@ -85,6 +85,11 @@ bool Type::isClass()
     return true;
 }
 
+int Type::calculateSize()
+{
+    
+}
+
 Agnode_t* Type::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;

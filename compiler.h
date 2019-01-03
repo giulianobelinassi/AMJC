@@ -10,7 +10,7 @@ struct compiler_ret
     x86_regs in_use;
     SymbolTable* st;
     enum interp is;
-    X86_REGISTER aws;
+    int aws;
 };
 
 struct compiler_args
