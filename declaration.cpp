@@ -77,3 +77,53 @@ Agnode_t* MethodDecl::buildGVNode(Agraph_t* g)
     return v;
 }
 
+int MethodDecl::calculateFormalSize()
+{
+    std::list<VarDecl*>::iterator it;
+    int size = 0;
+
+    for (it = formals->begin(); it != formals->end(); ++it)
+       size += 4; //Assume all types are pointers or integers.
+
+    return size + 4; //pointer to this
+}
+
+int MethodDecl::calculateLocalSize()
+{
+    std::list<VarDecl*>::iterator it;
+    int size = 0;
+
+    for (it = decls->begin(); it != decls->end(); ++it)
+       size += 4; //Assume all types are pointers or integers.
+
+    return size;
+}
+
+struct compiler_ret ClassDecl::compile()
+{
+    std::list<MethodDecl*>::iterator it;
+    std::list<Statement*>::iterator stmt_it;
+    for (it = decls->begin(); it != decls->end(); it++)
+    {
+        SymbolTable* st = new SymbolTable(compiled_table);
+        st->parseVars((*it)->formals, false);
+        st->parseVars((*it)->decls, true);
+
+        std::cout << "FRAME_TBL" << std::endl;
+        st->printTable();
+
+        std::cout << name->token << "__" << (*it)->id->token << ":" << std::endl;
+        std::cout << "push ebp" << std::endl;
+        std::cout << "mov ebp, esp" << std::endl;
+        std::cout << "sub esp, " << (*it)->calculateLocalSize() << std::endl;
+
+        for (stmt_it = (*it)->stmts->begin(); stmt_it != (*it)->stmts->end(); stmt_it++)
+        {
+            (*stmt_it)->compile(st);
+        }
+
+        std::cout << "mov esp, ebp" << std::endl;
+        std::cout << "pop ebp" << std::endl;
+        std::cout << "ret " << (*it)->calculateFormalSize() << std::endl;
+    }
+}

@@ -28,6 +28,8 @@ class MethodDecl
     Expression* exp;
 
     struct Agnode_s* buildGVNode(struct Agraph_s*);
+    int calculateFormalSize();
+    int calculateLocalSize();
 
     MethodDecl(Type*, VarIdExpression*, std::list<VarDecl*>*,
                std::list<VarDecl*>*, std::list<Statement*>*, Expression* exp);
@@ -42,7 +44,7 @@ class ClassDecl
     SymbolTable* compiled_table;
 
     struct Agnode_s* buildGVNode(struct Agraph_s* g);
-
+    struct compiler_ret compile();
 
     ClassDecl(VarIdExpression*, std::list<VarDecl*>*, std::list<MethodDecl*>*);
 };

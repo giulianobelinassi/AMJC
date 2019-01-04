@@ -48,13 +48,15 @@ void Program::compile()
     for (it = cd->begin(); it != cd->end(); it++)
         Type::declareType((*it)->name->token, *it);
 
+    for (it = cd->begin(); it != cd->end(); it++)
+        (*it)->compile();
+
     mc->compile(args);
 
 }
 
 struct compiler_ret MainClass::compile(struct compiler_args args)
 {
-
     std::cout << "segment .text" << std::endl;
     std::cout << "global _start" << std::endl;
     std::cout << "_start:" << std::endl;

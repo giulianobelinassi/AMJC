@@ -2,9 +2,12 @@
 #include "macros.h"
 #include "interp.h"
 #include "symboltable.h"
+#include "compiler.h"
 
 #include <graphviz/gvc.h>
 #include <iostream>
+
+int labels = 0;
 
 BracedStatement::BracedStatement(std::list<Statement*>* stmts)
 {
@@ -268,4 +271,67 @@ struct interp_ret ArrayAssignment::interp(SymbolTable* st=NULL)
     st->table[id->token]->val.as_arr[ret1.val.as_int] = ret2.val.as_int;
 
     return ret2;
+}
+
+/*Compile*/
+
+struct compiler_ret BracedStatement::compile(SymbolTable* st)
+{
+    struct compiler_ret ret;
+    return ret;
+}
+
+struct compiler_ret IfElseStatement::compile(SymbolTable* st)
+{
+    struct compiler_ret ret;
+    struct x86_regs used_regs = x86_regs(); 
+    int iflabel = labels++;
+    int returnlabel = labels++;
+
+    /*
+    if (OpExpression* c = dynamic_cast<OpExpression*>(cndexp))
+    {
+        if (NumExpression* l = dynamic_cast<NumExpression*>(c->exp1))
+        {
+        
+        }
+        else if (NumExpression* r = dynamic_cast<NumExpression*>(c->exp2))
+        {
+        }
+    }
+    */
+
+    std::cout << "test eax, eax" << std::endl;
+    std::cout << "je L" << iflabel << std::endl;
+    elsestmt->compile(st);
+    std::cout << "jmp L" << returnlabel << std::endl;
+    std::cout << "L" << iflabel << ":" << std::endl;
+    ifstmt->compile(st);
+    std::cout << "jmp L" << returnlabel << std::endl;
+
+    return ret;
+}
+
+struct compiler_ret WhileStatement::compile(SymbolTable* st)
+{
+    struct compiler_ret ret;
+    return ret;
+}
+
+struct compiler_ret PrintStatement::compile(SymbolTable* st)
+{
+    struct compiler_ret ret;
+    return ret;
+}
+
+struct compiler_ret VarAssignment::compile(SymbolTable* st)
+{
+    struct compiler_ret ret;
+    return ret;
+}
+
+struct compiler_ret ArrayAssignment::compile(SymbolTable* st)
+{
+    struct compiler_ret ret;
+    return ret;
 }

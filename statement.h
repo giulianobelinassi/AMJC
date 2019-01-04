@@ -4,6 +4,7 @@
 #include "tree.h"
 #include "expression.h"
 #include "interp.h"
+#include "compiler.h"
 
 class SymbolTable;
 
@@ -13,6 +14,7 @@ class Statement
 
     virtual struct Agnode_s* buildGVNode(struct Agraph_s*) {return NULL;}
     virtual struct interp_ret interp(SymbolTable*) = 0;
+    virtual struct compiler_ret compile(SymbolTable*) = 0;
 
     virtual ~Statement() {}
 
@@ -27,6 +29,7 @@ class BracedStatement : public Statement
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(SymbolTable*) override;
 
     BracedStatement(std::list<Statement*>*);
 };
@@ -40,6 +43,7 @@ class IfElseStatement : public Statement
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(SymbolTable*) override;
 
     IfElseStatement(Expression*, Statement*, Statement*);
 };
@@ -52,6 +56,7 @@ class WhileStatement : public Statement
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(SymbolTable*) override;
 
     WhileStatement(Expression*, Statement*);
 };
@@ -63,6 +68,7 @@ class PrintStatement : public Statement
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(SymbolTable*) override;
 
     PrintStatement(Expression*);
 };
@@ -76,6 +82,7 @@ class VarAssignment : public Assignment
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(SymbolTable*) override;
 
     VarAssignment(VarIdExpression*, Expression*);
 };
@@ -89,6 +96,7 @@ class ArrayAssignment : public Assignment
 
     struct Agnode_s* buildGVNode(struct Agraph_s*) override;
     struct interp_ret interp(SymbolTable*) override;
+    struct compiler_ret compile(SymbolTable*) override;
 
     ArrayAssignment(VarIdExpression*, Expression*, Expression*);
 };

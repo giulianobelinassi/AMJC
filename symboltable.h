@@ -23,7 +23,7 @@ class Symbol
     std::string id;
     union container val;
     MethodDecl* func_body; // Or offset, when  compiled
-    uint32_t offset;
+    int offset;
     bool is_local;
 
     Symbol(Type*);
@@ -31,9 +31,9 @@ class Symbol
     Symbol(Type*, bool val);
     Symbol(Type*, SymbolTable* val);
     Symbol(Type*, SymbolTable* val, MethodDecl*);
-    Symbol(Type*, uint32_t offset, bool is_local);
-    Symbol(Type*, SymbolTable* val, uint32_t offset, bool is_local);
-    Symbol(Type*, SymbolTable* val, MethodDecl*, uint32_t offset, bool is_local);
+    Symbol(Type*, int offset, bool is_local);
+    Symbol(Type*, SymbolTable* val, int offset, bool is_local);
+    Symbol(Type*, SymbolTable* val, MethodDecl*, int offset, bool is_local);
 
 };
 

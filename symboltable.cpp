@@ -37,14 +37,14 @@ Symbol::Symbol(Type* type)
     SYMBOL_INIT(type, NULL, class, 0, NULL);
 }
 
-Symbol::Symbol(Type* type, uint32_t offset, bool is_local)
+Symbol::Symbol(Type* type, int offset, bool is_local)
 {
     this->type = type;
     this->offset = offset;
     this->is_local = is_local;
 }
 
-Symbol::Symbol(Type* type, SymbolTable* val, uint32_t offset, bool is_local)
+Symbol::Symbol(Type* type, SymbolTable* val, int offset, bool is_local)
 {
     this->type = type;
     this->val.as_class = val;
@@ -52,7 +52,7 @@ Symbol::Symbol(Type* type, SymbolTable* val, uint32_t offset, bool is_local)
     this->is_local = is_local;
 
 }
-Symbol::Symbol(Type* type, SymbolTable* val, MethodDecl* mtd, uint32_t offset, bool is_local)
+Symbol::Symbol(Type* type, SymbolTable* val, MethodDecl* mtd, int offset, bool is_local)
 {
     this->type = type;
     this->val.as_class = val;
@@ -70,7 +70,7 @@ SymbolTable::SymbolTable(Type* type, ClassDecl* decl)
 {
     this->parseVars(decl->vars, false);
     this->parseMethods(decl->decls);
-    table["this"] = new Symbol(type, this);
+    table["this"] = new Symbol(type, this, 8, false);
 }
 
 SymbolTable::SymbolTable(std::list<VarDecl*>* decl)
@@ -93,11 +93,16 @@ bool SymbolTable::checkIfDeclared(std::string id)
 void SymbolTable::parseVars(std::list<VarDecl*>* vars, bool local)
 {
     std::list<VarDecl*>::iterator var_it;
-    int offset = 0;
+    int offset;
 
     std::string id;
     Type* type;
     Symbol* symbol;
+
+    if (local) 
+        offset = -4;
+    else
+        offset = 12; //This will be passed as first argument;
 
     for (var_it = vars->begin(); var_it != vars->end(); ++var_it)
     {
@@ -109,7 +114,7 @@ void SymbolTable::parseVars(std::list<VarDecl*>* vars, bool local)
 
         symbol = new Symbol(type, offset, local);
         table[id] = symbol;
-        offset += 4;
+        offset = local? offset - 4: offset + 4; 
     }
 }
 

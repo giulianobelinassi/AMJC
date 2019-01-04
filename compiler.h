@@ -2,6 +2,7 @@
 #define COMPILER_H
 
 #include "x86.h"
+#include "interp.h"
 
 class SymbolTable;
 
