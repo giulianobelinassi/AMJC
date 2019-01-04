@@ -4,6 +4,7 @@
 #include "declaration.h"
 #include "interp.h"
 #include "statement.h"
+#include "x86.h"
 
 #include <graphviz/gvc.h>
 #include <iostream>
@@ -444,51 +445,47 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
 
 /*Compiler*/
 
-struct compiler_ret VarIdExpression::compile(SymbolTable* st, struct x86_regs* used)
+struct compiler_ret VarIdExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     Symbol* symbol = st->table[token];
     struct compiler_ret ret;
     uint32_t offset = symbol->offset;
 
-    int free_reg = used->findFreeRegister();
+    int free_reg = pref_reg;
 
-    if (free_reg == X86_NO_REG)
+    if (offset > 0)
+        std::cout << "mov " << X86_REG_STRING[free_reg] << ", [ebp+" << offset << "]" << std::endl;
+    else
+        std::cout << "mov " << X86_REG_STRING[free_reg] << ", [ebp" << offset << "]" << std::endl;
+    ret.aws = free_reg;
+    used->setReg(free_reg, this);
+    
+    if (symbol->type->isInt())
     {
-        std::cerr << "Sem registradores" << std::endl;
+        ret.is = INTERP_INT;
+    }
+    else if (symbol->type->isBool())
+    {
+        ret.is = INTERP_BOOL;
+    }
+    else if (symbol->type->isClass())
+    {
+        ret.is = INTERP_TBL;
+    }
+    else if (symbol->type->isArr())
+    {
+        ret.is = INTERP_ARR;
     }
     else
-    {
-        std::cout << "mov " << X86_REG_STRING[free_reg] << ", [" << offset << "]" << std::endl;
-        ret.aws = free_reg;
-        used->setReg(free_reg, this);
-        
-        if (symbol->type->isInt())
-        {
-            ret.is = INTERP_INT;
-        }
-        else if (symbol->type->isBool())
-        {
-            ret.is = INTERP_BOOL;
-        }
-        else if (symbol->type->isClass())
-        {
-            ret.is = INTERP_TBL;
-        }
-        else if (symbol->type->isArr())
-        {
-            ret.is = INTERP_ARR;
-        }
-        else
-            std::cerr << "ERROR: " << token << " type is unknown" << std::endl;
-    }
+        std::cerr << "ERROR: " << token << " type is unknown" << std::endl;
     return ret;
 }
 
-struct compiler_ret BoolExpression::compile(SymbolTable* st, struct x86_regs* used)
+struct compiler_ret BoolExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret;
 
-    int free_reg = used->findFreeRegister();
+    int free_reg = pref_reg;
 
     if (free_reg == X86_NO_REG)
     {
@@ -511,15 +508,13 @@ struct compiler_ret BoolExpression::compile(SymbolTable* st, struct x86_regs* us
     return ret;
 }
 
-struct compiler_ret ThisExpression::compile(SymbolTable* st, struct x86_regs* used)
+struct compiler_ret ThisExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
-
-
     struct compiler_ret ret;
     return ret;
 }
 
-struct compiler_ret NumExpression::compile(SymbolTable* st, struct x86_regs* used)
+struct compiler_ret NumExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret;
 
@@ -540,49 +535,96 @@ struct compiler_ret NumExpression::compile(SymbolTable* st, struct x86_regs* use
     return ret;
 }
 
-struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used)
+struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
+{
+    struct compiler_ret ret;
+    struct compiler_ret ret1, ret2;
+
+    switch (op)
+    {
+        //case OP_PLUS:
+        //break;
+        //case OP_MINUS:
+        //break;
+        //case OP_TIMES:
+        //break;
+        //case OP_DIV:
+        //break;
+        //case OP_GT:
+        //break;
+        //case OP_GE:
+        //break;
+        case OP_LT:
+            int free_reg = used->findFreeRegister();
+            
+            if (exp1->cost <= exp2->cost)
+            {
+                ret1 = exp1->compile(st, used, pref_reg);
+                ret2 = exp2->compile(st, used, free_reg);
+            }
+            else
+            {
+                ret2 = exp2->compile(st, used, free_reg);
+                ret1 = exp1->compile(st, used, pref_reg); 
+            }
+            if (ret1.is != ret2.is)
+            {
+                
+                std::cerr << "WARNING: Binary operations of incompatible type!" << std::endl;
+            }
+
+        break;
+        //case OP_LE:
+        //break;
+        //case OP_EQ:
+        //break;
+        //case OP_NE:
+        //break;
+        //default:
+        //    std::cerr << "WARNING: Binary operation of incompatible types!" << std::endl;
+    }
+
+    
+    return ret;
+}
+
+struct compiler_ret LengthExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret;
     return ret;
 }
 
-struct compiler_ret LengthExpression::compile(SymbolTable* st, struct x86_regs* used)
+struct compiler_ret NewIntArrExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret;
     return ret;
 }
 
-struct compiler_ret NewIntArrExpression::compile(SymbolTable* st, struct x86_regs* used)
+struct compiler_ret NewMethodExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret;
     return ret;
 }
 
-struct compiler_ret NewMethodExpression::compile(SymbolTable* st, struct x86_regs* used)
+struct compiler_ret MethodExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret;
     return ret;
 }
 
-struct compiler_ret MethodExpression::compile(SymbolTable* st, struct x86_regs* used)
+struct compiler_ret NegateExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret;
     return ret;
 }
 
-struct compiler_ret NegateExpression::compile(SymbolTable* st, struct x86_regs* used)
+struct compiler_ret ParenExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret;
     return ret;
 }
 
-struct compiler_ret ParenExpression::compile(SymbolTable* st, struct x86_regs* used)
-{
-    struct compiler_ret ret;
-    return ret;
-}
-
-struct compiler_ret BrcktExpression::compile(SymbolTable* st, struct x86_regs* used)
+struct compiler_ret BrcktExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret;
     return ret;
@@ -592,55 +634,99 @@ struct compiler_ret BrcktExpression::compile(SymbolTable* st, struct x86_regs* u
 /*Cost computing*/
 int VarIdExpression::compute_cost()
 {
-    return 0;
+    cost = 1;
+    return cost;
 }
 
 int BoolExpression::compute_cost()
 {
-    return 0;
+    cost = 1;
+    return cost;
 }
 
 int ThisExpression::compute_cost()
 {
-    return 0;
+    cost = 1;
+    return cost;
 }
 
 int NumExpression::compute_cost()
 {
-    return 0;
+    cost = 1;
+    return cost;
 }
 
 int OpExpression::compute_cost()
 {
-    
+    int c1 = exp1->compute_cost();
+    int c2 = exp2->compute_cost();
+    int c;
+
+    if (c1 != c2)
+        c = std::max(c1, c2);
+    else c = c1 + 1;
+
+    cost = c;
+    return cost;
 }
 
 
 int MethodExpression::compute_cost()
 {
+    int max_cost = 0;
+    std::list<Expression*>::iterator it;
+
+    for (it = explist->begin(); it != explist->end(); ++it)
+    {
+        int c = (*it)->compute_cost();
+        max_cost = std::max(max_cost, c);
+    }
+
+    cost = max_cost + 1;
+    return cost; //Store result in EAX
 }
 
 int NewIntArrExpression::compute_cost()
 {
+    cost = 1;
+    return cost; //Não sei ainda
 }
 
 int NewMethodExpression::compute_cost()
 {
+    cost = 1;
+    return cost; //Tem que chamar o malloc.
 }
 
 int NegateExpression::compute_cost()
 {
+    cost = 1;
+    return cost;
 }
 
 int ParenExpression::compute_cost()
 {
+    cost = exp->compute_cost();
+    return cost; 
 }
 
 int LengthExpression::compute_cost()
 {
+    cost = 1;
+    return cost;
 }
 int BrcktExpression::compute_cost()
 {
+    int c1 = exp1->compute_cost();
+    int c2 = exp2->compute_cost();
+    int c;
+
+    if (c1 != c2)
+        c = std::max(c1, c2);
+    else c = c1 + 1;
+
+    cost = c;
+    return cost;
 }
 
 /*GraphViz*/

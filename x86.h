@@ -25,7 +25,7 @@ struct x86_regs
     void setReg(int reg, Expression* node);
 
     int findFreeRegister();
-
+    int availableRegisters();
 };
 
 #endif

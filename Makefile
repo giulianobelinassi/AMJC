@@ -13,7 +13,7 @@ main: lex.yy.o minijava.tab.o tree.o statement.o expression.o types.o declaratio
 declaration.o: declaration.cpp declaration.h tree.h expression.h statement.h
 	$(CXX) $(CXXFLAGS) -c $<
 
-expression.o: expression.cpp expression.h tree.h macros.h
+expression.o: expression.cpp x86.cpp x86.h interp.h compiler.h expression.h tree.h macros.h
 	$(CXX) $(CXXFLAGS) -c $<
 
 types.o: types.cpp macros.h

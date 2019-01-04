@@ -53,3 +53,16 @@ int x86_regs::findFreeRegister()
     }
     return -1;
 }
+
+int x86_regs::availableRegisters()
+{
+    int i, n = 0;
+
+    for (i = 0; i < 6; ++i)
+    {
+        if (!reg[i])
+            n++;
+    }
+    return n;
+
+}

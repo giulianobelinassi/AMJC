@@ -288,6 +288,9 @@ struct compiler_ret IfElseStatement::compile(SymbolTable* st)
     int iflabel = labels++;
     int returnlabel = labels++;
 
+    cndexp->compute_cost();
+    cndexp->compile(st, &used_regs, X86_EAX);
+
     /*
     if (OpExpression* c = dynamic_cast<OpExpression*>(cndexp))
     {
