@@ -8,7 +8,6 @@ class SymbolTable;
 
 struct compiler_ret
 {
-    x86_regs in_use;
     SymbolTable* st;
     enum interp is;
     int aws;

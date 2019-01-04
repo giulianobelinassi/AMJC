@@ -444,21 +444,24 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
 
 /*Compiler*/
 
-struct compiler_ret VarIdExpression::compile(struct compiler_args args)
+struct compiler_ret VarIdExpression::compile(SymbolTable* st, struct x86_regs* used)
 {
-    Symbol* symbol = args.st->table[token];
+    Symbol* symbol = st->table[token];
     struct compiler_ret ret;
     uint32_t offset = symbol->offset;
 
-    int free_reg = args.used.findFreeRegister();
+    int free_reg = used->findFreeRegister();
 
     if (free_reg == X86_NO_REG)
     {
-        std::cout << "Sem registradores" << std::endl;
+        std::cerr << "Sem registradores" << std::endl;
     }
     else
     {
         std::cout << "mov " << X86_REG_STRING[free_reg] << ", [" << offset << "]" << std::endl;
+        ret.aws = free_reg;
+        used->setReg(free_reg, this);
+        
         if (symbol->type->isInt())
         {
             ret.is = INTERP_INT;
@@ -476,16 +479,16 @@ struct compiler_ret VarIdExpression::compile(struct compiler_args args)
             ret.is = INTERP_ARR;
         }
         else
-            std::cout << "ERROR: " << token << " type is unknown" << std::endl;
+            std::cerr << "ERROR: " << token << " type is unknown" << std::endl;
     }
     return ret;
 }
 
-struct compiler_ret BoolExpression::compile(struct compiler_args args)
+struct compiler_ret BoolExpression::compile(SymbolTable* st, struct x86_regs* used)
 {
     struct compiler_ret ret;
 
-    int free_reg = args.used.findFreeRegister();
+    int free_reg = used->findFreeRegister();
 
     if (free_reg == X86_NO_REG)
     {
@@ -493,8 +496,8 @@ struct compiler_ret BoolExpression::compile(struct compiler_args args)
     }
     else
     {
-        ret.st = args.st;
-        ret.in_use.setReg(free_reg, this);
+        ret.st = st;
+        used->setReg(free_reg, this);
 
         if (value)
         {
@@ -508,7 +511,7 @@ struct compiler_ret BoolExpression::compile(struct compiler_args args)
     return ret;
 }
 
-struct compiler_ret ThisExpression::compile(struct compiler_args)
+struct compiler_ret ThisExpression::compile(SymbolTable* st, struct x86_regs* used)
 {
 
 
@@ -516,11 +519,11 @@ struct compiler_ret ThisExpression::compile(struct compiler_args)
     return ret;
 }
 
-struct compiler_ret NumExpression::compile(struct compiler_args args)
+struct compiler_ret NumExpression::compile(SymbolTable* st, struct x86_regs* used)
 {
     struct compiler_ret ret;
 
-    int free_reg = args.used.findFreeRegister();
+    int free_reg = used->findFreeRegister();
 
     if (free_reg == X86_NO_REG)
     {
@@ -529,8 +532,7 @@ struct compiler_ret NumExpression::compile(struct compiler_args args)
     else
     {
         std::cout << "mov " << X86_REG_STRING[free_reg] << ", " << val_str << std::endl;
-        ret.st = args.st;
-        ret.in_use.setReg(free_reg, this);
+        used->setReg(free_reg, this);
         ret.is = INTERP_INT;
         ret.aws = free_reg;
     }
@@ -538,55 +540,111 @@ struct compiler_ret NumExpression::compile(struct compiler_args args)
     return ret;
 }
 
-struct compiler_ret OpExpression::compile(struct compiler_args)
+struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used)
 {
     struct compiler_ret ret;
     return ret;
 }
 
-struct compiler_ret LengthExpression::compile(struct compiler_args)
+struct compiler_ret LengthExpression::compile(SymbolTable* st, struct x86_regs* used)
 {
     struct compiler_ret ret;
     return ret;
 }
 
-struct compiler_ret NewIntArrExpression::compile(struct compiler_args)
+struct compiler_ret NewIntArrExpression::compile(SymbolTable* st, struct x86_regs* used)
 {
     struct compiler_ret ret;
     return ret;
 }
 
-struct compiler_ret NewMethodExpression::compile(struct compiler_args)
+struct compiler_ret NewMethodExpression::compile(SymbolTable* st, struct x86_regs* used)
 {
     struct compiler_ret ret;
     return ret;
 }
 
-struct compiler_ret MethodExpression::compile(struct compiler_args)
+struct compiler_ret MethodExpression::compile(SymbolTable* st, struct x86_regs* used)
 {
     struct compiler_ret ret;
     return ret;
 }
 
-struct compiler_ret NegateExpression::compile(struct compiler_args)
+struct compiler_ret NegateExpression::compile(SymbolTable* st, struct x86_regs* used)
 {
     struct compiler_ret ret;
     return ret;
 }
 
-struct compiler_ret ParenExpression::compile(struct compiler_args)
+struct compiler_ret ParenExpression::compile(SymbolTable* st, struct x86_regs* used)
 {
     struct compiler_ret ret;
     return ret;
 }
 
-struct compiler_ret BrcktExpression::compile(struct compiler_args)
+struct compiler_ret BrcktExpression::compile(SymbolTable* st, struct x86_regs* used)
 {
     struct compiler_ret ret;
     return ret;
+}
+
+
+/*Cost computing*/
+int VarIdExpression::compute_cost()
+{
+    return 0;
+}
+
+int BoolExpression::compute_cost()
+{
+    return 0;
+}
+
+int ThisExpression::compute_cost()
+{
+    return 0;
+}
+
+int NumExpression::compute_cost()
+{
+    return 0;
+}
+
+int OpExpression::compute_cost()
+{
+    
+}
+
+
+int MethodExpression::compute_cost()
+{
+}
+
+int NewIntArrExpression::compute_cost()
+{
+}
+
+int NewMethodExpression::compute_cost()
+{
+}
+
+int NegateExpression::compute_cost()
+{
+}
+
+int ParenExpression::compute_cost()
+{
+}
+
+int LengthExpression::compute_cost()
+{
+}
+int BrcktExpression::compute_cost()
+{
 }
 
 /*GraphViz*/
+
 Agnode_t* OpExpression::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
