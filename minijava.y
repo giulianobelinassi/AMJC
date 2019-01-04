@@ -279,9 +279,12 @@ int main(){
     Program* program;
     yyin = stdin;
     yyparse(&program);
-    program->generateGraphViz();
-    Type::printDeclaredTypes();
+    //program->generateGraphViz();
+    //Type::printDeclaredTypes();
     program->interp();
+
+    printf("Start compiling\n");
+    program->compile();
     return 0;
 }
 

@@ -1,7 +1,9 @@
 #include <graphviz/gvc.h>
 #include <iostream>
+#include <list>
 
 #include "macros.h"
+#include "declaration.h"
 #include "types.h"
 
 Type::Type(std::string id, ClassDecl* def=NULL)
@@ -87,7 +89,13 @@ bool Type::isClass()
 
 int Type::calculateSize()
 {
-    
+    std::list<VarDecl*>::iterator it;
+    int size = 0;
+
+    for (it = class_def->vars->begin(); it != class_def->vars->end(); ++it)
+       size += 4; //Assume all types are pointers or integers.
+
+    return size;
 }
 
 Agnode_t* Type::buildGVNode(Agraph_t* g)

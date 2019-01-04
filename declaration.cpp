@@ -8,13 +8,18 @@
 #include "macros.h"
 #include "symboltable.h"
 
-ClassDecl::ClassDecl(VarIdExpression* name, std::list<VarDecl*>* vars, 
+ClassDecl::ClassDecl(VarIdExpression* name, std::list<VarDecl*>* vars,
                      std::list<MethodDecl*>* decls)
 {
+    Type* t;
     this->name = name;
     this->vars = vars;
     this->decls = decls;
-    Type::declareType(name->token, this); 
+    t = Type::declareType(name->token, this);
+    compiled_table = new SymbolTable(t, this);
+    std::cout << "COMPILED_TABLE::" << std::endl;
+    compiled_table->printTable();
+
 }
 
 Agnode_t* ClassDecl::buildGVNode(Agraph_t* g)
@@ -41,13 +46,13 @@ Agnode_t* VarDecl::buildGVNode(Agraph_t* g)
 {
     Agnode_t* v;
     TWO_CHILD_VERTEX(v, "VarDecl", type, id);
-    
+
     return v;
 }
 
-MethodDecl::MethodDecl(Type* type, VarIdExpression* id, 
-                       std::list<VarDecl*>* formals, 
-                       std::list<VarDecl*>* decls, 
+MethodDecl::MethodDecl(Type* type, VarIdExpression* id,
+                       std::list<VarDecl*>* formals,
+                       std::list<VarDecl*>* decls,
                        std::list<Statement*>* stmts, Expression* exp)
 {
     this->type = type;
@@ -68,7 +73,7 @@ Agnode_t* MethodDecl::buildGVNode(Agraph_t* g)
     EXPAND_LIST_VERTEX(v, var_it, "FormalDecls",  formals);
     EXPAND_LIST_VERTEX(v, var_it, "VarDecls",  decls);
     EXPAND_LIST_VERTEX(v, stmt_it, "Statements", stmts);
-    
+
     return v;
 }
 

@@ -37,13 +37,38 @@ Symbol::Symbol(Type* type)
     SYMBOL_INIT(type, NULL, class, 0, NULL);
 }
 
+Symbol::Symbol(Type* type, uint32_t offset, bool is_local)
+{
+    this->type = type;
+    this->offset = offset;
+    this->is_local = is_local;
+}
+
+Symbol::Symbol(Type* type, SymbolTable* val, uint32_t offset, bool is_local)
+{
+    this->type = type;
+    this->val.as_class = val;
+    this->offset = offset;
+    this->is_local = is_local;
+
+}
+Symbol::Symbol(Type* type, SymbolTable* val, MethodDecl* mtd, uint32_t offset, bool is_local)
+{
+    this->type = type;
+    this->val.as_class = val;
+    this->offset = offset;
+    this->func_body = mtd;
+    this->is_local = is_local;
+}
+
+
 SymbolTable::SymbolTable()
 {
 }
 
 SymbolTable::SymbolTable(Type* type, ClassDecl* decl)
 {
-    this->parseVars(decl->vars);
+    this->parseVars(decl->vars, false);
     this->parseMethods(decl->decls);
     table["this"] = new Symbol(type, this);
 }
@@ -65,9 +90,10 @@ bool SymbolTable::checkIfDeclared(std::string id)
     return true;
 }
 
-void SymbolTable::parseVars(std::list<VarDecl*>* vars)
+void SymbolTable::parseVars(std::list<VarDecl*>* vars, bool local)
 {
     std::list<VarDecl*>::iterator var_it;
+    int offset = 0;
 
     std::string id;
     Type* type;
@@ -81,8 +107,9 @@ void SymbolTable::parseVars(std::list<VarDecl*>* vars)
         if (checkIfDeclared(id))
             std::cout << "WARNING: Redeclaration of variable " << id << std::endl;
 
-        symbol = new Symbol(type);
+        symbol = new Symbol(type, offset, local);
         table[id] = symbol;
+        offset += 4;
     }
 }
 
@@ -116,11 +143,13 @@ void SymbolTable::printTable()
         Type* type = it.second->type;
         std::cout << " " << it.first << ":";
         if (type->isBool())
-            std::cout << it.second->val.as_bool << std::endl;
+            std::cout << it.second->val.as_bool;
         else if (type->isInt())
-            std::cout << it.second->val.as_int << std::endl;
+            std::cout << it.second->val.as_int;
         else
-            std::cout << it.second->val.as_class << std::endl;
+            std::cout << it.second->val.as_class;
+        std::cout << " offset: " << it.second->offset << std::endl;
+
     }
     std::cout << "------------------" << std::endl;
 }

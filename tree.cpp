@@ -6,7 +6,7 @@
 #include "declaration.h"
 #include "macros.h"
 #include "symboltable.h"
-
+#include "compiler.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -25,7 +25,7 @@ struct interp_ret Program::interp()
     SymbolTable* st = new SymbolTable();
 
     std::list<ClassDecl*>::iterator it;
-    
+
     for (it = cd->begin(); it != cd->end(); it++)
         Type::declareType((*it)->name->token, *it);
 
@@ -35,6 +35,29 @@ struct interp_ret Program::interp()
 struct interp_ret MainClass::interp(SymbolTable* st)
 {
     return stmt->interp(st);
+}
+
+void Program::compile()
+{
+    struct compiler_args args;
+
+    SymbolTable* st = new SymbolTable();
+
+    std::list<ClassDecl*>::iterator it;
+
+    for (it = cd->begin(); it != cd->end(); it++)
+        Type::declareType((*it)->name->token, *it);
+
+    mc->compile(args);
+
+}
+
+struct compiler_ret MainClass::compile(struct compiler_args args)
+{
+
+    std::cout << "segment .text" << std::endl;
+    std::cout << "global _start" << std::endl;
+    std::cout << "_start:" << std::endl;
 }
 
 void Program::generateGraphViz()

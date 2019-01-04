@@ -3,6 +3,7 @@
 
 #include <list>
 
+#include "symboltable.h"
 #include "tree.h"
 
 class VarDecl
@@ -28,7 +29,7 @@ class MethodDecl
 
     struct Agnode_s* buildGVNode(struct Agraph_s*);
 
-    MethodDecl(Type*, VarIdExpression*, std::list<VarDecl*>*, 
+    MethodDecl(Type*, VarIdExpression*, std::list<VarDecl*>*,
                std::list<VarDecl*>*, std::list<Statement*>*, Expression* exp);
 };
 
@@ -38,8 +39,10 @@ class ClassDecl
     VarIdExpression* name;
     std::list<VarDecl*>* vars;
     std::list<MethodDecl*>* decls;
+    SymbolTable* compiled_table;
 
     struct Agnode_s* buildGVNode(struct Agraph_s* g);
+
 
     ClassDecl(VarIdExpression*, std::list<VarDecl*>*, std::list<MethodDecl*>*);
 };

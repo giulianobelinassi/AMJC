@@ -24,12 +24,16 @@ class Symbol
     union container val;
     MethodDecl* func_body; // Or offset, when  compiled
     uint32_t offset;
+    bool is_local;
 
     Symbol(Type*);
     Symbol(Type*, int  val);
     Symbol(Type*, bool val);
     Symbol(Type*, SymbolTable* val);
     Symbol(Type*, SymbolTable* val, MethodDecl*);
+    Symbol(Type*, uint32_t offset, bool is_local);
+    Symbol(Type*, SymbolTable* val, uint32_t offset, bool is_local);
+    Symbol(Type*, SymbolTable* val, MethodDecl*, uint32_t offset, bool is_local);
 
 };
 
@@ -43,7 +47,7 @@ class SymbolTable
     SymbolTable(std::list<VarDecl*>*);
     SymbolTable(SymbolTable*);
 
-    void parseVars(std::list<VarDecl*>* vars);
+    void parseVars(std::list<VarDecl*>* vars, bool local=false);
     void parseMethods(std::list<MethodDecl*>* methods);
     void printTable();
 
