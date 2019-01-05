@@ -427,7 +427,6 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
             break;
         }
 
-
         exp_it++;
         var_it++;
     }
@@ -494,6 +493,7 @@ struct compiler_ret BoolExpression::compile(SymbolTable* st, struct x86_regs* us
     else
     {
         ret.st = st;
+        ret.is = INTERP_BOOL;
         used->setReg(free_reg, this);
 
         if (value)
@@ -539,15 +539,47 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
 {
     struct compiler_ret ret;
     struct compiler_ret ret1, ret2;
+    int free_reg = used->findFreeRegister();
+
+    if (exp1->cost <= exp2->cost)
+    {
+        ret1 = exp1->compile(st, used, pref_reg);
+        ret2 = exp2->compile(st, used, free_reg);
+    }
+    else
+    {
+        ret2 = exp2->compile(st, used, free_reg);
+        ret1 = exp1->compile(st, used, pref_reg); 
+    }
+    if (ret1.is != ret2.is)
+    {
+        std::cerr << "WARNING: Binary operations of incompatible type!" << std::endl;
+    }
+
 
     switch (op)
     {
-        //case OP_PLUS:
-        //break;
+        case OP_PLUS:
+            std::cout << "add" << X86_REG_STRING[ret1.aws] << ", " << X86_REG_STRING[ret2.aws] << std::endl;
+            ret.aws = ret1.aws;
+            ret.is = INTERP_INT;
+            
+        break;
         //case OP_MINUS:
         //break;
-        //case OP_TIMES:
-        //break;
+        case OP_TIMES:
+            std::cout << "xor edx, edx" << std::endl;
+            if (ret1.aws != X86_EAX || ret2.aws != X86_EAX)
+            {
+                std::cerr << "Role na multiplicação" << std::endl;
+            }
+            if (ret1.aws == X86_EAX)
+                std::cout << "imul" << X86_REG_STRING[ret2.aws] << std::endl;
+            else if (ret2.aws == X86_EAX)
+                std::cout << "imul" << X86_REG_STRING[ret1.aws] << std::endl;
+            ret.aws = X86_EAX;
+            ret.is = INTERP_INT;
+        break;
         //case OP_DIV:
         //break;
         //case OP_GT:
@@ -555,24 +587,11 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
         //case OP_GE:
         //break;
         case OP_LT:
-            int free_reg = used->findFreeRegister();
             
-            if (exp1->cost <= exp2->cost)
-            {
-                ret1 = exp1->compile(st, used, pref_reg);
-                ret2 = exp2->compile(st, used, free_reg);
-            }
-            else
-            {
-                ret2 = exp2->compile(st, used, free_reg);
-                ret1 = exp1->compile(st, used, pref_reg); 
-            }
-            if (ret1.is != ret2.is)
-            {
-                
-                std::cerr << "WARNING: Binary operations of incompatible type!" << std::endl;
-            }
-
+            std::cout << "sub " << X86_REG_STRING[ret1.aws] << ", " << X86_REG_STRING[ret2.aws] << std::endl;
+            std::cout << "and " << X86_REG_STRING[pref_reg] << ", " << 2147483648 << std::endl;
+            ret.aws = pref_reg;
+            ret.is = INTERP_INT;
         break;
         //case OP_LE:
         //break;
@@ -609,6 +628,15 @@ struct compiler_ret NewMethodExpression::compile(SymbolTable* st, struct x86_reg
 struct compiler_ret MethodExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret;
+    std::list<Expression*>::iterator it_exp;
+
+    for (it_exp = explist->begin(); it_exp != explist->end(); it_exp++)
+    {
+        
+    }
+    ret.is = INTERP_INT;
+    ret.aws = X86_EAX;
+
     return ret;
 }
 
