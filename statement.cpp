@@ -290,8 +290,9 @@ struct compiler_ret IfElseStatement::compile(SymbolTable* st)
 
     cndexp->compute_cost();
     ret = cndexp->compile(st, &used_regs, X86_EAX);
-
-    std::cout << "test " << X86_REG_STRING[ret.aws] << ", " << X86_REG_STRING[ret.aws] << std::endl;
+    std::cout << "pop eax" << std::endl;
+    std::cout << "test eax, eax" << std::endl;
+    //std::cout << "test " << X86_REG_STRING[ret.aws] << ", " << X86_REG_STRING[ret.aws] << std::endl;
     std::cout << "je L" << iflabel << std::endl;
     elsestmt->compile(st);
     std::cout << "jmp L" << returnlabel << std::endl;
@@ -323,9 +324,9 @@ struct compiler_ret VarAssignment::compile(SymbolTable* st)
     ret = exp->compile(st, &used_regs, X86_NO_REG);
 
     if (symbol->offset >= 0)
-        std::cout << "mov [ebp+" << symbol->offset << ", " << X86_REG_STRING[ret.aws] << std::endl;
+        std::cout << "mov [ebp+" << symbol->offset << "], eax" << std::endl;
     else
-        std::cout << "mov [ebp" << symbol->offset << ", " << X86_REG_STRING[ret.aws] << std::endl;
+        std::cout << "mov [ebp" << symbol->offset << "], eax" << std::endl;
 
     return ret;
 }

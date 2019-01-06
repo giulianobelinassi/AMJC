@@ -126,7 +126,7 @@ struct interp_ret BoolExpression::interp(SymbolTable* st=NULL)
 struct interp_ret ThisExpression::interp(SymbolTable* st=NULL)
 {
     struct interp_ret ret;
-    ret.val.as_tbl = st; //TODO: Change to class table
+    ret.val.as_tbl = st->table["this"]->val.as_class;
     ret.is = INTERP_TBL;
     return ret;
 }
@@ -450,14 +450,13 @@ struct compiler_ret VarIdExpression::compile(SymbolTable* st, struct x86_regs* u
     struct compiler_ret ret;
     uint32_t offset = symbol->offset;
 
-    int free_reg = pref_reg;
-
     if (offset > 0)
-        std::cout << "mov " << X86_REG_STRING[free_reg] << ", [ebp+" << offset << "]" << std::endl;
+        std::cout << "mov " << X86_REG_STRING[X86_EAX] << ", [ebp+" << offset << "]" << std::endl;
     else
-        std::cout << "mov " << X86_REG_STRING[free_reg] << ", [ebp" << offset << "]" << std::endl;
-    ret.aws = free_reg;
-    used->setReg(free_reg, this);
+        std::cout << "mov " << X86_REG_STRING[X86_EAX] << ", [ebp" << offset << "]" << std::endl;
+    ret.aws = X86_NO_REG;
+    std::cout << "push " << X86_REG_STRING[X86_EAX] << std::endl;
+    //used->setReg(free_reg, this);
     
     if (symbol->type->isInt())
     {
@@ -484,33 +483,30 @@ struct compiler_ret BoolExpression::compile(SymbolTable* st, struct x86_regs* us
 {
     struct compiler_ret ret;
 
-    int free_reg = pref_reg;
+    ret.st = st;
+    ret.is = INTERP_BOOL;
+    //used->setReg(free_reg, this);
 
-    if (free_reg == X86_NO_REG)
+    if (value)
     {
-        std::cout << "BoolExpression: Sem Registrador!" << std::endl;
+        std::cout << "mov " << X86_REG_STRING[X86_EAX] << ", 1" << std::endl;
     }
     else
     {
-        ret.st = st;
-        ret.is = INTERP_BOOL;
-        used->setReg(free_reg, this);
-
-        if (value)
-        {
-            std::cout << "mov " << X86_REG_STRING[free_reg] << ", 1" << std::endl;
-        }
-        else
-        {
-            std::cout << "mov " << X86_REG_STRING[free_reg] << ", 0" << std::endl;
-        }
+        std::cout << "mov " << X86_REG_STRING[X86_EAX] << ", 0" << std::endl;
     }
+
+    std::cout << "push " << X86_REG_STRING[X86_EAX] << std::endl;
+
     return ret;
 }
 
 struct compiler_ret ThisExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret;
+    std::cout << "mov eax, [ebp+8]" << std::endl;//'this' must be the first argument in stack
+    ret.st = st->table["this"]->val.as_class;
+    ret.is = INTERP_TBL;
     return ret;
 }
 
@@ -518,19 +514,14 @@ struct compiler_ret NumExpression::compile(SymbolTable* st, struct x86_regs* use
 {
     struct compiler_ret ret;
 
-    int free_reg = used->findFreeRegister();
+    //int free_reg = used->findFreeRegister();
 
-    if (free_reg == X86_NO_REG)
-    {
-        std::cout << "Sem registradores" << std::endl;
-    }
-    else
-    {
-        std::cout << "mov " << X86_REG_STRING[free_reg] << ", " << val_str << std::endl;
-        used->setReg(free_reg, this);
-        ret.is = INTERP_INT;
-        ret.aws = free_reg;
-    }
+    std::cout << "mov " << X86_REG_STRING[X86_EAX] << ", " << val_str << std::endl;
+    //used->setReg(free_reg, this);
+    std::cout << "push " << X86_REG_STRING[X86_EAX] << std::endl;
+    ret.is = INTERP_INT;
+    ret.aws = X86_NO_REG;
+
 
     return ret;
 }
@@ -539,8 +530,9 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
 {
     struct compiler_ret ret;
     struct compiler_ret ret1, ret2;
-    int free_reg = used->findFreeRegister();
+    //int free_reg = used->findFreeRegister();
 
+    /*
     if (exp1->cost <= exp2->cost)
     {
         ret1 = exp1->compile(st, used, pref_reg);
@@ -555,46 +547,97 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
     {
         std::cerr << "WARNING: Binary operations of incompatible type!" << std::endl;
     }
+    */
 
+    ret1 = exp1->compile(st, used, X86_NO_REG);
+    ret2 = exp2->compile(st, used, X86_NO_REG);
 
     switch (op)
     {
         case OP_PLUS:
-            std::cout << "add" << X86_REG_STRING[ret1.aws] << ", " << X86_REG_STRING[ret2.aws] << std::endl;
-            ret.aws = ret1.aws;
+            std::cout << "pop eax" << std::endl;
+            std::cout << "pop ebx" << std::endl;
+            //std::cout << "add" << X86_REG_STRING[ret1.aws] << ", " << X86_REG_STRING[ret2.aws] << std::endl;
+            std::cout << "add eax, ebx" << std::endl;
+            std::cout << "push eax" << std::endl;
+            ret.aws = X86_NO_REG;
             ret.is = INTERP_INT;
             
         break;
-        //case OP_MINUS:
-        //break;
+        case OP_MINUS:
+            std::cout << "pop eax" << std::endl;
+            std::cout << "pop ebx" << std::endl;
+            std::cout << "sub eax, ebx" << std::endl;
+            std::cout << "push eax" << std::endl;
+            ret.aws = X86_NO_REG;
+            ret.is = INTERP_INT;
+        
+        break;
         case OP_TIMES:
             std::cout << "xor edx, edx" << std::endl;
-            if (ret1.aws != X86_EAX || ret2.aws != X86_EAX)
-            {
-                std::cerr << "Role na multiplicação" << std::endl;
-            }
-            if (ret1.aws == X86_EAX)
-                std::cout << "imul" << X86_REG_STRING[ret2.aws] << std::endl;
-            else if (ret2.aws == X86_EAX)
-                std::cout << "imul" << X86_REG_STRING[ret1.aws] << std::endl;
-            ret.aws = X86_EAX;
-            ret.is = INTERP_INT;
-        break;
-        //case OP_DIV:
-        //break;
-        //case OP_GT:
-        //break;
-        //case OP_GE:
-        //break;
-        case OP_LT:
+            std::cout << "pop eax" << std::endl;
+            std::cout << "pop ebx" << std::endl;
+            std::cout << "imul eax, ebx" << std::endl;
+            std::cout << "push eax" << std::endl;
             
-            std::cout << "sub " << X86_REG_STRING[ret1.aws] << ", " << X86_REG_STRING[ret2.aws] << std::endl;
-            std::cout << "and " << X86_REG_STRING[pref_reg] << ", " << 2147483648 << std::endl;
-            ret.aws = pref_reg;
+            ret.aws = X86_NO_REG;
             ret.is = INTERP_INT;
         break;
-        //case OP_LE:
-        //break;
+        case OP_DIV:
+            std::cout << "xor edx, edx" << std::endl;
+            std::cout << "pop eax" << std::endl;
+            std::cout << "pop ebx" << std::endl;
+            std::cout << "idiv ebx" << std::endl;
+            
+            ret.aws = X86_NO_REG;
+            ret.is = INTERP_INT;
+
+        break;
+        case OP_GT:
+            std::cout << "pop eax" << std::endl;
+            std::cout << "pop ebx" << std::endl;
+            std::cout << "sub ebx, eax" << std::endl;
+            std::cout << "and ebx, 2147483648" << std::endl;
+            std::cout << "push ebx" << std::endl;
+            
+            ret.aws = X86_NO_REG;
+            ret.is = INTERP_INT;
+        
+        break;
+        case OP_GE:
+            std::cout << "pop eax" << std::endl;
+            std::cout << "pop ebx" << std::endl;
+            std::cout << "sub ebx, eax" << std::endl;
+            std::cout << "dec ebx" << std::endl;
+            std::cout << "and ebx, 2147483648" << std::endl;
+            std::cout << "push ebx" << std::endl;
+            
+            ret.aws = X86_NO_REG;
+            ret.is = INTERP_INT;
+            
+        break;
+        case OP_LT:
+            std::cout << "pop eax" << std::endl;
+            std::cout << "pop ebx" << std::endl;
+            std::cout << "sub eax, ebx" << std::endl;
+            std::cout << "and eax, 2147483648" << std::endl;
+            std::cout << "push eax" << std::endl;
+
+            ret.aws = X86_NO_REG;
+            ret.is = INTERP_INT;
+        break;
+        case OP_LE:
+            std::cout << "pop eax" << std::endl;
+            std::cout << "pop ebx" << std::endl;
+            std::cout << "sub eax, ebx" << std::endl;
+            std::cout << "dec eax" << std::endl;
+            std::cout << "and eax, 2147483648" << std::endl;
+            std::cout << "push eax" << std::endl;
+
+            ret.aws = X86_NO_REG;
+            ret.is = INTERP_INT;
+        
+        break;
         //case OP_EQ:
         //break;
         //case OP_NE:
@@ -627,15 +670,20 @@ struct compiler_ret NewMethodExpression::compile(SymbolTable* st, struct x86_reg
 
 struct compiler_ret MethodExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
-    struct compiler_ret ret;
+    struct compiler_ret ret, ret_it;
     std::list<Expression*>::iterator it_exp;
+
+    ret = exp->compile(st, used, X86_NO_REG);
 
     for (it_exp = explist->begin(); it_exp != explist->end(); it_exp++)
     {
-        
+        ret_it = (*it_exp)->compile(st, used, X86_NO_REG);
     }
+
+    std::cout << "call " << id->token << std::endl;
+    std::cout << "push eax" << std::endl;
     ret.is = INTERP_INT;
-    ret.aws = X86_EAX;
+    ret.aws = X86_NO_REG;
 
     return ret;
 }
@@ -649,6 +697,7 @@ struct compiler_ret NegateExpression::compile(SymbolTable* st, struct x86_regs* 
 struct compiler_ret ParenExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret;
+    ret = exp->compile(st, used, pref_reg);
     return ret;
 }
 
