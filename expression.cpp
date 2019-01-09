@@ -355,11 +355,7 @@ struct interp_ret NewIntArrExpression::interp(SymbolTable* st=NULL)
         ret.is = INTERP_ARR;
     }
     else
-        std::cout << "WARNING: Expected integer on size of array!" << std::endl;
-
-
-    std::cout << "Allocated array at address: " << ret.val.as_arr << std::endl;
-
+        std::cerr << "WARNING: Expected integer on size of array!" << std::endl;
     return ret;
 }
 
@@ -380,7 +376,7 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
     exp_res = exp->interp(st);
 
     if (exp_res.is != INTERP_TBL)
-        std::cout << "ERROR: Non-class instance called!" << std::endl;
+        std::cerr << "ERROR: Non-class instance called!" << std::endl;
 
     instance_symt = exp_res.val.as_tbl;
 
@@ -389,11 +385,11 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
     instance_symt->printTable();
 
     if (!instance_symt->checkIfDeclared(func_id))
-        std::cout << "WARNING: Called nonexisting function!" << std::endl;
+        std::cerr << "WARNING: Called nonexisting function!" << std::endl;
 
     MethodDecl* func = instance_symt->table[func_id]->func_body;
     if (!func)
-        std::cout << "WARNING: Called nonexisting function!" << std::endl;
+        std::cerr << "WARNING: Called nonexisting function!" << std::endl;
 
     exp_it = explist->begin();
     var_it = func->formals->begin();
@@ -446,14 +442,30 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
 
 struct compiler_ret VarIdExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
-    Symbol* symbol = st->table[token];
+    Symbol* symbol;
     struct compiler_ret ret;
-    int offset = symbol->offset;
+    int offset;
 
-    if (offset > 0)
-        std::cout << "push DWORD " << "[ebp+" << offset << "]" << std::endl;
+    if (!st->checkIfDeclared(token))
+    {
+        std::cerr << "ERROR: Variable " << token << " not declared!" << std::endl;
+    }
+
+    symbol = st->table[token];
+    offset = symbol->offset;
+
+    if (symbol->where == ST_CLASS)
+    {
+        std::cout << "mov eax, [ebp+8]" << std::endl;
+        std::cout << "push DWORD [eax+" << offset << "]" << std::endl;
+    }
     else
-        std::cout << "push DWORD " << "[ebp" << offset << "]" << std::endl;
+    {
+        if (offset > 0)
+            std::cout << "push DWORD " << "[ebp+" << offset << "]" << std::endl;
+        else
+            std::cout << "push DWORD " << "[ebp" << offset << "]" << std::endl;
+    }
     ret.aws = X86_NO_REG;
     //used->setReg(free_reg, this);
 
@@ -525,34 +537,18 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
 {
     struct compiler_ret ret;
     struct compiler_ret ret1, ret2;
-    //int free_reg = used->findFreeRegister();
-
-    /*
-    if (exp1->cost <= exp2->cost)
-    {
-        ret1 = exp1->compile(st, used, pref_reg);
-        ret2 = exp2->compile(st, used, free_reg);
-    }
-    else
-    {
-        ret2 = exp2->compile(st, used, free_reg);
-        ret1 = exp1->compile(st, used, pref_reg);
-    }
-    if (ret1.is != ret2.is)
-    {
-        std::cerr << "WARNING: Binary operations of incompatible type!" << std::endl;
-    }
-    */
 
     ret1 = exp1->compile(st, used, X86_NO_REG);
     ret2 = exp2->compile(st, used, X86_NO_REG);
+
+    if (ret1.is != ret2.is)
+        std::cerr << "WARNING: Binary operation of incompatible types!" << std::endl;
 
     switch (op)
     {
         case OP_PLUS:
             std::cout << "pop eax" << std::endl;
             std::cout << "pop ebx" << std::endl;
-            //std::cout << "add" << X86_REG_STRING[ret1.aws] << ", " << X86_REG_STRING[ret2.aws] << std::endl;
             std::cout << "add eax, ebx" << std::endl;
             std::cout << "push eax" << std::endl;
             ret.aws = X86_NO_REG;
@@ -598,7 +594,7 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
             std::cout << "push ebx" << std::endl;
 
             ret.aws = X86_NO_REG;
-            ret.is = INTERP_INT;
+            ret.is = INTERP_BOOL;
 
         break;
         case OP_GE:
@@ -609,7 +605,7 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
             std::cout << "push ebx" << std::endl;
 
             ret.aws = X86_NO_REG;
-            ret.is = INTERP_INT;
+            ret.is = INTERP_BOOL;
 
         break;
         case OP_LT:
@@ -621,7 +617,7 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
             std::cout << "push eax" << std::endl;
 
             ret.aws = X86_NO_REG;
-            ret.is = INTERP_INT;
+            ret.is = INTERP_BOOL;
         break;
         case OP_LE:
             std::cout << "pop eax" << std::endl;
@@ -631,7 +627,7 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
             std::cout << "push eax" << std::endl;
 
             ret.aws = X86_NO_REG;
-            ret.is = INTERP_INT;
+            ret.is = INTERP_BOOL;
 
         break;
         case OP_EQ:
@@ -640,15 +636,23 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
             std::cout << "sub eax, ebx" << std::endl;
             std::cout << "neg eax" << std::endl;
             std::cout << "push eax" << std::endl;
+
+            ret.aws = X86_NO_REG;
+            ret.is = INTERP_BOOL;
+
         break;
         case OP_NE:
             std::cout << "pop eax" << std::endl;
             std::cout << "pop ebx" << std::endl;
             std::cout << "sub eax, ebx" << std::endl;
             std::cout << "push eax" << std::endl;
+
+            ret.aws = X86_NO_REG;
+            ret.is = INTERP_BOOL;
+
         break;
         default:
-            std::cerr << "WARNING: Binary operation of incompatible types!" << std::endl;
+            std::cerr << "ERROR: Unknown operation found!" << std::endl;
     }
 
 
@@ -672,6 +676,9 @@ struct compiler_ret NewIntArrExpression::compile(SymbolTable* st, struct x86_reg
     std::cout << "call malloc" << std::endl;
     std::cout << "add esp, 4" << std::endl;
     std::cout << "push eax" << std::endl;
+
+    if (ret.is != INTERP_INT)
+        std::cerr << "WARNING: Expected integer on size of array!" << std::endl;
 
     ret.is = INTERP_ARR;
 
@@ -709,6 +716,9 @@ struct compiler_ret MethodExpression::compile(SymbolTable* st, struct x86_regs* 
 
     ret = exp->compile(st, used, X86_NO_REG); //Arguments are pushed from right to left
 
+    if (!(ret.st->checkIfDeclared(id->token)))
+        std::cerr << "ERROR: " << id->token << " is not declared!" << std::endl;
+
     std::string class_name = ret.st->table[id->token]->func_body->belongs_to->name->token;
     std::cout << "call " << class_name << "__" << id->token << std::endl;
     std::cout << "push eax" << std::endl;
@@ -722,6 +732,11 @@ struct compiler_ret NegateExpression::compile(SymbolTable* st, struct x86_regs* 
 {
     struct compiler_ret ret;
     ret = exp->compile(st, used, pref_reg);
+
+    if (ret.is != INTERP_INT || INTERP_BOOL)
+        std::cerr << "WARNING: Negating an non-numeric value!" << std::endl;
+
+
     std::cout << "pop eax" << std::endl;
     std::cout << "neg eax" << std::endl;
     std::cout << "push eax" << std::endl;
@@ -742,6 +757,13 @@ struct compiler_ret BrcktExpression::compile(SymbolTable* st, struct x86_regs* u
 
     ret1 = exp2->compile(st, used, X86_NO_REG);
     ret2 = exp1->compile(st, used, X86_NO_REG);
+
+    if (ret1.is != INTERP_ARR)
+        std::cerr << "WARNING: Attempt to access non-array variable as an array!" << std::endl;
+
+    if (ret2.is != INTERP_INT)
+        std::cerr << "WARNING: Non-integer value in array brackets!" << std::endl;
+    
 
     std::cout << "pop ebx" << std::endl;
     std::cout << "pop eax" << std::endl;

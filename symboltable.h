@@ -6,6 +6,9 @@
 class Type;
 class SymbolTable;
 
+#define ST_ARG      0
+#define ST_LOCAL    1
+#define ST_CLASS    2
 
 union container
 {
@@ -24,16 +27,16 @@ class Symbol
     union container val;
     MethodDecl* func_body; // Or offset, when  compiled
     int offset;
-    bool is_local;
+    int where;
 
     Symbol(Type*);
     Symbol(Type*, int  val);
     Symbol(Type*, bool val);
     Symbol(Type*, SymbolTable* val);
     Symbol(Type*, SymbolTable* val, MethodDecl*);
-    Symbol(Type*, int offset, bool is_local);
-    Symbol(Type*, SymbolTable* val, int offset, bool is_local);
-    Symbol(Type*, SymbolTable* val, MethodDecl*, int offset, bool is_local);
+    Symbol(Type*, int offset, int where);
+    Symbol(Type*, SymbolTable* val, int offset, int where);
+    Symbol(Type*, SymbolTable* val, MethodDecl*, int offset, int where);
 
 };
 
@@ -47,7 +50,7 @@ class SymbolTable
     SymbolTable(std::list<VarDecl*>*);
     SymbolTable(SymbolTable*);
 
-    void parseVars(std::list<VarDecl*>* vars, bool local=false);
+    void parseVars(std::list<VarDecl*>* vars, int where=ST_CLASS);
     void parseMethods(std::list<MethodDecl*>* methods);
     void printTable();
 

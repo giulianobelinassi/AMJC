@@ -352,11 +352,19 @@ struct compiler_ret VarAssignment::compile(SymbolTable* st)
     ret = exp->compile(st, &used_regs, X86_NO_REG);
 
     std::cout << "pop eax" << std::endl;
-    if (symbol->offset >= 0)
-        std::cout << "mov [ebp+" << symbol->offset << "], eax" << std::endl;
-    else
-        std::cout << "mov [ebp" << symbol->offset << "], eax" << std::endl;
 
+    if (symbol->where == ST_CLASS)
+    {
+        std::cout << "mov ebx, [ebp+8]" << std::endl;
+        std::cout << "mov [ebx+" << symbol->offset << "], eax" << std::endl;
+    }
+    else
+    {
+        if (symbol->offset >= 0)
+            std::cout << "mov [ebp+" << symbol->offset << "], eax" << std::endl;
+        else
+            std::cout << "mov [ebp" << symbol->offset << "], eax" << std::endl;
+    }
     return ret;
 }
 
@@ -371,11 +379,18 @@ struct compiler_ret ArrayAssignment::compile(SymbolTable* st)
     st->printTable();
 
     Symbol* symbol = st->table[id->token];
-    if (symbol->offset >= 0)
-        std::cout << "mov ebx, [ebp+" << symbol->offset << "]" << std::endl;
+    if (symbol->where == ST_CLASS)
+    {
+        std::cout << "mov ebx, [ebp+8]" << std::endl;
+        std::cout << "mov ebx, [ebx+" << symbol->offset << "]" << std::endl;
+    }
     else
-        std::cout << "mov ebx, [ebp" << symbol->offset << "]" << std::endl;
-
+    {
+        if (symbol->offset >= 0)
+            std::cout << "mov ebx, [ebp+" << symbol->offset << "]" << std::endl;
+        else
+            std::cout << "mov ebx, [ebp" << symbol->offset << "]" << std::endl;
+    }
     std::cout << "pop eax" << std::endl;
     std::cout << "pop ecx" << std::endl;
     std::cout << "mov [ebx + 4*eax], ecx" << std::endl;

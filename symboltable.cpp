@@ -37,28 +37,28 @@ Symbol::Symbol(Type* type)
     SYMBOL_INIT(type, NULL, class, 0, NULL);
 }
 
-Symbol::Symbol(Type* type, int offset, bool is_local)
+Symbol::Symbol(Type* type, int offset, int where)
 {
     this->type = type;
     this->offset = offset;
-    this->is_local = is_local;
+    this->where = where;
 }
 
-Symbol::Symbol(Type* type, SymbolTable* val, int offset, bool is_local)
+Symbol::Symbol(Type* type, SymbolTable* val, int offset, int where)
 {
     this->type = type;
     this->val.as_class = val;
     this->offset = offset;
-    this->is_local = is_local;
+    this->where = where;
 
 }
-Symbol::Symbol(Type* type, SymbolTable* val, MethodDecl* mtd, int offset, bool is_local)
+Symbol::Symbol(Type* type, SymbolTable* val, MethodDecl* mtd, int offset, int where)
 {
     this->type = type;
     this->val.as_class = val;
     this->offset = offset;
     this->func_body = mtd;
-    this->is_local = is_local;
+    this->where = where;
 }
 
 
@@ -68,9 +68,9 @@ SymbolTable::SymbolTable()
 
 SymbolTable::SymbolTable(Type* type, ClassDecl* decl)
 {
-    this->parseVars(decl->vars, false);
+    this->parseVars(decl->vars, ST_CLASS);
     this->parseMethods(decl->decls);
-    table["this"] = new Symbol(type, this, 8, false);
+    table["this"] = new Symbol(type, this, 8, ST_CLASS);
 }
 
 SymbolTable::SymbolTable(std::list<VarDecl*>* decl)
@@ -90,19 +90,30 @@ bool SymbolTable::checkIfDeclared(std::string id)
     return true;
 }
 
-void SymbolTable::parseVars(std::list<VarDecl*>* vars, bool local)
+void SymbolTable::parseVars(std::list<VarDecl*>* vars, int where)
 {
     std::list<VarDecl*>::iterator var_it;
-    int offset;
+    int offset, inc;
 
     std::string id;
     Type* type;
     Symbol* symbol;
 
-    if (local) 
-        offset = -4;
-    else
-        offset = 12; //This will be passed as first argument;
+    switch (where)
+    {
+        case ST_LOCAL:
+            offset = -4;
+            inc = -4;
+        break;
+        case ST_ARG:
+            offset = 12;
+            inc = 4;
+        break;
+        case ST_CLASS:
+            offset = 0;
+            inc = 4;
+        break;
+    }
 
     for (var_it = vars->begin(); var_it != vars->end(); ++var_it)
     {
@@ -112,9 +123,9 @@ void SymbolTable::parseVars(std::list<VarDecl*>* vars, bool local)
         if (checkIfDeclared(id))
             std::cerr << "WARNING: Redeclaration of variable " << id << std::endl;
 
-        symbol = new Symbol(type, offset, local);
+        symbol = new Symbol(type, offset, where);
         table[id] = symbol;
-        offset = local? offset - 4: offset + 4; 
+        offset += inc;
     }
 }
 
@@ -153,7 +164,8 @@ void SymbolTable::printTable()
             std::cerr << it.second->val.as_int;
         else
             std::cerr << it.second->val.as_class;
-        std::cerr << " offset: " << it.second->offset << std::endl;
+        std::cerr << " offset: " << it.second->offset <<
+                     " where: " << it.second->where << std::endl;
 
     }
     std::cerr << "------------------" << std::endl;

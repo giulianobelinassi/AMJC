@@ -109,8 +109,8 @@ struct compiler_ret ClassDecl::compile()
         SymbolTable* st = new SymbolTable(compiled_table);
         struct x86_regs regs = x86_regs();
         struct compiler_ret ret;
-        st->parseVars((*it)->formals, false);
-        st->parseVars((*it)->decls, true);
+        st->parseVars((*it)->formals, ST_ARG);
+        st->parseVars((*it)->decls, ST_LOCAL);
 
         std::cout << name->token << "__" << (*it)->id->token << ":" << std::endl;
         std::cout << "push ebp" << std::endl;
