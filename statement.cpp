@@ -322,9 +322,10 @@ struct compiler_ret WhileStatement::compile(SymbolTable* st)
     ret = cndexp->compile(st, &used, X86_NO_REG);
     std::cout << "pop eax" << std::endl;
     std::cout << "test eax, eax" << std::endl;
-    std::cout << "jne L" << scapelabel << ":" << std::endl;
+    std::cout << "jne L" << scapelabel << std::endl;
     ret = whilestmt->compile(st);
     std::cout << "jmp L" << cndlabel << std::endl;
+    std::cout << "L" << scapelabel << ":" << std::endl;
 
     return ret;
 }
@@ -361,6 +362,23 @@ struct compiler_ret VarAssignment::compile(SymbolTable* st)
 
 struct compiler_ret ArrayAssignment::compile(SymbolTable* st)
 {
-    struct compiler_ret ret;
-    return ret;
+    struct compiler_ret ret1, ret2;
+    struct x86_regs used = x86_regs();
+
+    ret2 = exp2->compile(st, &used, X86_NO_REG);
+    ret1 = exp1->compile(st, &used, X86_NO_REG);
+
+    st->printTable();
+
+    Symbol* symbol = st->table[id->token];
+    if (symbol->offset >= 0)
+        std::cout << "mov ebx, [ebp+" << symbol->offset << "]" << std::endl;
+    else
+        std::cout << "mov ebx, [ebp" << symbol->offset << "]" << std::endl;
+
+    std::cout << "pop eax" << std::endl;
+    std::cout << "pop ecx" << std::endl;
+    std::cout << "mov [ebx + 4*eax], ecx" << std::endl;
+
+    return ret1;
 }

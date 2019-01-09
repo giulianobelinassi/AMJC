@@ -453,7 +453,7 @@ struct compiler_ret VarIdExpression::compile(SymbolTable* st, struct x86_regs* u
     if (offset > 0)
         std::cout << "push DWORD " << "[ebp+" << offset << "]" << std::endl;
     else
-        std::cout << "push DWORD" << "[ebp" << offset << "]" << std::endl;
+        std::cout << "push DWORD " << "[ebp" << offset << "]" << std::endl;
     ret.aws = X86_NO_REG;
     //used->setReg(free_reg, this);
 
@@ -655,6 +655,17 @@ struct compiler_ret LengthExpression::compile(SymbolTable* st, struct x86_regs* 
 struct compiler_ret NewIntArrExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret;
+
+    ret = exp->compile(st, used, X86_NO_REG);
+    std::cout << "pop eax" << std::endl;
+    std::cout << "sal eax, 2" << std::endl;
+    std::cout << "push eax" << std::endl;
+    std::cout << "call malloc" << std::endl;
+    std::cout << "add esp, 4" << std::endl;
+    std::cout << "push eax" << std::endl;
+
+    ret.is = INTERP_ARR;
+
     return ret;
 }
 
@@ -666,8 +677,9 @@ struct compiler_ret NewMethodExpression::compile(SymbolTable* st, struct x86_reg
     int size = type->calculateSize();
     tbl = type->class_def->compiled_table;
 
-    std::cout << "mov edi, " << size << std::endl;
+    std::cout << "push " << size << std::endl;
     std::cout << "call malloc" << std::endl;
+    std::cout << "add esp, 4" << std::endl;
     std::cout << "push eax" << std::endl;
 
     ret.st = tbl;
@@ -717,8 +729,19 @@ struct compiler_ret ParenExpression::compile(SymbolTable* st, struct x86_regs* u
 
 struct compiler_ret BrcktExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
-    struct compiler_ret ret;
-    return ret;
+    struct compiler_ret ret1, ret2;
+
+    ret1 = exp2->compile(st, used, X86_NO_REG);
+    ret2 = exp1->compile(st, used, X86_NO_REG);
+
+    std::cout << "pop ebx" << std::endl;
+    std::cout << "pop eax" << std::endl;
+    std::cout << "mov eax, [ebx + 4*eax]" << std::endl;
+    std::cout << "push eax" << std::endl;
+
+    ret1.is = INTERP_INT;
+
+    return ret1;
 }
 
 
@@ -798,7 +821,7 @@ int NegateExpression::compute_cost()
 int ParenExpression::compute_cost()
 {
     cost = exp->compute_cost();
-    return cost; 
+    return cost;
 }
 
 int LengthExpression::compute_cost()
