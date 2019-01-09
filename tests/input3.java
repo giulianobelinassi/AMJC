@@ -15,10 +15,9 @@ class Fac {
             A[i] = A[i-1] * i;
             i = i + 1;
         }
-
         i = 0;
-        while (i <= num) {
-            System.out.println(A[i]);
+        while (num >= i) {
+            System.out.println(i);
             i = i + 1;
         }
         return A[10];

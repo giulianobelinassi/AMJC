@@ -593,6 +593,7 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
             std::cout << "pop eax" << std::endl;
             std::cout << "pop ebx" << std::endl;
             std::cout << "sub ebx, eax" << std::endl;
+            std::cout << "dec ebx" << std::endl;
             std::cout << "and ebx, 2147483648" << std::endl;
             std::cout << "push ebx" << std::endl;
 
@@ -604,7 +605,6 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
             std::cout << "pop eax" << std::endl;
             std::cout << "pop ebx" << std::endl;
             std::cout << "sub ebx, eax" << std::endl;
-            std::cout << "dec ebx" << std::endl;
             std::cout << "and ebx, 2147483648" << std::endl;
             std::cout << "push ebx" << std::endl;
 
@@ -616,6 +616,7 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
             std::cout << "pop eax" << std::endl;
             std::cout << "pop ebx" << std::endl;
             std::cout << "sub eax, ebx" << std::endl;
+            std::cout << "dec eax" << std::endl;
             std::cout << "and eax, 2147483648" << std::endl;
             std::cout << "push eax" << std::endl;
 
@@ -626,7 +627,6 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
             std::cout << "pop eax" << std::endl;
             std::cout << "pop ebx" << std::endl;
             std::cout << "sub eax, ebx" << std::endl;
-            std::cout << "dec eax" << std::endl;
             std::cout << "and eax, 2147483648" << std::endl;
             std::cout << "push eax" << std::endl;
 
@@ -634,12 +634,21 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
             ret.is = INTERP_INT;
 
         break;
-        //case OP_EQ:
-        //break;
-        //case OP_NE:
-        //break;
-        //default:
-        //    std::cerr << "WARNING: Binary operation of incompatible types!" << std::endl;
+        case OP_EQ:
+            std::cout << "pop eax" << std::endl;
+            std::cout << "pop ebx" << std::endl;
+            std::cout << "sub eax, ebx" << std::endl;
+            std::cout << "neg eax" << std::endl;
+            std::cout << "push eax" << std::endl;
+        break;
+        case OP_NE:
+            std::cout << "pop eax" << std::endl;
+            std::cout << "pop ebx" << std::endl;
+            std::cout << "sub eax, ebx" << std::endl;
+            std::cout << "push eax" << std::endl;
+        break;
+        default:
+            std::cerr << "WARNING: Binary operation of incompatible types!" << std::endl;
     }
 
 
