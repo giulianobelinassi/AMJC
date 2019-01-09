@@ -278,13 +278,20 @@ struct interp_ret ArrayAssignment::interp(SymbolTable* st=NULL)
 struct compiler_ret BracedStatement::compile(SymbolTable* st)
 {
     struct compiler_ret ret;
+    std::list<Statement*>::iterator it;
+
+    for (it = stmts->begin(); it != stmts->end(); ++it)
+    {
+        ret = (*it)->compile(st);
+    }
+
     return ret;
 }
 
 struct compiler_ret IfElseStatement::compile(SymbolTable* st)
 {
     struct compiler_ret ret;
-    struct x86_regs used_regs = x86_regs(); 
+    struct x86_regs used_regs = x86_regs();
     int iflabel = labels++;
     int returnlabel = labels++;
 
@@ -299,6 +306,7 @@ struct compiler_ret IfElseStatement::compile(SymbolTable* st)
     std::cout << "L" << iflabel << ":" << std::endl;
     ifstmt->compile(st);
     std::cout << "jmp L" << returnlabel << std::endl;
+    std::cout << "L" << returnlabel << ":" << std::endl;
 
     return ret;
 }
@@ -306,23 +314,43 @@ struct compiler_ret IfElseStatement::compile(SymbolTable* st)
 struct compiler_ret WhileStatement::compile(SymbolTable* st)
 {
     struct compiler_ret ret;
+    struct x86_regs used = x86_regs();
+    int cndlabel = labels++;
+    int scapelabel = labels++;
+
+    std::cout << "L" << cndlabel << ":" << std::endl;
+    ret = cndexp->compile(st, &used, X86_NO_REG);
+    std::cout << "pop eax" << std::endl;
+    std::cout << "test eax, eax" << std::endl;
+    std::cout << "jne L" << scapelabel << ":" << std::endl;
+    ret = whilestmt->compile(st);
+    std::cout << "jmp L" << cndlabel << std::endl;
+
     return ret;
 }
 
 struct compiler_ret PrintStatement::compile(SymbolTable* st)
 {
     struct compiler_ret ret;
+    struct x86_regs used = x86_regs();
+
+    ret = exp->compile(st, &used, X86_NO_REG);
+    std::cout << "push int_fmt" << std::endl;
+    std::cout << "call printf"  << std::endl;
+    std::cout << "add esp, 8" << std::endl;
+
     return ret;
 }
 
 struct compiler_ret VarAssignment::compile(SymbolTable* st)
 {
     struct compiler_ret ret;
-    struct x86_regs used_regs = x86_regs(); 
+    struct x86_regs used_regs = x86_regs();
     Symbol* symbol = st->table[id->token];
-    
+
     ret = exp->compile(st, &used_regs, X86_NO_REG);
 
+    std::cout << "pop eax" << std::endl;
     if (symbol->offset >= 0)
         std::cout << "mov [ebp+" << symbol->offset << "], eax" << std::endl;
     else

@@ -50,7 +50,7 @@ class MainClass
 
     struct Agnode_s* buildGVNode(struct Agraph_s*);
     struct interp_ret interp(SymbolTable*);
-    struct compiler_ret compile(struct compiler_args);
+    void compile();
 
     MainClass(Statement*);
 };

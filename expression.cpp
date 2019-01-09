@@ -448,16 +448,15 @@ struct compiler_ret VarIdExpression::compile(SymbolTable* st, struct x86_regs* u
 {
     Symbol* symbol = st->table[token];
     struct compiler_ret ret;
-    uint32_t offset = symbol->offset;
+    int offset = symbol->offset;
 
     if (offset > 0)
-        std::cout << "mov " << X86_REG_STRING[X86_EAX] << ", [ebp+" << offset << "]" << std::endl;
+        std::cout << "push DWORD " << "[ebp+" << offset << "]" << std::endl;
     else
-        std::cout << "mov " << X86_REG_STRING[X86_EAX] << ", [ebp" << offset << "]" << std::endl;
+        std::cout << "push DWORD" << "[ebp" << offset << "]" << std::endl;
     ret.aws = X86_NO_REG;
-    std::cout << "push " << X86_REG_STRING[X86_EAX] << std::endl;
     //used->setReg(free_reg, this);
-    
+
     if (symbol->type->isInt())
     {
         ret.is = INTERP_INT;
@@ -469,10 +468,12 @@ struct compiler_ret VarIdExpression::compile(SymbolTable* st, struct x86_regs* u
     else if (symbol->type->isClass())
     {
         ret.is = INTERP_TBL;
+        ret.st = symbol->val.as_class;
     }
     else if (symbol->type->isArr())
     {
         ret.is = INTERP_ARR;
+        //ret.st = symbol->val.as_arr;
     }
     else
         std::cerr << "ERROR: " << token << " type is unknown" << std::endl;
@@ -488,15 +489,9 @@ struct compiler_ret BoolExpression::compile(SymbolTable* st, struct x86_regs* us
     //used->setReg(free_reg, this);
 
     if (value)
-    {
-        std::cout << "mov " << X86_REG_STRING[X86_EAX] << ", 1" << std::endl;
-    }
+        std::cout << "push 1" << std::endl;
     else
-    {
-        std::cout << "mov " << X86_REG_STRING[X86_EAX] << ", 0" << std::endl;
-    }
-
-    std::cout << "push " << X86_REG_STRING[X86_EAX] << std::endl;
+        std::cout << "push 0" << std::endl;
 
     return ret;
 }
@@ -516,9 +511,9 @@ struct compiler_ret NumExpression::compile(SymbolTable* st, struct x86_regs* use
 
     //int free_reg = used->findFreeRegister();
 
-    std::cout << "mov " << X86_REG_STRING[X86_EAX] << ", " << val_str << std::endl;
+    //std::cout << "mov " << X86_REG_STRING[X86_EAX] << ", " << val_str << std::endl;
     //used->setReg(free_reg, this);
-    std::cout << "push " << X86_REG_STRING[X86_EAX] << std::endl;
+    std::cout << "push " << val_str << std::endl;
     ret.is = INTERP_INT;
     ret.aws = X86_NO_REG;
 
@@ -541,7 +536,7 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
     else
     {
         ret2 = exp2->compile(st, used, free_reg);
-        ret1 = exp1->compile(st, used, pref_reg); 
+        ret1 = exp1->compile(st, used, pref_reg);
     }
     if (ret1.is != ret2.is)
     {
@@ -562,16 +557,16 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
             std::cout << "push eax" << std::endl;
             ret.aws = X86_NO_REG;
             ret.is = INTERP_INT;
-            
+
         break;
         case OP_MINUS:
-            std::cout << "pop eax" << std::endl;
             std::cout << "pop ebx" << std::endl;
+            std::cout << "pop eax" << std::endl;
             std::cout << "sub eax, ebx" << std::endl;
             std::cout << "push eax" << std::endl;
             ret.aws = X86_NO_REG;
             ret.is = INTERP_INT;
-        
+
         break;
         case OP_TIMES:
             std::cout << "xor edx, edx" << std::endl;
@@ -579,7 +574,7 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
             std::cout << "pop ebx" << std::endl;
             std::cout << "imul eax, ebx" << std::endl;
             std::cout << "push eax" << std::endl;
-            
+
             ret.aws = X86_NO_REG;
             ret.is = INTERP_INT;
         break;
@@ -588,7 +583,8 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
             std::cout << "pop eax" << std::endl;
             std::cout << "pop ebx" << std::endl;
             std::cout << "idiv ebx" << std::endl;
-            
+            std::cout << "push eax" << std::endl;
+
             ret.aws = X86_NO_REG;
             ret.is = INTERP_INT;
 
@@ -599,10 +595,10 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
             std::cout << "sub ebx, eax" << std::endl;
             std::cout << "and ebx, 2147483648" << std::endl;
             std::cout << "push ebx" << std::endl;
-            
+
             ret.aws = X86_NO_REG;
             ret.is = INTERP_INT;
-        
+
         break;
         case OP_GE:
             std::cout << "pop eax" << std::endl;
@@ -611,10 +607,10 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
             std::cout << "dec ebx" << std::endl;
             std::cout << "and ebx, 2147483648" << std::endl;
             std::cout << "push ebx" << std::endl;
-            
+
             ret.aws = X86_NO_REG;
             ret.is = INTERP_INT;
-            
+
         break;
         case OP_LT:
             std::cout << "pop eax" << std::endl;
@@ -636,7 +632,7 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
 
             ret.aws = X86_NO_REG;
             ret.is = INTERP_INT;
-        
+
         break;
         //case OP_EQ:
         //break;
@@ -646,7 +642,7 @@ struct compiler_ret OpExpression::compile(SymbolTable* st, struct x86_regs* used
         //    std::cerr << "WARNING: Binary operation of incompatible types!" << std::endl;
     }
 
-    
+
     return ret;
 }
 
@@ -665,22 +661,35 @@ struct compiler_ret NewIntArrExpression::compile(SymbolTable* st, struct x86_reg
 struct compiler_ret NewMethodExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret;
+    SymbolTable* tbl;
+    Type* type = Type::getDeclaredType(id->token);
+    int size = type->calculateSize();
+    tbl = type->class_def->compiled_table;
+
+    std::cout << "mov edi, " << size << std::endl;
+    std::cout << "call malloc" << std::endl;
+    std::cout << "push eax" << std::endl;
+
+    ret.st = tbl;
+    ret.is = INTERP_TBL;
+
     return ret;
 }
 
 struct compiler_ret MethodExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret, ret_it;
-    std::list<Expression*>::iterator it_exp;
+    std::list<Expression*>::reverse_iterator it_exp;
 
-    ret = exp->compile(st, used, X86_NO_REG);
-
-    for (it_exp = explist->begin(); it_exp != explist->end(); it_exp++)
+    for (it_exp = explist->rbegin(); it_exp != explist->rend(); it_exp++)
     {
         ret_it = (*it_exp)->compile(st, used, X86_NO_REG);
     }
 
-    std::cout << "call " << id->token << std::endl;
+    ret = exp->compile(st, used, X86_NO_REG); //Arguments are pushed from right to left
+
+    std::string class_name = ret.st->table[id->token]->func_body->belongs_to->name->token;
+    std::cout << "call " << class_name << "__" << id->token << std::endl;
     std::cout << "push eax" << std::endl;
     ret.is = INTERP_INT;
     ret.aws = X86_NO_REG;
@@ -691,6 +700,11 @@ struct compiler_ret MethodExpression::compile(SymbolTable* st, struct x86_regs* 
 struct compiler_ret NegateExpression::compile(SymbolTable* st, struct x86_regs* used, int pref_reg)
 {
     struct compiler_ret ret;
+    ret = exp->compile(st, used, pref_reg);
+    std::cout << "pop eax" << std::endl;
+    std::cout << "neg eax" << std::endl;
+    std::cout << "push eax" << std::endl;
+
     return ret;
 }
 

@@ -1,0 +1,1 @@
+ld -melf_i386 -dynamic-linker /lib32/ld-linux.so.2 -lc input.o -o input

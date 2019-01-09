@@ -11,15 +11,16 @@
 ClassDecl::ClassDecl(VarIdExpression* name, std::list<VarDecl*>* vars,
                      std::list<MethodDecl*>* decls)
 {
+    std::list<MethodDecl*>::iterator it;
     Type* t;
     this->name = name;
     this->vars = vars;
     this->decls = decls;
     t = Type::declareType(name->token, this);
     compiled_table = new SymbolTable(t, this);
-    std::cout << "COMPILED_TABLE::" << std::endl;
-    compiled_table->printTable();
 
+    for (it = decls->begin(); it != decls->end(); ++it)
+        (*it)->belongs_to = this;
 }
 
 Agnode_t* ClassDecl::buildGVNode(Agraph_t* g)
@@ -106,11 +107,10 @@ struct compiler_ret ClassDecl::compile()
     for (it = decls->begin(); it != decls->end(); it++)
     {
         SymbolTable* st = new SymbolTable(compiled_table);
+        struct x86_regs regs = x86_regs();
+        struct compiler_ret ret;
         st->parseVars((*it)->formals, false);
         st->parseVars((*it)->decls, true);
-
-        std::cout << "FRAME_TBL" << std::endl;
-        st->printTable();
 
         std::cout << name->token << "__" << (*it)->id->token << ":" << std::endl;
         std::cout << "push ebp" << std::endl;
@@ -121,6 +121,9 @@ struct compiler_ret ClassDecl::compile()
         {
             (*stmt_it)->compile(st);
         }
+
+        ret = (*it)->exp->compile(st, &regs, X86_NO_REG);
+        std::cout << "pop eax" << std::endl;
 
         std::cout << "mov esp, ebp" << std::endl;
         std::cout << "pop ebp" << std::endl;

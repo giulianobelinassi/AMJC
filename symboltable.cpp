@@ -110,7 +110,7 @@ void SymbolTable::parseVars(std::list<VarDecl*>* vars, bool local)
         type = (*var_it)->type;
 
         if (checkIfDeclared(id))
-            std::cout << "WARNING: Redeclaration of variable " << id << std::endl;
+            std::cerr << "WARNING: Redeclaration of variable " << id << std::endl;
 
         symbol = new Symbol(type, offset, local);
         table[id] = symbol;
@@ -132,7 +132,7 @@ void SymbolTable::parseMethods(std::list<MethodDecl*>* decls)
         type = (*method_it)->type;
 
         if (checkIfDeclared(id))
-            std::cout << "WARNING: Redeclaration of variable " << id << std::endl;
+            std::cerr << "WARNING: Redeclaration of variable " << id << std::endl;
 
         SymbolTable* args = new SymbolTable((*method_it)->formals);
         symbol = new Symbol(type, args, *method_it);
@@ -142,21 +142,21 @@ void SymbolTable::parseMethods(std::list<MethodDecl*>* decls)
 
 void SymbolTable::printTable()
 {
-    std::cout << "--Table Contents--" << std::endl;
+    std::cerr << "--Table Contents--" << std::endl;
     for (auto it : table)
     {
         Type* type = it.second->type;
-        std::cout << " " << it.first << ":";
+        std::cerr << " " << it.first << ":";
         if (type->isBool())
-            std::cout << it.second->val.as_bool;
+            std::cerr << it.second->val.as_bool;
         else if (type->isInt())
-            std::cout << it.second->val.as_int;
+            std::cerr << it.second->val.as_int;
         else
-            std::cout << it.second->val.as_class;
-        std::cout << " offset: " << it.second->offset << std::endl;
+            std::cerr << it.second->val.as_class;
+        std::cerr << " offset: " << it.second->offset << std::endl;
 
     }
-    std::cout << "------------------" << std::endl;
+    std::cerr << "------------------" << std::endl;
 }
 
 void print_table(SymbolTable* st)

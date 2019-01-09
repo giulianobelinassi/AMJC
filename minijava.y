@@ -125,7 +125,7 @@ void yyerror(Program** p, const char *s);
 %type <classdecls> ClassDecls
 %type <mainclass> MainClass
 
-%define parse.trace
+/*%define parse.trace*/
 %%
 
 Program:
@@ -275,15 +275,14 @@ ExpRest:
 
 %%
 int main(){
-    yydebug = 1;
+    //yydebug = 1;
     Program* program;
     yyin = stdin;
     yyparse(&program);
     //program->generateGraphViz();
     //Type::printDeclaredTypes();
-    program->interp();
+    //program->interp();
 
-    printf("Start compiling\n");
     program->compile();
     return 0;
 }

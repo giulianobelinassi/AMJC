@@ -39,11 +39,16 @@ struct interp_ret MainClass::interp(SymbolTable* st)
 
 void Program::compile()
 {
-    struct compiler_args args;
-
-    SymbolTable* st = new SymbolTable();
-
     std::list<ClassDecl*>::iterator it;
+
+    std::cout << "segment .data" << std::endl;
+    std::cout << "\tint_fmt\t db \"%d\", 10, 0" << std::endl;
+
+    std::cout << "segment .text" << std::endl;
+    std::cout << "extern printf" << std::endl;
+    std::cout << "extern malloc" << std::endl;
+    std::cout << "global _start" << std::endl << std::endl;
+
 
     for (it = cd->begin(); it != cd->end(); it++)
         Type::declareType((*it)->name->token, *it);
@@ -51,15 +56,20 @@ void Program::compile()
     for (it = cd->begin(); it != cd->end(); it++)
         (*it)->compile();
 
-    mc->compile(args);
+    mc->compile();
+
+    std::cout << "mov eax, 1" << std::endl;
+    std::cout << "int 0x80" << std::endl;
 
 }
 
-struct compiler_ret MainClass::compile(struct compiler_args args)
+void MainClass::compile()
 {
-    std::cout << "segment .text" << std::endl;
-    std::cout << "global _start" << std::endl;
+    struct compiler_ret ret;
+    SymbolTable* st = new SymbolTable();
+
     std::cout << "_start:" << std::endl;
+    ret = stmt->compile(st);
 }
 
 void Program::generateGraphViz()

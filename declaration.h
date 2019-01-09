@@ -27,6 +27,8 @@ class MethodDecl
     std::list<Statement*>* stmts;
     Expression* exp;
 
+    ClassDecl* belongs_to = NULL;
+
     struct Agnode_s* buildGVNode(struct Agraph_s*);
     int calculateFormalSize();
     int calculateLocalSize();
