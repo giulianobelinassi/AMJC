@@ -47,26 +47,16 @@ void yyerror(Program** p, const char *s);
 %token CLOSEBRKT
 %token OPENBRACE
 %token CLOSEBRACE
-%left  PLUS
-%left  MINUS
-%left TIMES
-%left SLASH
+%left  PLUS MINUS
+%left TIMES SLASH
 %token LPAREN
 %token RPAREN
 %token SEMICOLON
 %token COMMA
 %token PERIOD
 %token ASSIGNMENT
-%left  EQ
-%left  NEQ
-%left  LSS
-%left  GTR
-%left  LEQ
-%left  GEQ
+%left  EQ NEQ LSS GTR LEQ GEQ XOR AND OR
 %left  NEG
-%left  XOR
-%left  AND
-%left  OR
 %token FORSYM
 %token IFSYM
 %token ELSESYM

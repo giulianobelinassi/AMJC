@@ -70,7 +70,7 @@ SymbolTable::SymbolTable(Type* type, ClassDecl* decl)
 {
     this->parseVars(decl->vars, ST_CLASS);
     this->parseMethods(decl->decls);
-    table["this"] = new Symbol(type, this, 8, ST_CLASS);
+    table["this"] = new Symbol(type, this, 8, ST_ARG);
 }
 
 SymbolTable::SymbolTable(std::list<VarDecl*>* decl)
