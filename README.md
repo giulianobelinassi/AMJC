@@ -4,7 +4,8 @@
 
 ## Dependencies
 The following dependencies are required:
-	* g++
+
+    * g++
 	* flex
 	* bison
 	* nasm
