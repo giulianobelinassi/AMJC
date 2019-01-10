@@ -25,15 +25,18 @@ ClassDecl::ClassDecl(VarIdExpression* name, std::list<VarDecl*>* vars,
 
 Agnode_t* ClassDecl::buildGVNode(Agraph_t* g)
 {
-    Agnode_t* v;
+    Agnode_t* v1, *v2, *v3;
     std::list<VarDecl*>::iterator var_it;
     std::list<MethodDecl*>::iterator method_it;
 
-    ONE_CHILD_VERTEX(v, "ClassDecls", name);
-    EXPAND_LIST_VERTEX(v, var_it, "VarDecls",  vars);
-    EXPAND_LIST_VERTEX(v, method_it, "MethodDecls",  decls);
+    ONE_CHILD_VERTEX(v1, "ClassDecls", name);
+    EXPAND_LIST_VERTEX(v2, var_it, "VarDecls",  vars);
+    EXPAND_LIST_VERTEX(v3, method_it, "MethodDecls",  decls);
 
-    return v;
+    agedge(g, v1, v2, 0, 1);
+    agedge(g, v1, v3, 0, 1);
+
+    return v1;
 }
 
 
@@ -66,16 +69,20 @@ MethodDecl::MethodDecl(Type* type, VarIdExpression* id,
 
 Agnode_t* MethodDecl::buildGVNode(Agraph_t* g)
 {
-    Agnode_t* v;
+    Agnode_t* v1, *v2, *v3, *v4;
     std::list<VarDecl*>::iterator var_it;
     std::list<Statement*>::iterator stmt_it;
 
-    TWO_CHILD_VERTEX(v, "MethodDecl", type, exp);
-    EXPAND_LIST_VERTEX(v, var_it, "FormalDecls",  formals);
-    EXPAND_LIST_VERTEX(v, var_it, "VarDecls",  decls);
-    EXPAND_LIST_VERTEX(v, stmt_it, "Statements", stmts);
+    TWO_CHILD_VERTEX(v1, "MethodDecl", type, exp);
+    EXPAND_LIST_VERTEX(v2, var_it, "FormalDecls",  formals);
+    EXPAND_LIST_VERTEX(v3, var_it, "VarDecls",  decls);
+    EXPAND_LIST_VERTEX(v4, stmt_it, "Statements", stmts);
 
-    return v;
+    agedge(g, v1, v2, 0, 1);
+    agedge(g, v1, v3, 0, 1);
+    agedge(g, v1, v4, 0, 1);
+
+    return v1;
 }
 
 int MethodDecl::calculateFormalSize()
@@ -100,7 +107,7 @@ int MethodDecl::calculateLocalSize()
     return size;
 }
 
-struct compiler_ret ClassDecl::compile()
+void ClassDecl::compile()
 {
     std::list<MethodDecl*>::iterator it;
     std::list<Statement*>::iterator stmt_it;

@@ -382,8 +382,6 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
 
     frame_tbl = new SymbolTable(instance_symt);
 
-    instance_symt->printTable();
-
     if (!instance_symt->checkIfDeclared(func_id))
         std::cerr << "WARNING: Called nonexisting function!" << std::endl;
 
@@ -393,8 +391,6 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
 
     exp_it = explist->begin();
     var_it = func->formals->begin();
-
-    st->printTable();
 
     while (exp_it != explist->end())
     {
@@ -428,12 +424,10 @@ struct interp_ret MethodExpression::interp(SymbolTable* st)
     }
 
     frame_tbl->parseVars(func->decls);
-    st->printTable();
 
     for (stmt_it = func->stmts->begin(); stmt_it != func->stmts->end(); ++stmt_it)
         (*stmt_it)->interp(frame_tbl);
 
-    frame_tbl->printTable();
     exp_ret = func->exp->interp(frame_tbl);
     return exp_ret;
 }

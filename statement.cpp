@@ -146,7 +146,6 @@ struct interp_ret WhileStatement::interp(SymbolTable* st=NULL)
     struct interp_ret cnd;
     bool cnd_bool;
 
-    st->printTable();
     cnd = cndexp->interp(st);
 
     switch (cnd.is)
@@ -167,7 +166,6 @@ struct interp_ret WhileStatement::interp(SymbolTable* st=NULL)
 
     while (cnd_bool)
     {
-        st->printTable();
         ret = whilestmt->interp(st);
         cnd = cndexp->interp(st);
         switch (cnd.is)
@@ -242,8 +240,6 @@ struct interp_ret VarAssignment::interp(SymbolTable* st=NULL)
             st->table[id->token]->val.as_arr = ret.val.as_arr;
         break;
     }
-
-    st->printTable();
 
     return ret;
 }
@@ -375,8 +371,6 @@ struct compiler_ret ArrayAssignment::compile(SymbolTable* st)
 
     ret2 = exp2->compile(st, &used, X86_NO_REG);
     ret1 = exp1->compile(st, &used, X86_NO_REG);
-
-    st->printTable();
 
     Symbol* symbol = st->table[id->token];
     if (symbol->where == ST_CLASS)

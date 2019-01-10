@@ -16,6 +16,7 @@ letter        [a-zA-Z_]
 %option noyywrap
 %option noinput
 %option nounput
+%option yylineno
 
 %%
 

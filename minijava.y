@@ -13,8 +13,8 @@
 
 extern "C" {
     extern int yylex();
-    extern int yyparse(Program**);
     extern FILE *yyin;
+    extern int yylineno;
 }
 
 void yyerror(Program** p, const char *s);
@@ -103,8 +103,6 @@ void yyerror(Program** p, const char *s);
 %type <stmt> NonAssignStmt
 %type <stmt> Assignment
 %type <type> Type
-/*%type <type> PrimitiveType */
-/*%type <type> CustomType */
 %type <vardecls> FormalList
 %type <vardecls> FormalRest
 %type <methoddecls> MethodDecls
@@ -114,6 +112,8 @@ void yyerror(Program** p, const char *s);
 %type <classdecl> ClassDecl
 %type <classdecls> ClassDecls
 %type <mainclass> MainClass
+
+%locations
 
 /*%define parse.trace*/
 %%
@@ -264,19 +264,7 @@ ExpRest:
     ;
 
 %%
-int main(){
-    //yydebug = 1;
-    Program* program;
-    yyin = stdin;
-    yyparse(&program);
-    //program->generateGraphViz();
-    //Type::printDeclaredTypes();
-    //program->interp();
-
-    program->compile();
-    return 0;
-}
-
 void yyerror(Program** p, const char *s) {
-	printf ("Error: %s\n", s);
+	fprintf (stderr, "Error at line %d: %s\n", yylineno, s);
+    exit(1);
 }

@@ -49,13 +49,14 @@ void Program::compile()
     std::cout << "extern malloc" << std::endl;
     std::cout << "global _start" << std::endl << std::endl;
 
+    if (cd != NULL)
+    {
+        for (it = cd->begin(); it != cd->end(); it++)
+            Type::declareType((*it)->name->token, *it);
 
-    for (it = cd->begin(); it != cd->end(); it++)
-        Type::declareType((*it)->name->token, *it);
-
-    for (it = cd->begin(); it != cd->end(); it++)
-        (*it)->compile();
-
+        for (it = cd->begin(); it != cd->end(); it++)
+            (*it)->compile();
+    }
     mc->compile();
 
     std::cout << "mov eax, 1" << std::endl;
